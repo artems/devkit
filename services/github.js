@@ -1,79 +1,70 @@
 'use strict';
 
 import GitHub from 'github';
-import assign from 'object-assign';
 
-export default function(options, imports, provide) {
+class GitHubService {
 
   /**
    * @constructor
+   * @param {Object} model - pull request model
+   * @param {Object} options
    */
-  constructor(options) {
+  constructor(model, options) {
     this.api = new GitHub(options);
     this.api.authenticate(options.authenticate);
 
-    this.topSeparator = options['top-separator'];
-    this.bottomSeparator = options['bottom-separator'];
-    this.replaceRegExp = options['replace-regexp'];
+    this.model = model;
 
-    if (!options.pullRequest) {
-      throw new Error('model `pullRequest` is required');
-    }
-
-    this.pullRequestModel = options.pullRequest;
+    this.topSeparator = options['top-separator'] || '<hr>';
+    this.bottomSeparator = options['bottom-separator'] || '<hr>';
   }
 
-  loadPullRequest(pullRequestLocal) {
+  loadPullRequest(local) {
     return new Promise((resolve, reject) => {
       const req = {
-        user: pullRequestLocal.org,
-        repo: pullRequestLocal.repo,
-        number: pullRequestLocal.number
+        user: local.org,
+        repo: local.repo,
+        number: local.number
       };
 
-      this.api.pullRequests.get(req, (error, pullRequestRemote) => {
+      this.api.pullRequests.get(req, (error, remote) => {
         error
           ? reject(new Error('Can not receive the pull request from github: ' + error))
-          : resolve(pullRequestRemote);
+          : resolve(remote);
       });
     });
   }
 
-  savePullRequest(pullRequestRemote) {
+  savePullRequest(remote) {
     return new Promise((resolve, reject) => {
-      this.pullRequestModel
-        .findById(pullRequestRemote.Id)
-        .then(pullRequestLocal => {
-          if (!pullRequestLocal) {
+      this.model
+        .findById(remote.id)
+        .then(local => {
+          if (!local) {
             return reject(
-              new Error('Pull request `' + pullRequestRemote.Id + '` not found')
+              new Error('Pull request `' + remote.id + '` not found')
             );
           }
 
-          pullRequestLocal = assign(pullRequestLocal, pullRequestRemote);
-          this.pullRequestModel.save(pullRequestLocal, (error) => {
+          local = this.model.set(local, remote);
+
+          this.model.save(local, (error) => {
             error
               ? reject(new Error('Can not save the pull request from github: ' + error))
-              : resolve(pullRequestLocal);
+              : resolve(local);
           });
         });
     });
   }
 
-  updatePullRequestLocal(pullRequestLocal) {
-    return this
-      .loadPullRequest(pullRequestLocal)
-      .then(this.savePullRequest.bind(this));
-  }
-
-  updatePullRequestRemote(pullRequestLocal) {
+  updatePullRequest(local) {
     return new Promise((resolve, reject) => {
       const req = {
-        user: pullRequestLocal.org,
-        repo: pullRequestLocal.repo,
-        body: pullRequestLocal.body,
-        title: pullRequestLocal.title,
-        number: pullRequestLocal.number
+        user: local.org,
+        repo: local.repo,
+        body: local.body,
+        title: local.title,
+        number: local.number
       };
 
       this.api.pullRequests.update(req, error => {
@@ -81,59 +72,90 @@ export default function(options, imports, provide) {
           reject(new Error('Can not update the pull request description: ' + error));
         }
 
-        resolve(pullRequestLocal);
+        resolve(local);
       });
     });
   }
 
-  loadPullRequestFiles(pullRequestLocal) {
+  loadPullRequestFiles(local) {
     return new Promise((resolve, reject) => {
       const req = {
-        user: pullRequestLocal.org,
-        repo: pullRequestLocal.repo,
-        number: pullRequestLocal.number,
+        user: local.org,
+        repo: local.repo,
+        number: local.number,
         per_page: 100
       };
 
       this.api.pullRequests.getFiles(req, (error, files) => {
         error
           ? reject(new Error('Can not receive files from the pull request: ' + error))
-          : resolve(files.map(file => { file.patch = ''; return file; }));
+          : resolve(files.map(file => { delete file.patch; return file; }));
       });
     });
   }
 
-  setBodySection(pullRequestId, sectionId, content) {
-    return this.pullRequestModel
-      .findById(pullRequestId)
-      .then(pullRequestLocal => {
-        if (!pullRequestLocal) {
+  syncPullRequest(local) {
+    return this
+      .loadPullRequest(local)
+      .then(remote => this.savePullRequest(remote));
+  }
+
+  setBodySection(id, sectionId, content) {
+    return this.model
+      .findById(id)
+      .then(local => {
+        if (!local) {
           return Promise.reject(new Error(
-            'Pull request `' + pullRequestId + '` not found'
+            'Pull request `' + id + '` not found'
           ));
         }
-        return this.updatePullRequestLocal(pullRequestLocal);
+        return this.syncPullRequest(local);
       })
-      .then(pullRequestLocal => {
-        pullRequestLocal.body_section[sectionId] = content;
+      .then(local => {
+        local.section[sectionId] = content;
+        this.fillPullRequstBody(local);
 
-        pullRequestLocal.body = this.joinBodySections(pullRequestLocal);
-
-        return this.pullRequestModel.save(pullRequestLocal);
+        return this.model.save(local);
       })
-      .then(this.updatePullRequestRemote.bind(this));
+      .then(this.updatePullRequest.bind(this));
   }
 
-  joinBodySections(pullRequestLocal) {
-
-    const allSections = Object.keys(pullRequestLocal.body_section);
+  fillPullRequestBody(local) {
+    const allSections = Object.keys(local.section);
     const bodyContent = allSections.map(key =>
-      '<div>' + pullRequestLocal.body_section[key] + '</div>'
+      '<div>' + local.section[key] + '</div>'
     );
+    const bodyExtra = this.topSeparator + bodyContent + this.bottomSeparator;
 
-    const bodyExtra = this.topSeparator + content + this.bottomSeparator;
-    return pullRequestLocal.body.replace(this.replaceRegExp, '') + bodyExtra;
-
+    local.body = this.cleanBody(local.body) + bodyExtra;
   }
+
+  cleanPullRequestBody(body) {
+    const start = body.indexOf(this.topSeparator);
+    if (start !== -1) {
+      const before = body.substr(0, start);
+
+      const end = body.indexOf(this.bottomSeparator, start + 1);
+      if (end !== -1) {
+        const after = body.substr(end + this.bottomSeparator.length);
+
+        return before.trim() + after.trim();
+      }
+
+      return before.trim();
+    }
+
+    return body;
+  }
+
+}
+
+export default function (options, imports, provide) {
+
+  const model = imports.ORM.get('pull_request');
+
+  const github = new GitHubService(model, options);
+
+  provide(github);
 
 }
