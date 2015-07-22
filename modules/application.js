@@ -2,6 +2,9 @@
 
 import path from 'path';
 
+// TODO wrap service into domain
+// TODO policy for service restart
+// TODO timeout for service startup
 class Application {
 
   /**
@@ -41,7 +44,7 @@ class Application {
    */
   nextRound() {
     if (this.awaiting === 0) {
-      this.promise.resolve();
+      this.promise.resolve(this.resolved);
       return;
     }
 

@@ -9,6 +9,16 @@
         "port": "8080"
       },
       "dependencies": [
+        "badge",
+        "logger"
+      ]
+    },
+    "badge": {
+      "path": "./services/badge",
+      "options": {
+        "templatePath": "./assets/shields/"
+      },
+      "dependencies": [
         "logger"
       ]
     },

@@ -1,25 +1,27 @@
 'use strict';
 
 import path from 'path';
-import proxy from 'proxy-express';
 import express from 'express';
 
-import React from 'react';
-import Router from 'react-router';
+import proxy from 'proxy-express';
+import responseTime from 'response-time';
 
 export default function (options, imports, provide) {
 
   const app = express();
   const port = options.port || 8080;
+  const badge = imports.badge;
   const logger = imports.logger;
 
   const assetsPath = path.join(__dirname, '..', 'assets');
+
+  app.use(responseTime());
 
   app.get('/', function (req, res) {
     res.sendFile(path.join(assetsPath, 'index.html'));
   });
 
-  // app.get('/api', require('./http/api'));
+  app.get('/badge/*', require('./http/badge')('/badge/', badge));
 
   if (process.env.WEBPACK) {
     app.use(proxy('localhost:8081', '/public'));
@@ -27,7 +29,7 @@ export default function (options, imports, provide) {
     app.use('/public', express.static(assetsPath));
   }
 
-  const server = app.listen(port, function () {
+  const server = app.listen(port, () => {
     logger.info(
       'Server listening at %s:%s',
       server.address().address,
