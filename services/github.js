@@ -46,7 +46,7 @@ class GitHubService {
             );
           }
 
-          local = this.model.set(local, remote);
+          local = this.model.extend(local, remote);
 
           this.model.save(local, (error) => {
             error
@@ -152,10 +152,12 @@ class GitHubService {
 
 export default function (options, imports, provide) {
 
-  const model = imports.ORM.get('pull_request');
+  imports.ORM.get('pull_request').then(model => {
 
-  const github = new GitHubService(model, options);
+    const github = new GitHubService(model, options);
 
-  provide(github);
+    provide(github);
+
+  });
 
 }
