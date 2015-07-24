@@ -46,7 +46,7 @@ class GitHubService {
             );
           }
 
-          local = this.model.extend(local, remote);
+          this.model.set(local, remote);
 
           this.model.save(local, (error) => {
             error

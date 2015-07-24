@@ -18,9 +18,14 @@
       "options": {
         "templatePath": "./assets/shields/"
       },
-      "dependencies": [
-        "logger"
-      ]
+      "dependencies": ["logger"]
+    },
+    "mongoose": {
+      "path": "./services/mongoose",
+      "options": {
+        "host": "mongodb://localhost/devexp"
+      },
+      "dependencies": ["logger"]
     },
     "logger": {
       "path": "./services/logger",

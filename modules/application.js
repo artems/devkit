@@ -5,6 +5,7 @@ import path from 'path';
 // TODO wrap service into domain
 // TODO policy for service restart
 // TODO timeout for service startup
+// TODO shutdown services after error while starting
 class Application {
 
   /**
@@ -117,7 +118,7 @@ class Application {
     this.awaiting--;
     delete this.services[name];
 
-    serviceModule(options, imports, (result) => {
+    serviceModule(options, imports, result => {
       this.resolved[name] = result;
       this.nextRound();
     });
