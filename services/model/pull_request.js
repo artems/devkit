@@ -1,10 +1,10 @@
 'use strict';
 
+import { Schema } from 'mongoose';
+
 const REPO_REGEX = /repos\/(.*\/.*)\/pulls/;
 
 export default function pullRequest(setup, mongoose) {
-
-  const Schema = mongoose.Schema;
 
   const schema = {
     id: Number,

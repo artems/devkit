@@ -19,8 +19,10 @@
   "precommit.silent": true,
   "dependencies": {
     "babel": "^5.8.3",
+    "body-parser": "^1.13.2",
     "ejs": "^2.3.3",
     "express": "^4.13.1",
+    "github": "^0.2.4",
     "lodash": "^3.10.0",
     "mongoose": "^4.0.8",
     "object-assign": "^3.0.0",
@@ -29,6 +31,7 @@
     "react-router": "^0.13.3",
     "recluster": "^0.4.0",
     "response-time": "^2.3.1",
+    "setimmediate": "^1.0.2",
     "winston": "^1.0.1"
   },
   "devDependencies": {

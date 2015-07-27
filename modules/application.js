@@ -16,6 +16,7 @@ class Application {
   constructor(config, basePath) {
     this.services = config.services || {};
 
+    this.starting = {};
     this.resolved = {};
     this.executed = false;
     this.basePath = basePath || '.';
@@ -60,10 +61,12 @@ class Application {
     }
 
     if (startedInThisRound === 0) {
-      const names = Object.keys(this.services).join(', ');
-      this.promise.reject(
-        'Circular dependency detected while resolving ' + names
-      );
+      if (Object.keys(this.starting).length == 0) {
+        const names = Object.keys(this.services).join(', ');
+        this.promise.reject(
+          'Circular dependency detected while resolving ' + names
+        );
+      }
     }
   }
 
@@ -85,9 +88,10 @@ class Application {
       if (!(dependence in this.resolved)) {
         resolved = false;
       }
+
       if (
         !(dependence in this.services)
-        && !(dependence in this.resolved)
+        && !(dependence in this.starting)
       ) {
         this.promise.reject(
           'Dependence `' + dependence + '` on `' + name + '` not found'
@@ -116,11 +120,16 @@ class Application {
     });
 
     this.awaiting--;
+
     delete this.services[name];
+    this.starting[name] = true;
 
     serviceModule(options, imports, result => {
-      this.resolved[name] = result;
-      this.nextRound();
+      setImmediate(() => {
+        this.starting[name] = false;
+        this.resolved[name] = result;
+        this.nextRound();
+      });
     });
   }
 

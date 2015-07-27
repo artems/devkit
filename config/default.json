@@ -10,7 +10,10 @@
       },
       "dependencies": [
         "badge",
-        "logger"
+        "model",
+        "logger",
+        "events",
+        "github"
       ]
     },
     "badge": {
@@ -19,6 +22,39 @@
         "templatePath": "./assets/shields/"
       },
       "dependencies": ["logger"]
+    },
+    "github": {
+      "path": "./services/github",
+      "options": {
+        "debug": false,
+        "version": "3.0.0",
+        "protocol": "https",
+        "host": "api.github.com",
+        "timeout": 5000,
+        "headers": {
+          "user-agent": "DevKit-App"
+        },
+        "authenticate": {
+          "type":  "token",
+          "token": "597ef57755da36432ff65a2153cfc720cd5d0214"
+        },
+        "separator": {
+          "top": "<span id='devexp-content-top'></span><hr>",
+          "bottom": "<span id='devexp-content-bottom'></span>"
+        }
+      },
+      "dependencies": ["model"]
+    },
+    "model": {
+      "path": "./services/model",
+      "options": {
+        "addons": {
+          "pull_request": [
+            "./github/addons/pull_request"
+          ]
+        }
+      },
+      "dependencies": ["mongoose"]
     },
     "mongoose": {
       "path": "./services/mongoose",
@@ -34,6 +70,9 @@
           { "name": "console", "timestamp": true, "colorize": true }
         ]
       }
+    },
+    "events": {
+      "path": "./services/events"
     }
   }
 }

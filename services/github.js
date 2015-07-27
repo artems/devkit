@@ -15,8 +15,10 @@ class GitHubService {
 
     this.model = model;
 
-    this.topSeparator = options['top-separator'] || '<hr>';
-    this.bottomSeparator = options['bottom-separator'] || '<hr>';
+    this.topSeparator = options.separator.top ||
+      '<span id="devkit-top"></span><hr>';
+    this.bottomSeparator = options.separator.bottom ||
+      '<span id="devkit-bottom"></span>';
   }
 
   loadPullRequest(local) {
@@ -152,12 +154,9 @@ class GitHubService {
 
 export default function (options, imports, provide) {
 
-  imports.ORM.get('pull_request').then(model => {
+  const model = imports.model;
+  const github = new GitHubService(model.get('pull_request'), options);
 
-    const github = new GitHubService(model, options);
-
-    provide(github);
-
-  });
+  provide(github);
 
 }

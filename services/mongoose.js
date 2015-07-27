@@ -9,6 +9,8 @@ export default function (options, imports, provide) {
 
   connection
     .on('open', function () {
+      logger.info('Mongodb connected to %s:%s', connection.host, connection.port);
+
       provide(connection);
     })
     .on('error', function (error) {
