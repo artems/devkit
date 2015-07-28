@@ -73,17 +73,6 @@
     },
     "events": {
       "path": "./services/events"
-    },
-    "team": {
-      "path": "./services/team",
-      "options": {
-        "sources": {
-          "github": "./github/team"
-        },
-        "github": {
-          "organization": "*"
-        }
-      }
     }
   }
 }
