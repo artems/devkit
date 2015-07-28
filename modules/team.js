@@ -18,12 +18,14 @@ export default class Team {
    * @return {Array<Developer>}
    */
   findByPullRequest(pullRequest) {
-    for (let i = 0; i < this.route.length; i++) {
+    for (let i = 0; i < this.routes.length; i++) {
       const route = this.routes[i];
       if (this.matchRoute(route.pattern, pullRequest)) {
-        return rule.source.getTeam(pullRequest);
+        return route.source(pullRequest);
       }
     }
+
+    return [];
   }
 
   matchRoute(pattern, pullRequest) {

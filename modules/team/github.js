@@ -31,7 +31,7 @@ export default class GitHubTeam {
 
       this.github.orgs.getMembers(req, (error, result) => {
         if (error) {
-          return reject('GitHub API error: ' + error);
+          return reject(new Error('GitHub API error: ' + error));
         }
 
         resolve(result);
@@ -43,13 +43,13 @@ export default class GitHubTeam {
     return new Promise((resolve, reject) => {
       this.github.orgs.getTeams({ org: orgName, per_page: 100 }, (error, result) => {
         if (error) {
-          return reject('GitHub API error: ' + error);
+          return reject(new Error('GitHub API error: ' + error));
         }
 
-        const team = _.take(_.filter(result, { slug: teamName }), 1);
+        const team = _.head(_.filter(result, { slug: teamName }), 1);
 
         if (!team) {
-          return reject('GitHub API: Slug `' + teamName + '` not found');
+          return reject(new Error('GitHub API: Slug `' + teamName + '` not found'));
         }
 
         resolve(team.id);
@@ -61,7 +61,7 @@ export default class GitHubTeam {
     return new Promise((resolve, reject) => {
       const req = { id: teamId, per_page: 100 };
 
-      this.github.orgs.getTeamMembers(red, (error, result) => {
+      this.github.orgs.getTeamMembers(req, (error, result) => {
         if (error) {
           return reject('GitHub API error: ' + error);
         }

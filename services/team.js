@@ -32,16 +32,17 @@ export default function (options, imports, provide) {
   (options.routes || []).forEach(route => {
     _.forEach(route, (sourceName, pattern) => {
       const source = imports[sourceName];
+      const getTeam = source.getTeam.bind(source);
 
       if (!source) {
         throw new Error('Source `' + sourceName + '` for team service does not provided');
       }
 
       if (!Array.isArray(patten)) {
-        routes.push({ source, pattern });
+        routes.push({ source: getTeam, pattern });
       } else {
         pattern.forEach(sourcePattern => {
-          routes.push({ source, pattern: sourcePattern });
+          routes.push({ source: getTeam, pattern: sourcePattern });
         });
       }
     });
