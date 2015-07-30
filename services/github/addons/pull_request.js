@@ -1,3 +1,5 @@
+import { Schema } from 'mongoose';
+
 /**
  * Extend PullRequest model which adds extra body content field.
  * Extra body entry format: { uniqId: 'content' }.
@@ -7,7 +9,7 @@
 export function extender() {
 
   return {
-    section: Object
+    section: Schema.Types.Mixed
   };
 
 }

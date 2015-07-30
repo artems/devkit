@@ -1,6 +1,6 @@
-describe('application', function () {
+import Application from '../../application';
 
-    const Application = require('../../application');
+describe('modules/application', function () {
 
     let app, config;
 
