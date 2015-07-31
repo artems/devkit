@@ -2,10 +2,10 @@
 
 import Badge from '../modules/badge';
 
-export default function (options, imports, provide) {
+export default function (options, imports) {
 
   const badge = new Badge(options);
 
-  provide(badge);
+  return Promise.resolve({ service: badge });
 
 }

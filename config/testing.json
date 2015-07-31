@@ -1,0 +1,51 @@
+{
+  "cluster": {
+    "workers": 1
+  },
+
+  "services": {
+  },
+
+  "service_examples": {
+
+    "events": {
+      "path": "./services/events"
+    },
+
+    "logger": {
+      "path": "./services/logger",
+      "options": {
+        "transports": []
+      }
+    },
+
+    "http": {
+      "path": "./services/http",
+      "options": {
+        "port": "7070"
+      },
+      "dependencies": ["events", "logger"]
+    },
+
+    "mongoose": {
+      "path": "./services/mongoose",
+      "options": {
+        "host": "mongodb://localhost/devexp_test"
+      },
+      "dependencies": ["logger"]
+    },
+
+    "model": {
+      "path": "./services/model",
+      "options": {
+        "addons": {
+          "pull_request": [
+            "./github/addons/pull_request"
+          ]
+        }
+      },
+      "dependencies": ["mongoose"]
+    }
+
+  }
+}

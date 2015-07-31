@@ -11,6 +11,7 @@
   "scripts": {
     "test": "mocha -r ./tests/setup.js -R spec modules/**/__tests__/*.js",
     "_test": "npm run test --silent || true",
+    "test:heavy": "mocha -r ./tests/setup.js -R spec tests/int/*.js --compilers js:babel/register",
     "watch:test": "mocha -w -r ./tests/setup.js -R spec modules/**/__tests__/*.js",
     "coverage": "babel-node ./node_modules/.bin/isparta cover --report text --report html ./node_modules/.bin/_mocha -- -r ./tests/setup.js -R dot modules/**/__tests__/*.js",
     "_coverage": "npm run coverage --silent || true",

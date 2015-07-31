@@ -12,7 +12,7 @@ import responseJSON from './http/response';
 import badgeRouter from './badge/routes';
 import githubRouter from './github/routes';
 
-export default function (options, imports, provide) {
+export default function (options, imports) {
 
   const app = express();
   const port = options.port || 8080;
@@ -38,14 +38,25 @@ export default function (options, imports, provide) {
     app.use('/public', express.static(assetsPath));
   }
 
-  const server = app.listen(port, () => {
-    logger.info(
-      'Server listening at %s:%s',
-      server.address().address,
-      server.address().port
-    );
+  return new Promise((resolve) => {
+    const server = app.listen(port, () => {
+      logger.info(
+        'Server listening at %s:%s',
+        server.address().address,
+        server.address().port
+      );
 
-    provide(server);
+      const shutdown = function () {
+        return new Promise((resolve, reject) => {
+          server.close(function (error) {
+            error ? reject(error) : resolve();
+          });
+        });
+      };
+
+      resolve({ service: server, shutdown });
+    });
+
   });
 
 }

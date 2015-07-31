@@ -152,11 +152,12 @@ class GitHubService {
 
 }
 
-export default function (options, imports, provide) {
+export default function (options, imports) {
 
   const model = imports.model;
   const github = new GitHubService(model.get('pull_request'), options);
 
-  provide(github);
+
+  return Promise.resolve({ service: github });
 
 }

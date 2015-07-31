@@ -118,7 +118,7 @@ class ReviewService {
   }
 }
 
-export default function (options, imports, provide) {
+export default function (options, imports) {
 
   const model = imports.model;
   const github = new ReviewService(model.get('pull_request'), options);

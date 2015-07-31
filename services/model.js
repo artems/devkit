@@ -6,7 +6,7 @@ import { Schema } from 'mongoose';
 import { AddonBroker } from '../modules/model';
 import * as pullRequest from '../modules/model/pull_request';
 
-export default function (options, imports, provide) {
+export default function (options, imports) {
 
   const mongoose = imports.mongoose;
 
@@ -44,12 +44,12 @@ export default function (options, imports, provide) {
 
   setup('pull_request', pullRequest);
 
-  provide({
-
-    get(modelName) {
-      return mongoose.model(modelName);
+  return Promise.resolve({
+    service: {
+      get(modelName) {
+        return mongoose.model(modelName);
+      }
     }
-
   });
 
 }

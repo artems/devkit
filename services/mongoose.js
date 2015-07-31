@@ -2,19 +2,29 @@
 
 import mongoose from 'mongoose';
 
-export default function (options, imports, provide) {
+export default function (options, imports) {
 
   const logger = imports.logger;
   const connection = mongoose.createConnection(options.host);
 
-  connection
-    .on('open', function () {
-      logger.info('Mongodb connected to %s:%s', connection.host, connection.port);
-
-      provide(connection);
-    })
-    .on('error', function (error) {
-      logger.error(error);
+  const shutdown = function () {
+    return new Promise((resolve, reject) => {
+      connection.close(function (error) {
+        error ? reject(error) : resolve();
+      });
     });
+  };
+
+  return new Promise((resolve, reject) => {
+    connection
+      .on('open', function () {
+        logger.info('Mongodb connected to %s:%s', connection.host, connection.port);
+        resolve({ service: connection, shutdown });
+      })
+      .on('error', function (error) {
+        logger.error(error);
+        reject(error);
+      });
+  });
 
 }

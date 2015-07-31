@@ -2,7 +2,7 @@
 
 import winston, { Logger } from 'winston';
 
-export default function (options, imports, provide) {
+export default function (options, imports) {
 
   const transports = options.transports.map(transport => {
     if (!('timestamp' in transport)) {
@@ -27,6 +27,6 @@ export default function (options, imports, provide) {
 
   const logger = new Logger({ transports });
 
-  provide(logger);
+  return Promise.resolve({ service: logger });
 
 }

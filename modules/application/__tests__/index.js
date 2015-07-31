@@ -10,16 +10,16 @@ describe('modules/application', function () {
       config = {
         services: {
           serviceA: {
-            module: function (o, i, provide) {
+            module: function (o, i) {
               order.push('serviceA');
-              provide('moduleA');
+              return Promise.resolve({ service: 'moduleA' });
             },
             dependencies: ['serviceB']
           },
           serviceB: {
-            module: function (o, i, provide) {
+            module: function (o, i) {
               order.push('serviceB');
-              provide('moduleB');
+              return Promise.resolve({ service: 'moduleB' });
             }
           }
         }
@@ -44,19 +44,25 @@ describe('modules/application', function () {
       config = {
         services: {
           serviceA: {
-            module: function (o, i, provide) {
-              setTimeout(function () { provide('moduleA') }, 40);
+            module: function (o, i) {
+              return new Promise(resolve => {
+                setTimeout(function () { resolve({ service: 'moduleA' }) }, 40);
+              });
             },
             dependencies: ['serviceB', 'serviceC']
           },
           serviceB: {
-            module: function (o, i, provide) {
-              setTimeout(function () { provide('moduleB') }, 60);
+            module: function (o, i) {
+              return new Promise(resolve => {
+                setTimeout(function () { resolve({ service: 'moduleB' }) }, 60);
+              });
             }
           },
           serviceC: {
-            module: function (o, i, provide) {
-              setTimeout(function () { provide('moduleC') }, 80);
+            module: function (o, i) {
+              return new Promise(resolve => {
+                setTimeout(function () { resolve({ service: 'moduleC' }) }, 80);
+              });
             }
           }
         }
@@ -72,19 +78,19 @@ describe('modules/application', function () {
       config = {
         services: {
           serviceA: {
-            module: function (o, i, provide) {
+            module: function (o, i) {
               assert.equal(o.A, 'A');
               assert.equal(o.B, 'B');
               assert.equal(i.serviceB, 'moduleB');
 
-              provide('moduleA');
+              return Promise.resolve({ service: 'moduleA' });
             },
             options: { A: 'A', B: 'B' },
             dependencies: ['serviceB']
           },
           serviceB: {
-            module: function (o, i, provide) {
-              provide('moduleB');
+            module: function (o, i) {
+              return Promise.resolve({ service: 'moduleB' });
             }
           }
         }
@@ -102,20 +108,20 @@ describe('modules/application', function () {
       config = {
         services: {
           serviceA: {
-            module: function (o, i, provide) {
-              provide('moduleA');
+            module: function (o, i) {
+              return Promise.resolve({ service: 'moduleA' });
             },
             dependencies: ['serviceB']
           },
           serviceB: {
-            module: function (o, i, provide) {
-              provide('moduleB');
+            module: function (o, i) {
+              return Promise.resolve({ service: 'moduleB' });
             },
             dependencies: ['serviceC']
           },
           serviceC: {
-            module: function (o, i, provide) {
-              provide('moduleC');
+            module: function (o, i) {
+              return Promise.resolve({ service: 'moduleC' });
             },
             dependencies: ['serviceA']
           }
@@ -138,8 +144,8 @@ describe('modules/application', function () {
       config = {
         services: {
           serviceA: {
-            module: function (o, i, provide) {
-              provide('moduleA');
+            module: function (o, i) {
+              return Promise.resolve({ service: 'moduleA' });
             },
             dependencies: ['serviceB']
           }
@@ -156,14 +162,14 @@ describe('modules/application', function () {
         });
     });
 
-    it('should not allow to execute a application twice', function () {
+    it('should not allow to execute an application twice', function () {
       app = new Application();
 
       app.execute();
 
       assert.throws(
         app.execute.bind(app),
-        /can not execute a application twice/i
+        /can not execute an application twice/i
       );
     });
 

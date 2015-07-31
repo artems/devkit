@@ -25,7 +25,7 @@ Example of config:
 
 */
 
-export default function (options, imports, provide) {
+export default function (options, imports) {
 
   let routes = [];
 
@@ -50,6 +50,6 @@ export default function (options, imports, provide) {
 
   const team = new Team(routes);
 
-  provide(team);
+  return Promise.resolve({ service: team });
 
 }

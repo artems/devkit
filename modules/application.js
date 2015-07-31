@@ -3,9 +3,7 @@
 import path from 'path';
 
 // TODO wrap service into domain
-// TODO policy for restart service
 // TODO timeout for service startup
-// TODO shutdown services after error while starting
 export default class Application {
 
   /**
@@ -19,21 +17,24 @@ export default class Application {
 
     this.starting = {};
     this.resolved = {};
+    this.teardown = {};
 
     this.promise = null;
+    this.started = false;
+    this.stoping = false;
     this.executed = false;
     this.basePath = basePath || '.';
     this.awaiting = Object.keys(this.services).length;
   }
 
   /**
-   * Run a application.
+   * Run an application.
    *
    * @return {Promise}
    */
   execute() {
     if (this.executed) {
-      throw new Error('Can not execute a application twice');
+      throw new Error('Can not execute an application twice');
     }
 
     return new Promise((resolve, reject) => {
@@ -45,6 +46,26 @@ export default class Application {
   }
 
   /**
+   * Graceful shutdown an application.
+   *
+   * @return {Promise}
+   */
+  shutdown() {
+    if (!this.started) {
+      throw new Error('The application can not shutdown until fully started');
+    }
+
+    this.stoping = true;
+
+    const promise = [];
+    for (const name in this.teardown) {
+      promise.push(this.teardown[name]());
+    }
+
+    return Promise.all(promise).then(() => {});
+  }
+
+  /**
    * Launching a new round.
    * Each round method checks whitch of services can be started.
    * Trigger deadlock exception when there are no awaiting services and no one of services started in the last round.
@@ -53,6 +74,7 @@ export default class Application {
    */
   nextRound() {
     if (this.awaiting === 0) {
+      this.started = true;
       this.promise.resolve(this.resolved);
       return;
     }
@@ -136,13 +158,13 @@ export default class Application {
     this.starting[name] = true;
     this.awaiting--;
 
-    serviceModule(options, imports, result => {
-      setImmediate(() => {
+    serviceModule(options, imports)
+      .then(result => {
         this.starting[name] = false;
-        this.resolved[name] = result;
+        this.resolved[name] = result.service;
+        this.teardown[name] = result.shutdown || function() { return Promise.resolve(); };
         this.nextRound();
       });
-    });
   }
 
 }
