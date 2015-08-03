@@ -1,5 +1,6 @@
 'use strict';
 
+import _ from 'lodash';
 import path from 'path';
 import express from 'express';
 
@@ -8,9 +9,6 @@ import bodyParser from 'body-parser';
 import responseTime from 'response-time';
 
 import responseJSON from './http/response';
-
-import badgeRouter from './badge/routes';
-import githubRouter from './github/routes';
 
 export default function (options, imports) {
 
@@ -29,8 +27,10 @@ export default function (options, imports) {
     res.sendFile(path.join(assetsPath, 'index.html'));
   });
 
-  app.use('/badge', badgeRouter(imports));
-  app.use('/github', githubRouter(imports));
+  _.forEach(options.routes || {}, (router, route) => {
+    let routerModule = require(router);
+    app.use(route, routerModule(imports));
+  });
 
   if (process.env.WEBPACK) {
     app.use(proxy('localhost:8081', '/public'));

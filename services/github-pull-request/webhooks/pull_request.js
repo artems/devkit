@@ -4,11 +4,14 @@
  * @param {Object} body - github webhook payload.
  * @return {Promise}
  */
-export default function webhook(payload, PullRequest, imports) {
+export default function webhook(payload, imports) {
 
+  const model = imports.model;
   const logger = imports.logger;
   const github = imports.github;
   const events = imports.events;
+
+  const PullRequest = model.get('pull_request');
 
   logger.info(
     'WebHook triggered for pull #%s, action=%s',
@@ -16,13 +19,17 @@ export default function webhook(payload, PullRequest, imports) {
     payload.action
   );
 
+  const pullRequestWebhook = payload.pull_request;
+  pullRequestWebhook.repository = payload.repository;
+  pullRequestWebhook.organization = payload.organization;
+
   return PullRequest
-    .findById(payload.pull_request.id).exec()
+    .findById(pullRequestWebhook.id).exec()
     .then(pullRequest => {
       if (!pullRequest) {
-        pullRequest = new PullRequest(payload.pull_request);
+        pullRequest = new PullRequest(pullRequestWebhook);
       } else {
-        pullRequest.set(payload.pull_request);
+        pullRequest.set(pullRequestWebhook);
       }
 
       return github

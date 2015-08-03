@@ -6,14 +6,53 @@
     "http": {
       "path": "./services/http",
       "options": {
-        "port": "8080"
+        "port": "8080",
+        "routes": {
+          "/github": "../services/github-pull-request/routes"
+        }
       },
       "dependencies": [
-        "badge",
-        "model",
-        "logger",
         "events",
+        "logger",
+        "model",
+        "github-pull-request"
+      ],
+      "alias": {
+        "github-pull-request": "github"
+      }
+    },
+    "team": {
+      "path": "./services/team",
+      "options": {
+        "routes": [
+          { "team_github": ["*/*"] }
+        ]
+      },
+      "dependencies": [
+        "logger",
+        "team_github"
+      ]
+    },
+    "team_github": {
+      "path": "./services/team_github",
+      "options": {
+        "team": "owners"
+      },
+      "dependencies": [
         "github"
+      ]
+    },
+    "review": {
+      "path": "./services/review",
+      "options": {
+        "stages": [
+        ]
+      },
+      "dependencies": [
+        "logger",
+        "model",
+        "events",
+        "team"
       ]
     },
     "badge": {
@@ -34,10 +73,6 @@
         "headers": {
           "user-agent": "DevKit-App"
         },
-        "authenticate": {
-          "type":  "token",
-          "token": "597ef57755da36432ff65a2153cfc720cd5d0214"
-        },
         "separator": {
           "top": "<span id='devexp-content-top'></span><hr>",
           "bottom": "<span id='devexp-content-bottom'></span>"
@@ -45,12 +80,21 @@
       },
       "dependencies": ["model"]
     },
+    "github-pull-request": {
+      "path": "./services/github-pull-request",
+      "options": {
+      },
+      "dependencies": [
+        "github",
+        "model"
+      ]
+    },
     "model": {
       "path": "./services/model",
       "options": {
         "addons": {
           "pull_request": [
-            "./github/addons/pull_request"
+            "../modules/github-pull-request/addons/pull_request"
           ]
         }
       },
@@ -73,6 +117,14 @@
     },
     "events": {
       "path": "./services/events"
+    },
+    "review_autoassign": {
+      "path": "./services/review_autoassign",
+      "dependencies": [
+        "logger",
+        "events",
+        "review"
+      ]
     }
   }
 }

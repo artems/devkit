@@ -1,7 +1,7 @@
 'use strict';
 
 import path from 'path';
-import { Router } from 'express';
+import { Router as router } from 'express';
 
 const specialChar7 = String.fromCharCode(7);
 const specialChar8 = String.fromCharCode(8);
@@ -18,13 +18,13 @@ export function decode(str) {
     .map(x => x.replace(specialChar8RE, '_')); // replace __ to _
 }
 
-export default function badgeRouter(imports) {
+export default function (imports) {
 
   const badge = imports.badge;
 
-  const router = Router(); // eslint-disable-line new-cap
+  const badgeRouter = router();
 
-  router.get('*', function (req, res, next) {
+  badgeRouter.get('*', function (req, res, next) {
     const url = req.url;
 
     if (path.extname(url) === '.svg') {
@@ -43,6 +43,6 @@ export default function badgeRouter(imports) {
     }
   });
 
-  return router;
+  return badgeRouter;
 
 }

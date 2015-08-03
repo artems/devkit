@@ -40,7 +40,7 @@
       "options": {
         "addons": {
           "pull_request": [
-            "./github/addons/pull_request"
+            "../modules/github-pull-request/addons/pull_request"
           ]
         }
       },

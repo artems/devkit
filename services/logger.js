@@ -20,7 +20,7 @@ export default function (options, imports) {
         return new winston.transports.Console(transport);
       }
       default: {
-        throw new Error('Invalid transport name for loging service');
+        throw new Error('Invalid transport name for logging service');
       }
     }
   });

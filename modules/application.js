@@ -3,7 +3,7 @@
 import path from 'path';
 
 // TODO wrap service into domain
-// TODO timeout for service startup
+// TODO timeout for service startup and shutdown
 export default class Application {
 
   /**
@@ -145,26 +145,32 @@ export default class Application {
    * @param {Object} service - service object
    */
   startService(name, service) {
+    const alias = service.alias || {};
     const options = service.options || {};
     const servicePath = path.join(this.basePath, service.path || '');
     const serviceModule = service.module || require(servicePath);
 
     const imports = {};
     (service.dependencies || []).forEach((dependency) => {
-      imports[dependency] = this.resolved[dependency];
+      const dependencyName = alias[dependency] || dependency;
+      imports[dependencyName] = this.resolved[dependency];
     });
 
     delete this.services[name];
     this.starting[name] = true;
     this.awaiting--;
 
-    serviceModule(options, imports)
-      .then(result => {
-        this.starting[name] = false;
-        this.resolved[name] = result.service;
-        this.teardown[name] = result.shutdown || function() { return Promise.resolve(); };
-        this.nextRound();
-      });
+    try {
+      serviceModule(options, imports)
+        .then(result => {
+          this.starting[name] = false;
+          this.resolved[name] = result.service;
+          this.teardown[name] = result.shutdown || function() { return Promise.resolve(); };
+          this.nextRound();
+        });
+    } catch (e) {
+      console.error(e.stack);
+    }
   }
 
 }

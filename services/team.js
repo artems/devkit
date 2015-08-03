@@ -12,7 +12,7 @@ Example of config:
       "routes": [
         { "team_github_1": ["serp/*", "search-interfaces/*"] },
         { "team_github_2": ["devexp/*"] },
-        { "team_config_1": "serp-contribs/tyrion"
+        { "team_config_1": "serp-contribs/tyrion" }
       ]
     },
     dependencies: [
@@ -30,7 +30,7 @@ export default function (options, imports) {
   let routes = [];
 
   (options.routes || []).forEach(route => {
-    _.forEach(route, (sourceName, pattern) => {
+    _.forEach(route, (pattern, sourceName) => {
       const source = imports[sourceName];
       const getTeam = source.getTeam.bind(source);
 
@@ -38,7 +38,7 @@ export default function (options, imports) {
         throw new Error('Source `' + sourceName + '` for team service does not provided');
       }
 
-      if (!Array.isArray(patten)) {
+      if (!Array.isArray(pattern)) {
         routes.push({ source: getTeam, pattern });
       } else {
         pattern.forEach(sourcePattern => {

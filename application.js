@@ -11,7 +11,11 @@ var appConfig = require('./modules/config')(basePath);
 var application = new Application(appConfig, basePath);
 
 // `catch` only needed to catch errors during application startup
-application.execute().catch(function (error) {
-  console.error(error && error.stack ? error.stack : error);
-  process.exit(1);
-});
+application.execute()
+  .then(function () {
+    console.log('The application was successfully launched');
+  })
+  .catch(function (error) {
+    console.error(error && error.stack ? error.stack : error);
+    process.exit(1);
+  });

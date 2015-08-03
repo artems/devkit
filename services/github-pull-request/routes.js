@@ -1,28 +1,23 @@
 'use strict';
 
 import _ from 'lodash';
-import { Router } from 'express';
+import { Router as router } from 'express';
 
 import pullRequestHook from './webhooks/pull_request';
 
 const GITHUB_HEADER_EVENT = 'x-github-event';
 
-const issueCommentHook = function () {};
+export default function (imports) {
 
-export default function githubRouter(imports) {
-
-  const model = imports.model;
   const logger = imports.logger;
 
-  const PullRequest = model.get('pull_request');
+  const githubRouter = router();
 
-  const router = Router(); // eslint-disable-line new-cap
-
-  router.get('/i', function (req, res) {
-    res.ok('Ok');
+  githubRouter.get('/i', function (req, res) {
+    res.ok('ok');
   });
 
-  router.post('/webhook', function (req, res) {
+  githubRouter.post('/webhook', function (req, res) {
     if (!_.isPlainObject(req.body)) {
       res.error('req.body is not plain object');
       return;
@@ -32,18 +27,23 @@ export default function githubRouter(imports) {
 
     switch (eventName) {
       case 'pull_request':
-        pullRequestHook(req.body, PullRequest, imports)
+        pullRequestHook(req.body, imports)
           .then(null, logger.error.bind(logger));
         break;
 
       case 'issue_comment':
-        issueCommentHook(req.body, PullRequest, imports)
-          .then(null, logger.error.bind(logger));
+        logger.info('Ignore event `%s` from GitHub', eventName);
+        res.ok({ status: 'ignored' });
         break;
 
       case 'commit_comment':
+        logger.info('Ignore event `%s` from GitHub', eventName);
+        res.ok({ status: 'ignored' });
+        break;
+
       case 'pull_request_review_comment':
         logger.info('Ignore event `%s` from GitHub', eventName);
+        res.ok({ status: 'ignored' });
         break;
 
       case 'ping':
@@ -54,10 +54,10 @@ export default function githubRouter(imports) {
         logger.info('Unknown event `%s` from GitHub', eventName);
     }
 
-    res.ok('Ok');
+    res.ok({ status: 'ok' });
 
   });
 
-  return router;
+  return githubRouter;
 
 }

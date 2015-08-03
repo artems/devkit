@@ -65,4 +65,3 @@ describe('module/team/github', function () {
   });
 
 });
-
