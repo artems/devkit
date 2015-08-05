@@ -2,10 +2,10 @@
 
 import { EventEmitter } from 'events';
 
-export default function (options, imports) {
+export default function () {
 
-  const emitter = new EventEmitter();
+  const service = new EventEmitter();
 
-  return Promise.resolve({ service: emitter });
+  return Promise.resolve({ service });
 
 }

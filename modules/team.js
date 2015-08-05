@@ -1,3 +1,5 @@
+'use strict';
+
 import minimatch from 'minimatch';
 
 export default class Team {
@@ -34,7 +36,7 @@ export default class Team {
       return true;
     }
 
-    return minimatch(pullRequest.repo.full_name, pattern);
+    return minimatch(pullRequest.repository.full_name, pattern);
   }
 
 }

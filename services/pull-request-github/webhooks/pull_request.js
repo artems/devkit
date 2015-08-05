@@ -1,20 +1,23 @@
+'use strict';
+
 /**
  * Handler for github webhook with type `pull_request`.
  *
- * @param {Object} body - github webhook payload.
+ * @param {Object} payload - github webhook payload.
+ * @param {Object} imports
  * @return {Promise}
  */
 export default function webhook(payload, imports) {
 
   const model = imports.model;
   const logger = imports.logger;
-  const github = imports.github;
   const events = imports.events;
+  const github = imports.github;
 
-  const PullRequest = model.get('pull_request');
+  const PullRequestModel = model.get('pull_request');
 
   logger.info(
-    'WebHook triggered for pull #%s, action=%s',
+    'Webhook triggered for pull #%s, action=%s',
     payload.pull_request.id,
     payload.action
   );
@@ -23,11 +26,11 @@ export default function webhook(payload, imports) {
   pullRequestWebhook.repository = payload.repository;
   pullRequestWebhook.organization = payload.organization;
 
-  return PullRequest
+  return PullRequestModel
     .findById(pullRequestWebhook.id).exec()
     .then(pullRequest => {
       if (!pullRequest) {
-        pullRequest = new PullRequest(pullRequestWebhook);
+        pullRequest = new PullRequestModel(pullRequestWebhook);
       } else {
         pullRequest.set(pullRequestWebhook);
       }

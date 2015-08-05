@@ -1,4 +1,5 @@
-import path from 'path';
+'use strict';
+
 import chai from 'chai';
 import sinon from 'sinon';
 

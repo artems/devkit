@@ -1,3 +1,5 @@
+'use strict';
+
 import path from 'path';
 import Application from '../../modules/application';
 import projectConfig from '../../modules/config';
@@ -25,6 +27,3 @@ describe('model', function () {
   });
 
 });
-
-
-

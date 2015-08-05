@@ -10,18 +10,19 @@ export default function (options, imports) {
 
   const mongoose = imports.mongoose;
 
-  let saveHooks = {};
-  let extenders = {};
+  const saveHooks = {};
+  const extenders = {};
 
   _.forEach(options.addons, (list, modelName) => {
     _.forEach(list, addon => {
       const m = require(addon);
+
       if (!saveHooks[modelName]) {
         saveHooks[modelName] = [];
         extenders[modelName] = [];
       }
 
-      m.saveHook && saveHooks[modelName].push(m.hook);
+      m.saveHook && saveHooks[modelName].push(m.saveHook);
       m.extender && extenders[modelName].push(m.extender);
     });
   });
@@ -44,12 +45,12 @@ export default function (options, imports) {
 
   setup('pull_request', pullRequest);
 
-  return Promise.resolve({
-    service: {
-      get(modelName) {
-        return mongoose.model(modelName);
-      }
+  const service = {
+    get(modelName) {
+      return mongoose.model(modelName);
     }
-  });
+  };
+
+  return Promise.resolve({ service });
 
 }

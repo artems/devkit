@@ -1,3 +1,5 @@
+'use strict';
+
 export default function middleware() {
 
   return function (req, res, next) {
@@ -23,10 +25,10 @@ export default function middleware() {
       this
         .status(status || 500)
         .json({ error: message });
-    }
+    };
 
     next();
 
   };
 
-};
+}

@@ -1,3 +1,5 @@
+'use strict';
+
 import _ from 'lodash';
 
 export class ReviewAction {
@@ -44,9 +46,10 @@ export class ReviewAction {
 
         if (review.status === 'inprogress' && _.isEmpty(review.reviewers)) {
 
-          throw new Error('Try to start review where reviewers weren\'t selected' +
-                          ' | id - ' + pullId + ', title - ' + pullRequest.title + '
-                         );
+          throw new Error(
+            'Try to start review where reviewers weren\'t selected'
+            + ' | id - ' + pullId + ', title - ' + pullRequest.title
+          );
         }
 
         if (review.status === 'inprogress' && isNew) {
@@ -80,7 +83,7 @@ export class ReviewAction {
    * @param {String} login - user which approves pull.
    * @param {String} pullId
    *
-   * @returns {Promise}
+   * @return {Promise}
    */
   approveReview(login, pullId) {
     let approvedCount = 0;

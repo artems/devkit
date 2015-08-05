@@ -1,3 +1,5 @@
+'use strict';
+
 import ReviewConveyor from '../modules/review';
 
 export default function (options, imports) {

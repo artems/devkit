@@ -1,8 +1,9 @@
+'use strict';
+
 import { Schema } from 'mongoose';
 
 /**
- * Extend PullRequest model which adds extra body content field.
- * Extra body entry format: { uniqId: 'content' }.
+ * Extend pull_request model which adds extra body content field.
  *
  * @return {Object}
  */

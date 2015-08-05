@@ -1,13 +1,18 @@
+'use strict';
+
 import _ from 'lodash';
 
 export class AddonBroker {
 
   /**
    * @constructor
+   *
+   * @param {Object} saveHooks
+   * @param {Object} extenders
    */
   constructor(saveHooks, extenders) {
-    this.saveHooks = saveHooks || {}
-    this.extenders = extenders || {}
+    this.saveHooks = saveHooks || {};
+    this.extenders = extenders || {};
   }
 
   /**

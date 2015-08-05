@@ -1,3 +1,5 @@
+'use strict';
+
 import { AddonBroker } from '../../model';
 
 describe('modules/model', function () {
@@ -16,7 +18,7 @@ describe('modules/model', function () {
           moduleA: {
             fieldB: String
           }
-        }
+        };
       };
 
       const addonBroker = new AddonBroker(null, { modelA: [extender] });

@@ -1,6 +1,8 @@
-import GithubPullRequest from '../../github-pull-request';
+'use strict';
 
-describe('modules/github-pull-request', function () {
+import { PullRequestGitHub } from '../../pull-request-github';
+
+describe('services/pull-request-github', function () {
 
   let github, model, options;
 
@@ -15,27 +17,29 @@ describe('modules/github-pull-request', function () {
     };
   });
 
-  it('should be able to clean pull request body from old content', function() {
-    const gpr = new GithubPullRequest(model, github, options);
+  it('should be able to clean pull request body from old content', function () {
+    const gpr = new PullRequestGitHub(model, github, options);
     const body = `
 BODY TEXT
 <div id="top"></div>
 EXTRA BODY TEXT
 <div id="bottom"></div>
-`
+`;
+
     const result = gpr.cleanPullRequestBody(body);
 
     assert.equal(result, 'BODY TEXT');
   });
 
-  it('should be able to replace pull request body', function() {
-    const gpr = new GithubPullRequest(model, github, options);
+  it('should be able to replace pull request body', function () {
+    const gpr = new PullRequestGitHub(model, github, options);
     const body = `
 BODY TEXT
 <div id="top"></div>
 <div>EXTRA BODY TEXT</div>
 <div id="bottom"></div>
-`
+`;
+
     const pullRequest = {
       body: body,
       section: {
@@ -46,11 +50,11 @@ BODY TEXT
 
     gpr.fillPullRequestBody(pullRequest);
 
-    const expected = 'BODY TEXT' +
-                     '<div id="top"></div>' +
-                     '<div>ID1</div>' +
-                     '<div>ID2</div>' +
-                     '<div id="bottom"></div>';
+    const expected = 'BODY TEXT'
+                   + '<div id="top"></div>'
+                   + '<div>ID1</div>'
+                   + '<div>ID2</div>'
+                   + '<div id="bottom"></div>';
 
     assert.equal(pullRequest.body, expected);
   });

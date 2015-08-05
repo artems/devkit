@@ -1,12 +1,14 @@
+'use strict';
+
 import Team from '../../team';
 
 describe('module/team', function () {
 
   const pull = {
-    repo: { full_name : 'devexp-org/devexp' }
+    repository: { full_name: 'devexp-org/devexp' }
   };
 
-  it('should use the first matched route', function() {
+  it('should use the first matched route', function () {
     const source1 = sinon.stub();
     const source2 = sinon.stub();
     const source3 = sinon.stub();
@@ -17,38 +19,38 @@ describe('module/team', function () {
       { pattern: '*', source: source3 }
     ];
 
-    const team = (new Team(routes)).findByPullRequest(pull);
+    (new Team(routes)).findByPullRequest(pull);
 
     assert.called(source2);
     assert.notCalled(source1);
     assert.notCalled(source3);
   });
 
-  it('should interpret "*" as "always match"', function() {
+  it('should interpret "*" as "always match"', function () {
     const source = sinon.stub();
 
     const routes = [
       { pattern: '*', source: source }
     ];
 
-    const team = new Team(routes).findByPullRequest(pull);
+    new Team(routes).findByPullRequest(pull);
 
     assert.called(source);
   });
 
-  it('should understand wildcard', function() {
+  it('should understand wildcard', function () {
     const source = sinon.stub();
 
     const routes = [
       { pattern: 'devexp-*/*', source: source }
     ];
 
-    const team = new Team(routes).findByPullRequest(pull);
+    new Team(routes).findByPullRequest(pull);
 
     assert.called(source);
   });
 
-  it('should return an empty array if there are no matched routes', function() {
+  it('should return an empty array if there are no matched routes', function () {
     const source = sinon.stub();
 
     const routes = [

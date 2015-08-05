@@ -33,13 +33,11 @@ export default function (imports) {
       const parts = decode(decodeURIComponent(query));
       const image = badge.render(parts[0], parts[1], parts[2]);
 
-      res.setHeader('Content-Type', 'image/svg+xml;charset=utf-8');
+      res.setHeader('content-type', 'image/svg+xml;charset=utf-8');
       res.send(image);
 
     } else {
-
       next();
-
     }
   });
 

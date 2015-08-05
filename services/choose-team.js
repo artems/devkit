@@ -1,3 +1,5 @@
+'use strict';
+
 import _ from 'lodash';
 
 import Team from '../modules/team';
@@ -27,7 +29,7 @@ Example of config:
 
 export default function (options, imports) {
 
-  let routes = [];
+  const routes = [];
 
   (options.routes || []).forEach(route => {
     _.forEach(route, (pattern, sourceName) => {
@@ -48,8 +50,8 @@ export default function (options, imports) {
     });
   });
 
-  const team = new Team(routes);
+  const service = new Team(routes);
 
-  return Promise.resolve({ service: team });
+  return Promise.resolve({ service: service });
 
 }

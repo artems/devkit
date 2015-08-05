@@ -1,0 +1,5 @@
+instrumentation:
+    excludes:
+      - "junk/**"
+      - "**/__tests__/**"
+    include-all-sources: true

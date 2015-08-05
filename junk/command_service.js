@@ -1,3 +1,5 @@
+'use strict';
+
 import CommandDispatcher from '../modules/command';
 
 export default function (options, imports) {

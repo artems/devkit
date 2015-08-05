@@ -1,3 +1,5 @@
+'use strict';
+
 import GitHubTeam from '../github';
 
 describe('module/team/github', function () {
@@ -38,7 +40,7 @@ describe('module/team/github', function () {
         );
         done();
       })
-      .catch(done)
+      .catch(done);
   });
 
   it('should use method `getTeamMembers` to obtain team if slug name was given', function (done) {
@@ -49,7 +51,7 @@ describe('module/team/github', function () {
       github.orgs.getTeams.callArgWith(1, null, [{ id: 42, slug: 'devs' }]);
     }, 0);
 
-    setTimeout(function() {
+    setTimeout(function () {
       github.orgs.getTeamMembers.callArgWith(1, null, []);
     }, 10);
 
@@ -61,7 +63,7 @@ describe('module/team/github', function () {
         );
         done();
       })
-      .catch(done)
+      .catch(done);
   });
 
 });

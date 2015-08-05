@@ -6,13 +6,14 @@ import fs from 'fs';
 import ejs from 'ejs';
 import path from 'path';
 
-export default class Badge {
+export default class BadgeConstructor {
 
   /**
    * @constructor
+   *
    * @param {Object} options
-   * @param {String} [options.templateName] - template for badge
-   * @param {String} [options.templatePath] - path where templates are located
+   * @param {String} [options.templateName] - svg template for badge.
+   * @param {String} [options.templatePath] - path where templates are located.
    */
   constructor(options) {
     this.templateName = options.templateName || 'flat';
@@ -42,7 +43,9 @@ export default class Badge {
    * Map color keyword to hex value.
    *
    * @private
+   *
    * @param {String} color - keyword or hex value
+   *
    * @return {String}
    */
   mapColor(color) {
@@ -75,11 +78,12 @@ export default class Badge {
   }
 
   /**
-   * Render badge with provied subject and status.
+   * Render badge with given subject and status.
    *
-   * @param {String} subject
-   * @param {String} status
+   * @param {String} subject - subject text
+   * @param {String} status - status text
    * @param {String} color - color, keyword or hex (#fff)
+   *
    * @return {String}
    */
   render(subject, status, color) {

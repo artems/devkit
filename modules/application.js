@@ -79,20 +79,15 @@ export default class Application {
    * @private
    */
   nextRound() {
-    if (this.awaiting.length === 0) {
-      this.started = true;
-      this.promise.resolve(this.resolved);
-      return;
-    }
-
     let startedInThisRound = 0;
+    const ignored = [];
 
     for (let i = 0; i < this.awaiting.length; i++) {
       const name = this.awaiting[i];
       const service = this.services[name];
 
       if (service.ignore) {
-        this.awaiting.splice(this.awaiting.indexOf(name), 1);
+        ignored.push(name);
         continue;
       }
 
@@ -102,11 +97,21 @@ export default class Application {
       }
     }
 
+    ignored.forEach(name => {
+      this.awaiting.splice(this.awaiting.indexOf(name), 1);
+    });
+
+    if (this.awaiting.length === 0) {
+      this.started = true;
+      this.promise.resolve(this.resolved);
+      return;
+    }
+
     if (startedInThisRound === 0) {
       if (Object.keys(this.starting).length === 0) {
         this.promise.reject(new Error(
-          'Circular dependency detected while resolving ' +
-            this.awaiting.join(', ')
+          'Circular dependency detected while resolving '
+            + this.awaiting.join(', ')
         ));
       }
     }
@@ -154,16 +159,17 @@ export default class Application {
    * @param {Object} service - service object
    */
   startService(name, service) {
+    let serviceModule;
+
     const alias = service.alias || {};
     const options = service.options || {};
     const servicePath = path.join(this.basePath, service.path || '');
 
-    let serviceModule;
     try {
       serviceModule = service.module || require(servicePath);
     } catch (error) {
       this.promise.reject(new Error(
-        'Error occurs during module requiring (' + name + ').\n' + e.stack
+        'Error occurs during module requiring (' + name + ').\n' + error.stack
       ));
     }
 
@@ -181,13 +187,18 @@ export default class Application {
         this.promise.reject(new Error('Timeout of startup module `' + name + '` exceeded'));
       }, this.startupTimeout);
 
+      if (serviceModule.__esModule) {
+        serviceModule = serviceModule.default;
+      }
+
       serviceModule(options, imports)
         .then(result => {
           delete this.starting[name];
           clearTimeout(startupTimer);
 
           this.resolved[name] = result.service;
-          this.teardown[name] = result.shutdown || function() { return Promise.resolve(); };
+          this.teardown[name] = result.shutdown
+            || function () { return Promise.resolve(); };
           this.nextRound();
         });
     } catch (error) {

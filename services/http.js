@@ -23,12 +23,22 @@ export default function (options, imports) {
 
   app.use(responseJSON());
 
+  const indexFile = path.join(assetsPath, 'index.html');
   app.get('/', function (req, res) {
-    res.sendFile(path.join(assetsPath, 'index.html'));
+    res.sendFile(indexFile);
+  });
+
+  const faviconFile = path.join(assetsPath, 'favicon.ico');
+  app.get('/favicon.ico', function (req, res) {
+    res.sendFile(faviconFile);
   });
 
   _.forEach(options.routes || {}, (router, route) => {
     let routerModule = require(router);
+    if (routerModule.__esModule) {
+      routerModule = routerModule.default;
+    }
+
     app.use(route, routerModule(imports));
   });
 
@@ -38,7 +48,7 @@ export default function (options, imports) {
     app.use('/public', express.static(assetsPath));
   }
 
-  return new Promise((resolve) => {
+  return new Promise(provide => {
     const server = app.listen(port, () => {
       logger.info(
         'Server listening at %s:%s',
@@ -54,7 +64,7 @@ export default function (options, imports) {
         });
       };
 
-      resolve({ service: server, shutdown });
+      provide({ service: server, shutdown });
     });
 
   });

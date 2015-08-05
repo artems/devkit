@@ -22,7 +22,7 @@ export function setupSchema() {
       id: Number,
       name: String,
       html_url: String,
-      full_name: String,
+      full_name: String
     },
     organization: {
       id: Number,

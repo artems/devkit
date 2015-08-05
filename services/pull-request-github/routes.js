@@ -32,15 +32,7 @@ export default function (imports) {
         break;
 
       case 'issue_comment':
-        logger.info('Ignore event `%s` from GitHub', eventName);
-        res.ok({ status: 'ignored' });
-        break;
-
       case 'commit_comment':
-        logger.info('Ignore event `%s` from GitHub', eventName);
-        res.ok({ status: 'ignored' });
-        break;
-
       case 'pull_request_review_comment':
         logger.info('Ignore event `%s` from GitHub', eventName);
         res.ok({ status: 'ignored' });
@@ -52,6 +44,7 @@ export default function (imports) {
 
       default:
         logger.info('Unknown event `%s` from GitHub', eventName);
+        res.error({ status: 'unknown command' });
     }
 
     res.ok({ status: 'ok' });

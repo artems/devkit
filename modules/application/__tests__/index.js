@@ -1,23 +1,26 @@
+'use strict';
+
 import Application from '../../application';
 
+// TODO when all ignored
 describe('modules/application', function () {
 
   let app, config;
 
-  it('should properly resolve dependencies', function(done) {
+  it('should properly resolve dependencies', function (done) {
     const order = [];
 
     config = {
       services: {
         serviceA: {
-          module: function (o, i) {
+          module: function () {
             order.push('serviceA');
             return Promise.resolve({ service: 'moduleA' });
           },
           dependencies: ['serviceB']
         },
         serviceB: {
-          module: function (o, i) {
+          module: function () {
             order.push('serviceB');
             return Promise.resolve({ service: 'moduleB' });
           }
@@ -38,30 +41,28 @@ describe('modules/application', function () {
 
   });
 
-  it('should properly resolve async dependencies', function(done) {
-    const order = [];
-
+  it('should properly resolve async dependencies', function (done) {
     config = {
       services: {
         serviceA: {
-          module: function (o, i) {
+          module: function () {
             return new Promise(resolve => {
-              setTimeout(function () { resolve({ service: 'moduleA' }) }, 10);
+              setTimeout(function () { resolve({ service: 'moduleA' }); }, 10);
             });
           },
           dependencies: ['serviceB', 'serviceC']
         },
         serviceB: {
-          module: function (o, i) {
+          module: function () {
             return new Promise(resolve => {
-              setTimeout(function () { resolve({ service: 'moduleB' }) }, 15);
+              setTimeout(function () { resolve({ service: 'moduleB' }); }, 15);
             });
           }
         },
         serviceC: {
-          module: function (o, i) {
+          module: function () {
             return new Promise(resolve => {
-              setTimeout(function () { resolve({ service: 'moduleC' }) }, 20);
+              setTimeout(function () { resolve({ service: 'moduleC' }); }, 20);
             });
           }
         }
@@ -89,7 +90,7 @@ describe('modules/application', function () {
           dependencies: ['serviceB']
         },
         serviceB: {
-          module: function (o, i) {
+          module: function () {
             return Promise.resolve({ service: 'moduleB' });
           }
         }
@@ -108,19 +109,19 @@ describe('modules/application', function () {
     config = {
       services: {
         serviceA: {
-          module: function (o, i) {
+          module: function () {
             return Promise.resolve({ service: 'moduleA' });
           },
           dependencies: ['serviceB']
         },
         serviceB: {
-          module: function (o, i) {
+          module: function () {
             return Promise.resolve({ service: 'moduleB' });
           },
           dependencies: ['serviceC']
         },
         serviceC: {
-          module: function (o, i) {
+          module: function () {
             return Promise.resolve({ service: 'moduleC' });
           },
           dependencies: ['serviceA']
@@ -144,7 +145,7 @@ describe('modules/application', function () {
     config = {
       services: {
         serviceA: {
-          module: function (o, i) {
+          module: function () {
             return Promise.resolve({ service: 'moduleA' });
           },
           dependencies: ['serviceB']

@@ -1,3 +1,5 @@
+'use strict';
+
 import _ from 'lodash';
 
 /**
@@ -5,31 +7,33 @@ import _ from 'lodash';
  *
  * @param {Object} pullRequest
  *
- * @returns {Boolean}
+ * @return {Boolean}
  */
 function shouldStartReview(pullRequest) {
-    return _.isEmpty(pullRequest.review.reviewers);
+  return _.isEmpty(pullRequest.review.reviewers);
 }
 
 /**
  * Plugin for auto assign reviewers for pull request.
  *
+ * @param {Object} logger
+ * @param {Object} review
  * @param {Object} payload
  * @param {Object} payload.pullRequest
  */
 function autoStart(logger, review, payload) {
-    var pullRequest = payload.pullRequest;
+  const pullRequest = payload.pullRequest;
 
-    if (!shouldStartReview(pullRequest)) return;
+  if (!shouldStartReview(pullRequest)) return;
 
-    logger.info('Autostart review for pull "' + pullRequest.id + ' — ' + pullRequest.title + '"');
+  logger.info('Autostart review for pull "' + pullRequest.id + ' — ' + pullRequest.title + '"');
 
-    review.review(pullRequest.id)
-        .then(resultReview => {
-            logger.warn('TODO save pull request');
-            // saveReview({ reviewers: resultReview.team }, pullRequest.id);
-        })
-        .catch(logger.error.bind(logger));
+  review.review(pullRequest.id)
+  .then(resultReview => {
+    logger.warn('TODO save pull request');
+    // saveReview({ reviewers: resultReview.team }, pullRequest.id);
+  })
+  .catch(logger.error.bind(logger));
 }
 
 export default function (options, imports) {

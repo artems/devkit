@@ -1,29 +1,29 @@
 'use strict';
 
-import _ from 'lodash';
 import fs from 'fs';
 import path from 'path';
+import { merge } from 'lodash';
 
 export default function config(basePath, envName) {
+
   envName = envName || process.env.NODE_ENV || 'development';
-  const defaultConfigPath = path.join(basePath, 'config', 'default.json');
-  const environmentConfigPath = path.join(basePath, 'config', envName + '.json');
-  const secretConfigPath = path.join(basePath, 'config', 'secret.json');
 
-  let defaultConfig = {};
-  if (fs.existsSync(defaultConfigPath)) {
-    defaultConfig = require(defaultConfigPath);
-  }
+  const join = path.join.bind(path, basePath, 'config');
+  const requireIfExists = function (configPath) {
+    if (fs.existsSync(configPath)) {
+      return JSON.parse(fs.readFileSync(configPath));
+    }
+    return {};
+  };
 
-  let environmentConfig = {};
-  if (fs.existsSync(environmentConfigPath)) {
-    environmentConfig = require(environmentConfigPath);
-  }
+  const defaultConfigPath = join('default.json');
+  const secretConfigPath = join('secret.json');
+  const envConfigPath = join(envName + '.json');
 
-  let secretConfig = {};
-  if (fs.existsSync(secretConfigPath)) {
-    secretConfig = require(secretConfigPath);
-  }
+  const defaultConfig = requireIfExists(defaultConfigPath);
+  const secretConfig = requireIfExists(secretConfigPath);
+  const envConfig = requireIfExists(envConfigPath);
 
-  return _.merge({ env: envName }, defaultConfig, environmentConfig, secretConfig);
+  return merge({ env: envName }, defaultConfig, secretConfig, envConfig);
+
 }

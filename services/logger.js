@@ -10,23 +10,22 @@ export default function (options, imports) {
     }
 
     switch (transport.name) {
-      case 'file': {
+      case 'file':
         return new winston.transports.File(transport);
-      }
-      case 'daily-rotate-file': {
+
+      case 'daily-rotate-file':
         return new winston.transports.DailyRotateFile(transport);
-      }
-      case 'console': {
+
+      case 'console':
         return new winston.transports.Console(transport);
-      }
-      default: {
-        throw new Error('Invalid transport name for logging service');
-      }
+
+      default:
+        throw new Error('Invalid transport name ' + transport.name);
     }
   });
 
-  const logger = new Logger({ transports });
+  const service = new Logger({ transports });
 
-  return Promise.resolve({ service: logger });
+  return Promise.resolve({ service });
 
 }

@@ -18,5 +18,5 @@ application
   })
   .catch(function (error) {
     console.error(error.stack ? error.stack : error);
-    process.exit(1);
+    process.exit(1); // eslint-disable-line no-process-exit
   });

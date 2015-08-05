@@ -18,7 +18,7 @@ export default function (options, imports) {
   return new Promise((resolve, reject) => {
     connection
       .on('open', function () {
-        logger.info('Mongodb connected to %s:%s', connection.host, connection.port);
+        logger.info('Mongoose connected to %s:%s', connection.host, connection.port);
         resolve({ service: connection, shutdown });
       })
       .on('error', function (error) {
