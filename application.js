@@ -1,21 +1,22 @@
-/* eslint-disable no-var, no-console */
+/* eslint-disable no-console */
 'use strict';
 
-require('babel/register');
-require('setimmediate');
+import 'setimmediate';
 
-var Application = require('./modules/application');
+import Application from './modules/application';
+import parseConfig from './modules/config';
 
-var basePath = __dirname;
-var appConfig = require('./modules/config')(basePath);
-var application = new Application(appConfig, basePath);
+const basePath = __dirname;
+const appConfig = parseConfig(basePath);
+const application = new Application(appConfig, basePath);
 
 // `catch` only needed to catch errors during application startup
-application.execute()
-  .then(function () {
-    console.log('The application was successfully launched');
+application
+  .execute()
+  .then(resolved => {
+    resolved.logger.info('The application was successfully launched');
   })
   .catch(function (error) {
-    console.error(error && error.stack ? error.stack : error);
+    console.error(error.stack ? error.stack : error);
     process.exit(1);
   });

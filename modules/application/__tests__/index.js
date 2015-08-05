@@ -2,175 +2,175 @@ import Application from '../../application';
 
 describe('modules/application', function () {
 
-    let app, config;
+  let app, config;
 
-    it('should properly resolve dependencies', function(done) {
-      const order = [];
+  it('should properly resolve dependencies', function(done) {
+    const order = [];
 
-      config = {
-        services: {
-          serviceA: {
-            module: function (o, i) {
-              order.push('serviceA');
-              return Promise.resolve({ service: 'moduleA' });
-            },
-            dependencies: ['serviceB']
+    config = {
+      services: {
+        serviceA: {
+          module: function (o, i) {
+            order.push('serviceA');
+            return Promise.resolve({ service: 'moduleA' });
           },
-          serviceB: {
-            module: function (o, i) {
-              order.push('serviceB');
-              return Promise.resolve({ service: 'moduleB' });
-            }
+          dependencies: ['serviceB']
+        },
+        serviceB: {
+          module: function (o, i) {
+            order.push('serviceB');
+            return Promise.resolve({ service: 'moduleB' });
           }
         }
-      };
+      }
+    };
 
-      app = new Application(config);
+    app = new Application(config);
 
-      app
-        .execute()
-        .then(function (resolved) {
-          assert.deepEqual(order, ['serviceB', 'serviceA']);
-          assert.deepEqual(resolved, { serviceA: 'moduleA', serviceB: 'moduleB' });
-          done();
-        })
-        .catch(done);
+    app
+      .execute()
+      .then(function (resolved) {
+        assert.deepEqual(order, ['serviceB', 'serviceA']);
+        assert.deepEqual(resolved, { serviceA: 'moduleA', serviceB: 'moduleB' });
+        done();
+      })
+      .catch(done);
 
-    });
+  });
 
   it('should properly resolve async dependencies', function(done) {
-      const order = [];
+    const order = [];
 
-      config = {
-        services: {
-          serviceA: {
-            module: function (o, i) {
-              return new Promise(resolve => {
-                setTimeout(function () { resolve({ service: 'moduleA' }) }, 40);
-              });
-            },
-            dependencies: ['serviceB', 'serviceC']
+    config = {
+      services: {
+        serviceA: {
+          module: function (o, i) {
+            return new Promise(resolve => {
+              setTimeout(function () { resolve({ service: 'moduleA' }) }, 10);
+            });
           },
-          serviceB: {
-            module: function (o, i) {
-              return new Promise(resolve => {
-                setTimeout(function () { resolve({ service: 'moduleB' }) }, 60);
-              });
-            }
-          },
-          serviceC: {
-            module: function (o, i) {
-              return new Promise(resolve => {
-                setTimeout(function () { resolve({ service: 'moduleC' }) }, 80);
-              });
-            }
+          dependencies: ['serviceB', 'serviceC']
+        },
+        serviceB: {
+          module: function (o, i) {
+            return new Promise(resolve => {
+              setTimeout(function () { resolve({ service: 'moduleB' }) }, 15);
+            });
+          }
+        },
+        serviceC: {
+          module: function (o, i) {
+            return new Promise(resolve => {
+              setTimeout(function () { resolve({ service: 'moduleC' }) }, 20);
+            });
           }
         }
-      };
+      }
+    };
 
-      app = new Application(config);
+    app = new Application(config);
 
-      app.execute().then(() => done()).catch(done);
+    app.execute().then(() => done()).catch(done);
 
-    });
+  });
 
-    it('should pass options and imports to service', function (done) {
-      config = {
-        services: {
-          serviceA: {
-            module: function (o, i) {
-              assert.equal(o.A, 'A');
-              assert.equal(o.B, 'B');
-              assert.equal(i.serviceB, 'moduleB');
+  it('should pass options and imports to service', function (done) {
+    config = {
+      services: {
+        serviceA: {
+          module: function (o, i) {
+            assert.equal(o.A, 'A');
+            assert.equal(o.B, 'B');
+            assert.equal(i.serviceB, 'moduleB');
 
-              return Promise.resolve({ service: 'moduleA' });
-            },
-            options: { A: 'A', B: 'B' },
-            dependencies: ['serviceB']
+            return Promise.resolve({ service: 'moduleA' });
           },
-          serviceB: {
-            module: function (o, i) {
-              return Promise.resolve({ service: 'moduleB' });
-            }
+          options: { A: 'A', B: 'B' },
+          dependencies: ['serviceB']
+        },
+        serviceB: {
+          module: function (o, i) {
+            return Promise.resolve({ service: 'moduleB' });
           }
         }
-      };
+      }
+    };
 
-      app = new Application(config);
+    app = new Application(config);
 
-      app
-        .execute()
-        .then(function () { done(); });
+    app
+      .execute()
+      .then(function () { done(); });
 
-    });
+  });
 
-    it('should detect circular dependency', function (done) {
-      config = {
-        services: {
-          serviceA: {
-            module: function (o, i) {
-              return Promise.resolve({ service: 'moduleA' });
-            },
-            dependencies: ['serviceB']
+  it('should detect circular dependency', function (done) {
+    config = {
+      services: {
+        serviceA: {
+          module: function (o, i) {
+            return Promise.resolve({ service: 'moduleA' });
           },
-          serviceB: {
-            module: function (o, i) {
-              return Promise.resolve({ service: 'moduleB' });
-            },
-            dependencies: ['serviceC']
+          dependencies: ['serviceB']
+        },
+        serviceB: {
+          module: function (o, i) {
+            return Promise.resolve({ service: 'moduleB' });
           },
-          serviceC: {
-            module: function (o, i) {
-              return Promise.resolve({ service: 'moduleC' });
-            },
-            dependencies: ['serviceA']
-          }
+          dependencies: ['serviceC']
+        },
+        serviceC: {
+          module: function (o, i) {
+            return Promise.resolve({ service: 'moduleC' });
+          },
+          dependencies: ['serviceA']
         }
-      };
+      }
+    };
 
-      app = new Application(config);
+    app = new Application(config);
 
-      app
-        .execute()
-        .catch(function (e) {
-          assert.instanceOf(e, Error);
-          assert.match(e.message, /circular dependency detected/i);
-          done();
-        });
+    app
+      .execute()
+      .catch(function (e) {
+        assert.instanceOf(e, Error);
+        assert.match(e.message, /circular dependency detected/i);
+        done();
+      });
 
-    });
+  });
 
-    it('should throw an error if dependency is not found', function (done) {
-      config = {
-        services: {
-          serviceA: {
-            module: function (o, i) {
-              return Promise.resolve({ service: 'moduleA' });
-            },
-            dependencies: ['serviceB']
-          }
+  it('should throw an error if dependency was not found', function (done) {
+    config = {
+      services: {
+        serviceA: {
+          module: function (o, i) {
+            return Promise.resolve({ service: 'moduleA' });
+          },
+          dependencies: ['serviceB']
         }
-      };
+      }
+    };
 
-      app = new Application(config);
+    app = new Application(config);
 
-      app.execute()
-        .catch(function (e) {
-          assert.instanceOf(e, Error);
-          assert.match(e.message, /dependency .* is not found/i);
-          done();
-        });
-    });
+    app.execute()
+      .catch(function (e) {
+        assert.instanceOf(e, Error);
+        assert.match(e.message, /dependency .* not found/i);
+        done();
+      });
+  });
 
-    it('should not allow to execute an application twice', function () {
-      app = new Application();
+  it('should not allow to execute an application twice', function () {
+    app = new Application();
 
-      app.execute();
+    app.execute();
 
-      assert.throws(
-        app.execute.bind(app),
-        /can not execute an application twice/i
-      );
-    });
+    assert.throws(
+      app.execute.bind(app),
+      /cannot execute the application twice/i
+    );
+  });
 
 });

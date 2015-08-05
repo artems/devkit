@@ -7,7 +7,7 @@ var basePath = __dirname;
 var appConfig = require('./modules/config')(basePath);
 var recluster = require('recluster');
 
-var cluster = recluster('application.js', {
+var cluster = recluster('start.js', {
   workers: appConfig.cluster.workers
 });
 

@@ -1,10 +1,8 @@
-/* eslint-disable no-var */
+import path from 'path';
+import chai from 'chai';
+import sinon from 'sinon';
 
-var path = require('path');
-var chai = require('chai');
-var sinon = require('sinon');
-
-var assert = chai.assert;
+const assert = chai.assert;
 
 sinon.assert.expose(assert, { prefix: '' });
 

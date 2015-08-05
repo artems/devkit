@@ -3,6 +3,38 @@
     "workers": 4
   },
   "services": {
+    "command": {
+      "path": "./services/command",
+      "ignore": true,
+      "options": {
+        "events": ["github:issue_comment"],
+        "commands": [
+          {
+            "regexp": "^\/start(\\W|$)",
+            "handlers": ["../modules/review_commands/start"]
+          },
+          {
+            "regexp": "^\/ok$|^ok$|^ок$|^\/ок$",
+            "handlers": ["../modules/review_commands/ok"]
+          },
+          {
+            "regexp": "^\/!ok$|^!ok$|^\/!ок$|^!ок$",
+            "handlers": ["../modules/review_commands/not_ok"]
+          },
+          {
+            "regexp": "^\/busy(\\W|$)",
+            "handlers": ["../modules/review_commands/busy"]
+          },
+          {
+            "regexp": "^\/change(\\W|$)",
+            "handlers": ["../modules/review_commands/change"]
+          }
+        ]
+      },
+      "dependencies": [
+        "events"
+      ]
+    },
     "http": {
       "path": "./services/http",
       "options": {

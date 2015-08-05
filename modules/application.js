@@ -2,8 +2,6 @@
 
 import path from 'path';
 
-// TODO wrap service into domain
-// TODO timeout for service startup and shutdown
 export default class Application {
 
   /**
@@ -14,6 +12,8 @@ export default class Application {
    */
   constructor(config, basePath) {
     this.services = config && config.services || {};
+    this.startupTimeout = config && config.startup_timeout || 2000;
+    this.shutdownTimeout = config && config.shutdown_timeout || 2000;
 
     this.starting = {};
     this.resolved = {};
@@ -21,10 +21,9 @@ export default class Application {
 
     this.promise = null;
     this.started = false;
-    this.stoping = false;
     this.executed = false;
     this.basePath = basePath || '.';
-    this.awaiting = Object.keys(this.services).length;
+    this.awaiting = Object.keys(this.services);
   }
 
   /**
@@ -34,13 +33,12 @@ export default class Application {
    */
   execute() {
     if (this.executed) {
-      throw new Error('Can not execute an application twice');
+      throw new Error('Cannot execute the application twice');
     }
 
     return new Promise((resolve, reject) => {
       this.promise = { resolve, reject };
       this.executed = true;
-
       this.nextRound();
     });
   }
@@ -52,17 +50,25 @@ export default class Application {
    */
   shutdown() {
     if (!this.started) {
-      throw new Error('The application can not shutdown until fully started');
+      throw new Error('The application cannot gracefully shutdown until fully started');
     }
-
-    this.stoping = true;
 
     const promise = [];
     for (const name in this.teardown) {
       promise.push(this.teardown[name]());
     }
 
-    return Promise.all(promise).then(() => {});
+    return new Promise((resolve, reject) => {
+      const shutdownTimer = setTimeout(() => {
+        reject(new Error('Timeout of shutdown exceeded'));
+      }, this.shutdownTimeout);
+
+      Promise.all(promise)
+        .then(() => {
+          clearTimeout(shutdownTimer);
+          resolve();
+        });
+    });
   }
 
   /**
@@ -73,7 +79,7 @@ export default class Application {
    * @private
    */
   nextRound() {
-    if (this.awaiting === 0) {
+    if (this.awaiting.length === 0) {
       this.started = true;
       this.promise.resolve(this.resolved);
       return;
@@ -81,8 +87,14 @@ export default class Application {
 
     let startedInThisRound = 0;
 
-    for (const name in this.services) {
+    for (let i = 0; i < this.awaiting.length; i++) {
+      const name = this.awaiting[i];
       const service = this.services[name];
+
+      if (service.ignore) {
+        this.awaiting.splice(this.awaiting.indexOf(name), 1);
+        continue;
+      }
 
       if (this.checkDependencies(name, service)) {
         startedInThisRound++;
@@ -92,9 +104,9 @@ export default class Application {
 
     if (startedInThisRound === 0) {
       if (Object.keys(this.starting).length === 0) {
-        const names = Object.keys(this.services).join(', ');
         this.promise.reject(new Error(
-          'Circular dependency detected while resolving ' + names
+          'Circular dependency detected while resolving ' +
+            this.awaiting.join(', ')
         ));
       }
     }
@@ -123,12 +135,9 @@ export default class Application {
         resolved = false;
       }
 
-      if (
-        !(dependency in this.services)
-        && !(dependency in this.starting)
-      ) {
+      if (!(dependency in this.services)) {
         this.promise.reject(new Error(
-          'Dependency `' + dependency + '` on `' + name + '` is not found'
+          'Dependency `' + dependency + '` on `' + name + '` was not found'
         ));
       }
     });
@@ -148,28 +157,43 @@ export default class Application {
     const alias = service.alias || {};
     const options = service.options || {};
     const servicePath = path.join(this.basePath, service.path || '');
-    const serviceModule = service.module || require(servicePath);
+
+    let serviceModule;
+    try {
+      serviceModule = service.module || require(servicePath);
+    } catch (error) {
+      this.promise.reject(new Error(
+        'Error occurs during module requiring (' + name + ').\n' + e.stack
+      ));
+    }
 
     const imports = {};
-    (service.dependencies || []).forEach((dependency) => {
+    (service.dependencies || []).forEach(dependency => {
       const dependencyName = alias[dependency] || dependency;
       imports[dependencyName] = this.resolved[dependency];
     });
 
-    delete this.services[name];
     this.starting[name] = true;
-    this.awaiting--;
+    this.awaiting.splice(this.awaiting.indexOf(name), 1);
 
     try {
+      const startupTimer = setTimeout(() => {
+        this.promise.reject(new Error('Timeout of startup module `' + name + '` exceeded'));
+      }, this.startupTimeout);
+
       serviceModule(options, imports)
         .then(result => {
-          this.starting[name] = false;
+          delete this.starting[name];
+          clearTimeout(startupTimer);
+
           this.resolved[name] = result.service;
           this.teardown[name] = result.shutdown || function() { return Promise.resolve(); };
           this.nextRound();
         });
-    } catch (e) {
-      console.error(e.stack);
+    } catch (error) {
+      this.promise.reject(new Error(
+        'Error occurs during module `' + name + '` startup .\n' + error.stack
+      ));
     }
   }
 
