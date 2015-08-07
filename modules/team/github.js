@@ -16,7 +16,7 @@ export default class GitHubTeam {
   }
 
   getTeam(pullRequest) {
-    const orgName = pullRequest.org;
+    const orgName = pullRequest.organization.login;
 
     if (!this.slugName) {
       return this.getOrgMembers(orgName);

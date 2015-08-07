@@ -63,4 +63,9 @@ describe('module/team', function () {
     assert.notCalled(source);
   });
 
+  it('should not throw an error if routes does not provied', function () {
+    const team = new Team();
+    assert.doesNotThrow(team.findByPullRequest.bind(team, pull));
+  });
+
 });

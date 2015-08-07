@@ -26,6 +26,7 @@
       "options": {
         "addons": {
           "pull_request": [
+            "../services/complexity/addon",
             "../services/pull-request-github/addon"
           ]
         }
@@ -116,29 +117,79 @@
         "pull-request-github": "github"
       }
     },
+    "choose-reviewer": {
+      "path": "./services/choose-reviewer",
+      "options": {
+        "steps": [
+          "./choose-reviewer/remove_author",
+          "./choose-reviewer/remove_already_reviewers",
+          "./choose-reviewer/commiters",
+          "./choose-reviewer/random",
+          "./choose-reviewer/load",
+          "./choose-reviewer/sort",
+          "./choose-reviewer/total_number"
+        ],
+        "stepOptions": {
+          "load": { "max": 1 },
+          "random": { "max": 5 },
+          "commiters": {
+            "max": 4,
+            "since": [4, "month"],
+            "filesToCheck": 5,
+            "commitsCount": 10,
+            "ignore": [
+              "config"
+            ]
+          },
+          "totalNumber": { "max": 1 }
+        }
+      },
+      "dependencies": [
+        "logger",
+        "events",
+        "model",
+        "pull-request-github",
+        "choose-team"
+      ],
+      "alias": {
+        "choose-team": "team",
+        "pull-request-github": "github"
+      }
+    },
+    "review-autoassign": {
+      "path": "./services/review-autoassign",
+      "dependencies": [
+        "events",
+        "logger",
+        "choose-reviewer",
+        "pull-request-action"
+      ]
+    },
+
     "command": {
       "path": "./services/command",
+      "ignore": true,
       "options": {
         "events": ["github:issue_comment"],
         "commands": [
           {
-            "regexp": "\/start",
+            "test": "\/start",
             "handlers": ["./command/start"]
           },
           {
-            "regexp": "\/?ok|\/?ок",
+            "test": "\/?ok|\/?ок",
             "handlers": ["./command/ok"]
           },
           {
-            "regexp": "\/?!ok|\/?!ок$$",
+            "test": "\/?!ok|\/?!ок$$",
             "handlers": ["./command/not_ok"]
           },
           {
-            "regexp": "\/busy",
+            "test": "\/busy",
             "handlers": ["./command/busy"]
           },
           {
-            "regexp": "\/change",
+            "test": "\/change",
             "handlers": ["./command/change"]
           }
         ]
@@ -148,32 +199,6 @@
         "logger",
         "choose-team",
         "pull-request-action"
-      ]
-    },
-
-
-    "review": {
-      "path": "./services/review",
-      "ignore": true,
-      "options": {
-        "stages": [
-        ]
-      },
-      "dependencies": [
-        "logger",
-        "model",
-        "events",
-        "team"
-      ]
-    },
-
-    "review_autoassign": {
-      "path": "./services/review_autoassign",
-      "ignore": true,
-      "dependencies": [
-        "logger",
-        "events",
-        "review"
       ]
     }
   }

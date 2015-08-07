@@ -7,7 +7,9 @@ describe('module/team/github', function () {
   let github;
 
   const pull = {
-    org: 'devexp-org'
+    organization: {
+      login: 'devexp-org'
+    }
   };
 
   beforeEach(function () {

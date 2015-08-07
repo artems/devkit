@@ -3,7 +3,7 @@
 import { Schema } from 'mongoose';
 
 /**
- * Extend pull_request model which adds extra body content field.
+ * Extend pull_request model to add extra body content field.
  *
  * @return {Object}
  */

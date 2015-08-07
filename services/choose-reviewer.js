@@ -38,7 +38,7 @@ export default class Review {
    */
   findTeam(review) {
     return this.team
-      .findByPullRequest(review.pull)
+      .findByPullRequest(review.pullRequest)
       .then(team => {
         review.team = team;
         return review;
@@ -140,7 +140,7 @@ export default function (options, imports) {
 
   const steps = options.steps.map(path => {
     const ranker = require(path);
-    return ranker(options[ranker.name]);
+    return ranker(options.stepOptions[ranker.name]);
   });
 
   const service = new Review(steps, payload);

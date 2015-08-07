@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, no-process-exit */
 'use strict';
 
 import 'setimmediate';
@@ -15,5 +15,5 @@ application
   .execute()
   .catch(function (error) {
     console.error(error.stack ? error.stack : error);
-    process.exit(1); // eslint-disable-line no-process-exit
+    process.exit(1);
   });

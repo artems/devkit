@@ -36,6 +36,9 @@ export default function webhook(payload, imports) {
         pullRequest.set(pullRequestWebhook);
       }
 
+      // XXX: YYY
+      // return pullRequest;
+
       return github
         .loadPullRequestFiles(pullRequest)
         .then(files => {

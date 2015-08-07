@@ -17,26 +17,31 @@ export default class CommandDistatcher {
    * Dispatch command to handler.
    *
    * @param {Object} payload - github webhook payload.
+   *
+   * @return {Promise}
    */
   dispatch(payload) {
+    const promise = [];
     const comment = _.get(payload, 'comment.body', '');
 
     _.forEach(this.store, command => {
       _.forEach(comment.split('\n'), line => {
-        if (command.regexp.test(line)) {
+        if (command.test.test(line)) {
           _.forEach(command.handlers, handler => {
             const commentCommand = line.trim().toLowerCase();
-            handler(commentCommand, payload);
+            promise.push(handler(commentCommand, payload));
           });
         }
       });
     });
+
+    return Promise.all(promise).then(() => {});
   }
 
 }
 
 /**
  * @typedef {Object} Command
- * @property {RegExp} regexp
+ * @property {RegExp} test
  * @property {Array<Function>} handlers - array of handlers.
  */

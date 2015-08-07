@@ -150,19 +150,8 @@ export default class Application {
     return resolved;
   }
 
-  /**
-   * Start a given service.
-   *
-   * @private
-   *
-   * @param {String} name - service name
-   * @param {Object} service - service object
-   */
-  startService(name, service) {
+  obtainModule(name, service) {
     let serviceModule;
-
-    const alias = service.alias || {};
-    const options = service.options || {};
     const servicePath = path.join(this.basePath, service.path || '');
 
     try {
@@ -173,23 +162,49 @@ export default class Application {
       ));
     }
 
+    if (serviceModule.__esModule) {
+      serviceModule = serviceModule.default;
+    }
+
+    return serviceModule;
+  }
+
+  obtainDepenedcies(name, service) {
+    const alias = service.alias || {};
     const imports = {};
+
     (service.dependencies || []).forEach(dependency => {
       const dependencyName = alias[dependency] || dependency;
       imports[dependencyName] = this.resolved[dependency];
     });
+
+    return imports;
+  }
+
+  /**
+   * Start a given service.
+   *
+   * @private
+   *
+   * @param {String} name - service name
+   * @param {Object} service - service object
+   */
+  startService(name, service) {
+    const options = service.options || {};
+    const imports = this.obtainDepenedcies(name, service);
+    const serviceModule = this.obtainModule(name, service);
+
+    if (!serviceModule) return;
 
     this.starting[name] = true;
     this.awaiting.splice(this.awaiting.indexOf(name), 1);
 
     try {
       const startupTimer = setTimeout(() => {
-        this.promise.reject(new Error('Timeout of startup module `' + name + '` exceeded'));
+        this.promise.reject(new Error(
+          'Timeout of startup module `' + name + '` exceeded'
+        ));
       }, this.startupTimeout);
-
-      if (serviceModule.__esModule) {
-        serviceModule = serviceModule.default;
-      }
 
       serviceModule(options, imports)
         .then(result => {
@@ -203,7 +218,7 @@ export default class Application {
         });
     } catch (error) {
       this.promise.reject(new Error(
-        'Error occurs during module `' + name + '` startup.\n' + error.stack
+        `Error occurs during module "${name}" startup.\n` + error.stack
       ));
     }
   }
