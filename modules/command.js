@@ -1,9 +1,13 @@
+'use strict';
+
 import _ from 'lodash';
 
 export default class CommandDistatcher {
 
   /**
    * @constructor
+   *
+   * @param {Array<Command>} store - list of commands
    */
   constructor(store) {
     this.store = store || [];
@@ -21,7 +25,7 @@ export default class CommandDistatcher {
       _.forEach(comment.split('\n'), line => {
         if (command.regexp.test(line)) {
           _.forEach(command.handlers, handler => {
-            let commentCommand = line.trim().toLowerCase();
+            const commentCommand = line.trim().toLowerCase();
             handler(commentCommand, payload);
           });
         }
@@ -30,3 +34,9 @@ export default class CommandDistatcher {
   }
 
 }
+
+/**
+ * @typedef {Object} Command
+ * @property {RegExp} regexp
+ * @property {Array<Function>} handlers - array of handlers.
+ */

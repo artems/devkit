@@ -95,6 +95,20 @@ export function setupModel(modelName, model) {
   };
 
   /**
+   * Find pull request by number and repository
+   *
+   * @param {Number} number - pull request number
+   * @param {String} fullName - repository full name
+   *
+   * @return {Promise}
+   */
+  model.statics.findByNumberAndRepository = function (number, fullName) {
+    return this
+      .model(modelName)
+      .findOne({ number, 'repository.full_name': fullName });
+  };
+
+  /**
    * Find pull requests by reviewer
    *
    * @param {String} login

@@ -5,6 +5,7 @@
  *
  * @param {Object} payload - github webhook payload.
  * @param {Object} imports
+ *
  * @return {Promise}
  */
 export default function webhook(payload, imports) {

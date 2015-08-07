@@ -31,6 +31,7 @@
     "github": "^0.2.4",
     "lodash": "^3.10.0",
     "minimatch": "^2.0.10",
+    "moment": "^2.10.6",
     "mongoose": "^4.0.8",
     "object-assign": "^3.0.0",
     "proxy-express": "^1.1.2",

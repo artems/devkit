@@ -87,6 +87,14 @@
         "model"
       ]
     },
+    "pull-request-action": {
+      "path": "./services/pull-request-action",
+      "dependencies": [
+        "events",
+        "logger",
+        "model"
+      ]
+    },
     "http": {
       "path": "./services/http",
       "options": {
@@ -108,39 +116,41 @@
         "pull-request-github": "github"
       }
     },
-
     "command": {
       "path": "./services/command",
-      "ignore": true,
       "options": {
         "events": ["github:issue_comment"],
         "commands": [
           {
-            "regexp": "^\/start(\\W|$)",
-            "handlers": ["../modules/review_commands/start"]
+            "regexp": "\/start",
+            "handlers": ["./command/start"]
           },
           {
-            "regexp": "^\/ok$|^ok$|^ок$|^\/ок$",
-            "handlers": ["../modules/review_commands/ok"]
+            "regexp": "\/?ok|\/?ок",
+            "handlers": ["./command/ok"]
           },
           {
-            "regexp": "^\/!ok$|^!ok$|^\/!ок$|^!ок$",
-            "handlers": ["../modules/review_commands/not_ok"]
+            "regexp": "\/?!ok|\/?!ок$$",
+            "handlers": ["./command/not_ok"]
           },
           {
-            "regexp": "^\/busy(\\W|$)",
-            "handlers": ["../modules/review_commands/busy"]
+            "regexp": "\/busy",
+            "handlers": ["./command/busy"]
           },
           {
-            "regexp": "^\/change(\\W|$)",
-            "handlers": ["../modules/review_commands/change"]
+            "regexp": "\/change",
+            "handlers": ["./command/change"]
           }
         ]
       },
       "dependencies": [
-        "events"
+        "events",
+        "logger",
+        "choose-team",
+        "pull-request-action"
       ]
     },
+
 
     "review": {
       "path": "./services/review",

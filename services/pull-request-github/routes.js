@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Router as router } from 'express';
 
 import pullRequestHook from './webhooks/pull_request';
+import issueCommentHook from './webhooks/issue_comment';
 
 const GITHUB_HEADER_EVENT = 'x-github-event';
 
@@ -32,6 +33,10 @@ export default function (imports) {
         break;
 
       case 'issue_comment':
+        issueCommentHook(req.body, imports)
+          .then(null, logger.error.bind(logger));
+        break;
+
       case 'commit_comment':
       case 'pull_request_review_comment':
         logger.info('Ignore event `%s` from GitHub', eventName);
