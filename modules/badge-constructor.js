@@ -16,8 +16,8 @@ export default class BadgeConstructor {
    * @param {String} [options.templatePath] - path where templates are located.
    */
   constructor(options) {
-    this.templateName = options.templateName || 'flat';
-    this.templatePath = options.templatePath || './';
+    this.templateName = options && options.templateName || 'flat';
+    this.templatePath = options && options.templatePath || './';
   }
 
   /**
