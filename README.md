@@ -2,6 +2,8 @@
 
 ## TODO
   * логгер с категориями/лейблами
+  * добавить в AddonBroker обработку ошибок внтури save-hooks
+  * deploy
 
 ## ROADMAP
   * modules
@@ -30,7 +32,7 @@
         [x] pull-request-github/routers
         [x] pull-request-github/webhooks/pull_request
         [x] pull-request-github/webhooks/issue_comment
-      [!] choose-reviewer
+      [x] choose-reviewer
         [x] choose-reviewer/remove_author
         [x] choose-reviewer/remove_already_reviewers
         [x] choose-reviewer/commiters

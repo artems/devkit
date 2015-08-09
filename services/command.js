@@ -21,7 +21,7 @@ export default function (options, imports) {
   const dispatcher = new CommandDispatcher(commands);
 
   options.events.forEach(event => {
-    events.on(event, (payload) => {
+    events.on(event, payload => {
       payload.events = events;
       payload.logger = logger;
       payload.action = action;

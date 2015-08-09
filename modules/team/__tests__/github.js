@@ -68,4 +68,55 @@ describe('module/team/github', function () {
       .catch(done);
   });
 
+  describe('#getOrgMembers', function () {
+
+    it('should return rejected promise if github return error', function (done) {
+      const gt = new GitHubTeam(github, 'devs');
+      const teamPromise = gt.getOrgMembers('github');
+
+      github.orgs.getMembers.callArgWith(1, new Error('error'));
+
+      teamPromise.catch(error => { done(); });
+    });
+
+  });
+
+  describe('#getTeamMembers', function () {
+
+    it('should return rejected promise if github return error', function (done) {
+      const gt = new GitHubTeam(github, 'devs');
+      const teamPromise = gt.getTeamMembers(1);
+
+      github.orgs.getTeamMembers.callArgWith(1, new Error('error'));
+
+      teamPromise.catch(error => { done(); });
+    });
+
+  });
+
+  describe('#getTeamId', function () {
+
+    it('should return rejected promise if github return error', function (done) {
+      const gt = new GitHubTeam(github, 'devs');
+      const teamPromise = gt.getTeamId('github', 'devs');
+
+      github.orgs.getTeams.callArgWith(1, new Error('error'));
+
+      teamPromise.catch(error => { done(); });
+    });
+
+    it('should return rejected promise if team not found', function (done) {
+      const gt = new GitHubTeam(github, 'devs');
+      const teamPromise = gt.getTeamId('github', 'devs');
+
+      github.orgs.getTeams.callArgWith(1, null, []);
+
+      teamPromise.catch(error => {
+        assert.match(error.message, /not found/);
+        done();
+      });
+    });
+
+  });
+
 });

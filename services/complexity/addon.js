@@ -1,6 +1,6 @@
 'use strict';
 
-import * as complex from '../modules/complexity';
+import * as complexity from '../../modules/complexity';
 
 const MAX = 40;
 
@@ -30,13 +30,13 @@ export function extender() {
 export function saveHook(model) {
 
   return new Promise(resolve => {
-    let complexity = 0;
+    let value = 0;
 
-    complexity += complex.additionsComplexity(model.additions);
-    complexity += complex.deletionsComplexity(model.deletions);
-    complexity += complex.commitsComplexity(model.commits);
+    value += complexity.additionsComplexity(model.additions);
+    value += complexity.deletionsComplexity(model.deletions);
+    value += complexity.commitsComplexity(model.commits);
 
-    model.complexity = (complexity * 100) / MAX;
+    model.complexity = (value * 100) / MAX;
 
     resolve();
   });

@@ -1,5 +1,7 @@
 'use strict';
 
+import _ from 'lodash';
+
 import * as complexity from '../../complexity';
 
 describe('modules/complexity', function () {
@@ -11,11 +13,15 @@ describe('modules/complexity', function () {
     });
 
     it('should calculate complexity', function () {
-      assert.ok(complexity.additionsComplexity(100) > 0);
+      _.range(0, 2000, 50).reduce((acc, v) => {
+        assert.ok(complexity.additionsComplexity(v)
+          >= complexity.additionsComplexity(acc));
+        return v;
+      }, 0);
 
-      assert.ok(
-        complexity.additionsComplexity(50)
-        < complexity.additionsComplexity(200)
+      assert.isBelow(
+        complexity.additionsComplexity(50),
+        complexity.additionsComplexity(200)
       );
     });
 
@@ -28,11 +34,15 @@ describe('modules/complexity', function () {
     });
 
     it('should calculate complexity', function () {
-      assert.ok(complexity.deletionsComplexity(100) > 0);
+      _.range(0, 2000, 50).reduce((acc, v) => {
+        assert.ok(complexity.deletionsComplexity(v)
+          >= complexity.deletionsComplexity(acc));
+        return v;
+      }, 0);
 
-      assert.ok(
-        complexity.deletionsComplexity(50)
-        < complexity.deletionsComplexity(200)
+      assert.isBelow(
+        complexity.deletionsComplexity(50),
+        complexity.deletionsComplexity(200)
       );
     });
 
@@ -45,11 +55,15 @@ describe('modules/complexity', function () {
     });
 
     it('should calculate complexity', function () {
-      assert.ok(complexity.commitsComplexity(100) > 0);
+      _.range(0, 100, 3).reduce((acc, v) => {
+        assert.ok(complexity.commitsComplexity(v)
+          >= complexity.commitsComplexity(acc));
+        return v;
+      }, 0);
 
-      assert.ok(
-        complexity.commitsComplexity(1)
-        < complexity.commitsComplexity(5)
+      assert.isBelow(
+        complexity.commitsComplexity(1),
+        complexity.commitsComplexity(5)
       );
     });
 

@@ -109,9 +109,9 @@ export default class Review {
       .then(review => {
         this.logger.info(
           'Choose reviewers complete [%s — %s] %s',
-          review.pull.id,
-          review.pull.title,
-          review.pull.html_url
+          review.pullRequest.id,
+          review.pullRequest.title,
+          review.pullRequest.html_url
         );
 
         this.logger.info('Reviewers are: %s',

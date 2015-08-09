@@ -1,5 +1,8 @@
 instrumentation:
     excludes:
-      - "junk/**"
       - "**/__tests__/**"
-    #include-all-sources: true
+      - "tests/**"
+      - "start.js"
+      - "cluster.js"
+      - "application.js"
+    include-all-sources: true

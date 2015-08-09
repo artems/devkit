@@ -63,6 +63,17 @@
         "github"
       ]
     },
+    "team-static": {
+      "path": "./services/team-static",
+      "options": {
+        "members": [
+          "artems",
+          "d4rkr00t",
+          "mishanga",
+          "sbmaxx"
+        ]
+      }
+    },
     "choose-team": {
       "path": "./services/choose-team",
       "options": {

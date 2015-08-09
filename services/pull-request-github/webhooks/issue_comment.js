@@ -16,20 +16,20 @@ export default function webhook(payload, imports) {
 
   const PullRequestModel = model.get('pull_request');
 
+  const pullRequestId = payload.issue.number;
   const repositoryName = payload.repository.full_name;
-  const pullRequestNumber = payload.issue.number;
 
   logger.info(
     'Webhook triggered for pull #%s, action=comment',
-    pullRequestNumber
+    pullRequestId
   );
 
   return PullRequestModel
-    .findByNumberAndRepository(pullRequestNumber, repositoryName)
+    .findByNumberAndRepository(pullRequestId, repositoryName)
     .then(pullRequest => {
       if (!pullRequest) {
         return Promise.reject(
-          new Error(`Pull request #${pullRequestNumber} not found`)
+          new Error(`Pull request #${pullRequestId} not found`)
         );
       }
 
