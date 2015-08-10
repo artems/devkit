@@ -2,7 +2,7 @@
 
 import Team from '../../team';
 
-describe('module/team', function () {
+describe('modules/team', function () {
 
   const pull = {
     repository: { full_name: 'devexp-org/devexp' }

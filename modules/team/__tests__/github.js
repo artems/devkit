@@ -2,7 +2,7 @@
 
 import GitHubTeam from '../github';
 
-describe('module/team/github', function () {
+describe('modules/team/github', function () {
 
   let github;
 

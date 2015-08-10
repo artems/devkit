@@ -10,7 +10,6 @@ import _ from 'lodash';
  * @return {Boolean}
  */
 function shouldStart(pullRequest) {
-  return true;
   return _.isEmpty(pullRequest.review.reviewers);
 }
 

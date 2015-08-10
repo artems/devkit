@@ -71,7 +71,7 @@ export default class Review {
         .findById(pullId)
         .then(pullRequest => {
           if (!pullRequest) {
-            return reject(new Error('Pull request #${pullId} not found'));
+            return reject(new Error(`Pull request #${pullId} not found`));
           }
 
           resolve({ pullRequest, team: [] });

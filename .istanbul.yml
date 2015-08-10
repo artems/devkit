@@ -2,7 +2,7 @@ instrumentation:
     excludes:
       - "**/__tests__/**"
       - "tests/**"
+      - "app.js"
       - "start.js"
       - "cluster.js"
-      - "application.js"
     include-all-sources: true
