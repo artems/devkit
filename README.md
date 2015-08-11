@@ -12,8 +12,7 @@
       [x] badge-constructor
       [x] model
       [x] team
-      [ ] command
-        * catch errors in promise
+      [x] command
   * services
       [x] events
       [x] logger
@@ -40,10 +39,9 @@
         [x] choose-reviewer/load
         [x] choose-reviewer/sort
         [x] choose-reviewer/total_number
-
-      [ ] command
-        [ ] command/start
-        [ ] command/ok
-        [ ] command/not_ok
-        [ ] command/busy
-        [ ] command/change
+      [x] command
+        [x] command/start
+        [x] command/ok
+        [x] command/not_ok
+        [x] command/busy
+        [x] command/change

@@ -18,13 +18,9 @@ export function decode(str) {
     .map(x => x.replace(specialChar8RE, '_')); // replace __ to _
 }
 
-export default function (imports) {
+export function handleRequest(badge) {
 
-  const badge = imports.badge;
-
-  const badgeRouter = router();
-
-  badgeRouter.get('*', function (req, res, next) {
+  return function (req, res, next) {
     const url = req.url;
 
     if (path.extname(url) === '.svg') {
@@ -39,8 +35,15 @@ export default function (imports) {
     } else {
       next();
     }
-  });
+  }
+
+}
+
+export default function badgeRouterCreator(imports) {
+  const badge = imports.badge;
+  const badgeRouter = router();
+
+  badgeRouter.get('*', handleRequest(badge));
 
   return badgeRouter;
-
 }

@@ -179,7 +179,6 @@
 
     "command": {
       "path": "./services/command",
-      "ignore": true,
       "options": {
         "events": ["github:issue_comment"],
         "commands": [
@@ -209,6 +208,7 @@
         "events",
         "logger",
         "choose-team",
+        "choose-reviewer",
         "pull-request-action"
       ]
     }

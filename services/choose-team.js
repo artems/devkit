@@ -37,7 +37,7 @@ export default function (options, imports) {
       const getTeam = source.getTeam.bind(source);
 
       if (!source) {
-        throw new Error('Source `' + sourceName + '` for team service does not provided');
+        throw new Error(`Source '${sourceName}' for team service is not provided`);
       }
 
       if (!Array.isArray(pattern)) {
@@ -52,6 +52,6 @@ export default function (options, imports) {
 
   const service = new Team(routes);
 
-  return Promise.resolve({ service: service });
+  return Promise.resolve({ service });
 
 }

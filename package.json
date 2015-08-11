@@ -13,7 +13,7 @@
     "_test": "npm run test --silent || true",
     "test:heavy": "mocha -r ./tests/setup.js -R spec tests/heavy/*.js --compilers js:babel/register",
     "watch:test": "mocha -w -r ./tests/setup.js -R spec modules/**/__tests__/*.js --compilers js:babel/register",
-    "coverage": "babel-node ./node_modules/.bin/isparta cover --report text --report html ./node_modules/.bin/_mocha -- -r ./tests/setup.js -R dot modules/**/__tests__/*.js tests/heavy/**.js",
+    "coverage": "babel-node ./node_modules/.bin/isparta cover --report text --report html ./node_modules/.bin/_mocha -- -r ./tests/setup.js -R dot */**/__tests__/*.js tests/heavy/**.js",
     "_coverage": "npm run coverage --silent || true",
     "start": "nodemon -e js,json,ejs start.js",
     "eslint": "eslint .",

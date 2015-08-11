@@ -16,13 +16,13 @@ export default class CommandDistatcher {
   /**
    * Dispatch command to handler.
    *
-   * @param {Object} payload - github webhook payload.
+   * @param {String} comment - user comment
+   * @param {Object} payload
    *
    * @return {Promise}
    */
-  dispatch(payload) {
+  dispatch(comment, payload) {
     const promise = [];
-    const comment = _.get(payload, 'comment.body', '');
 
     _.forEach(this.store, command => {
       _.forEach(comment.split('\n'), line => {
