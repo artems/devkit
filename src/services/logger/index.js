@@ -1,24 +1,51 @@
-import winston, { Logger } from 'winston';
+import intel from 'intel';
 
 export default function setup(options, imports) {
 
-  const transports = options.transports.map(transport => {
+  // remove default console handler
+  intel.config({ handlers: {} });
+
+  const logger = intel.getLogger();
+
+  options.transports.forEach(transport => {
     if (!('timestamp' in transport)) {
       transport.timestamp = true;
     }
 
-    switch (transport.name) {
-      case 'file':
-        return new winston.transports.File(transport);
+    const formatter = new intel.Formatter({
+      format: (transport.timestamp ? '[%(date)s] ' : '') +
+        '%(name)s %(levelname)s: %(message)s',
+      datefmt: '%Y-%m-%dT%H:%M:%S.%L%z',
+      colorize: transport.colorize
+    });
 
-      case 'console':
-        return new winston.transports.Console(transport);
+    switch (transport.name) {
+      case 'file': {
+        logger.addHandler(new intel.handlers.File({
+          file: transport.filename,
+          formatter: formatter
+        }));
+        break;
+      }
+
+      case 'stream': {
+        logger.addHandler(new intel.handlers.Stream({
+          stream: transport.filename,
+          formatter: formatter
+        }));
+        break;
+      }
+
+      case 'console': {
+        logger.addHandler(new intel.handlers.Console({ formatter: formatter }));
+        break;
+      }
 
       default:
         throw new Error(`Invalid transport name "${transport.name}"`);
     }
   });
 
-  return new Logger({ transports });
+  return logger;
 
 }

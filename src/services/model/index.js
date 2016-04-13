@@ -7,7 +7,6 @@ import * as pullRequestModel from './items/pull-request';
 
 export default function setup(options, imports) {
 
-  const logger = imports.logger;
   const mongoose = imports.mongoose;
 
   const saveHooks = {};
@@ -31,7 +30,7 @@ export default function setup(options, imports) {
     });
   });
 
-  const broker = new AddonBroker(saveHooks, extenders, logger);
+  const broker = new AddonBroker(saveHooks, extenders);
 
   const setup = function setup(modelName, module) {
     // setup schema

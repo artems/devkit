@@ -1,7 +1,7 @@
 {
   "services": {
     "queue": {
-      "path": "./core/services/queue"
+      "path": "./src/services/queue"
     },
     "events": {
       "path": "./src/services/events"
@@ -30,7 +30,6 @@
         }
       },
       "dependencies": [
-        "logger",
         "mongoose"
       ]
     }

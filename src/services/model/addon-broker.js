@@ -8,12 +8,10 @@ export class AddonBroker {
   /**
    * @param {Object[]} saveHooks - each saveHook setup hook to model
    * @param {Object[]} extenders - each extender return parial schema
-   * @param {Object} logger
    */
-  constructor(saveHooks, extenders, logger) {
+  constructor(saveHooks, extenders) {
     this.saveHooks = saveHooks || {};
     this.extenders = extenders || {};
-    this.logger = logger;
   }
 
   /**

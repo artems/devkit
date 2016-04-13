@@ -44,7 +44,7 @@ describe('services/logger', function () {
       const options = {
         transports: [
           {
-            name: 'file',
+            name: 'stream',
             stream: new MyDummyWritableStream()
           },
           {
