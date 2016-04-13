@@ -15,7 +15,7 @@
     "eslint",
     "test"
   ],
-  "precommit.silent": true,
+  "pre-commit.silent": true,
   "scripts": {
     "test": "$npm_package_config_mocha $npm_package_config_pattern_test",
     "test:e2e": "$npm_package_config_mocha $npm_package_config_pattern_e2e",
@@ -53,6 +53,7 @@
     "coveralls": "^2.11.6",
     "eslint": "2.6.0",
     "istanbul": "^1.0.0-alpha.2",
+    "jsdoc": "^3.4.0",
     "mocha": "^2.3.4",
     "node-architect": "^0.0.8",
     "nodemon": "^1.8.1",
@@ -65,9 +66,6 @@
     "mocha": "mocha --compilers js:babel-register -r ./tests/setup.js --reporter progress",
     "istanbul": "babel-node ./node_modules/.bin/istanbul cover --report text --report lcovonly --report html _mocha -- -r ./tests/setup.js --reporter dot",
     "pattern_e2e": "./tests/e2e/**.js",
-    "pattern_test": "./src/**/__tests__/**.js",
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+    "pattern_test": "./src/**/__tests__/**.js"
   }
 }

@@ -1,7 +1,6 @@
-export default function () {
+export default function mock() {
 
   return {
-    enqueue: sinon.stub(),
     dispatch: sinon.stub().returns(Promise.resolve())
   };
 

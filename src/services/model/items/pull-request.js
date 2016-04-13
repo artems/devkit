@@ -78,6 +78,17 @@ export function setupModel(modelName, model) {
     return '[' + this.id + ' – ' + this.title + ']' + ' ' + this.html_url;
   };
 
+  model.virtual('owner')
+    .get(function () {
+      if (this.repository &&
+          this.repository.owner &&
+          this.repository.owner.login) {
+        return this.repository.owner.login;
+      }
+
+      return '';
+    });
+
   /**
    * Find pull requests by user
    *
@@ -158,49 +169,3 @@ export function setupModel(modelName, model) {
   };
 
 }
-
-export function getUserLogin(pullRequest) {
-  if (pullRequest.repository &&
-      pullRequest.repository.owner &&
-      pullRequest.repository.owner.login) {
-    return pullRequest.repository.owner.login;
-  }
-
-  if (pullRequest.organization && pullRequest.organization.login) {
-    return pullRequest.organization.login;
-  }
-
-  return '';
-}
-
-/**
- * @typedef {Object} PullRequest
- *
- * @property {Number}  id
- * @property {String}  body
- * @property {String}  title
- * @property {Number}  number
- * @property {String}  html_url
- * @property {String}  state
- * @property {Object}  user
- * @property {Object}  repository
- * @property {Date}    created_at
- * @property {Date}    updated_at
- * @property {Date}    closed_at
- * @property {Date}    merged_at
- * @property {Boolean} merged
- * @property {Object}  merged_by
- * @property {Number}  comments
- * @property {Number}  review_comments
- * @property {Number}  commits
- * @property {Number}  additions
- * @property {Number}  deletions
- * @property {Number}  changed_files
- * @property {Array}   files
- * @property {Object}  review
- * @property {String}  review.status
- * @property {Array}   review.reviewers
- * @property {Date}    review.started_at
- * @property {Date}    review.updated_at
- * @property {Date}    review.completed_at
- */

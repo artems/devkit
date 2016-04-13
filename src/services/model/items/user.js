@@ -8,8 +8,6 @@ const notificationTransport = new Schema({
 export function setupSchema() {
   return {
     _id: String,
-    html_url: String,
-    avatar_url: String,
     notification_transports: {
       type: [notificationTransport],
       'default': []

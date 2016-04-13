@@ -1,6 +1,6 @@
 import Queue from '../../queue';
 
-describe('modules/queue', () => {
+describe('services/queue', () => {
 
   let id, queue;
 
@@ -20,7 +20,7 @@ describe('modules/queue', () => {
         .catch(done);
     });
 
-    it('should not run a task if previous tasks is not finished', function (done) {
+    it('should add a task to queue if previous tasks were not finished', function (done) {
       const order = [];
 
       const longTask = () => {

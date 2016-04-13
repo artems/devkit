@@ -33,21 +33,4 @@ describe('services/model/items/pull-request', function () {
 
   });
 
-  describe('#getUserLogin', function () {
-
-    let pullRequest;
-    beforeEach(function () {
-      pullRequest = pullRequestMock();
-    });
-
-    it('should return pullRequest repository owner', function () {
-      assert.equal(pullRequestModel.getUserLogin(pullRequest), 'repository.owner.login');
-    });
-
-    it('should return an empty string if pullRequest broken', function () {
-      assert.equal(pullRequestModel.getUserLogin({}), '');
-    });
-
-  });
-
 });
