@@ -53,7 +53,7 @@ export function setupSchema() {
     review: {
       status: {
         type: String,
-        'enum': ['notstarted', 'inprogress', 'complete'],
+        'enum': ['notstarted', 'inprogress', 'changesneeded', 'complete'],
         'default': 'notstarted'
       },
       reviewers: Array,
@@ -172,3 +172,35 @@ export function getUserLogin(pullRequest) {
 
   return '';
 }
+
+/**
+ * @typedef {Object} PullRequest
+ *
+ * @property {Number}  id
+ * @property {String}  body
+ * @property {String}  title
+ * @property {Number}  number
+ * @property {String}  html_url
+ * @property {String}  state
+ * @property {Object}  user
+ * @property {Object}  repository
+ * @property {Date}    created_at
+ * @property {Date}    updated_at
+ * @property {Date}    closed_at
+ * @property {Date}    merged_at
+ * @property {Boolean} merged
+ * @property {Object}  merged_by
+ * @property {Number}  comments
+ * @property {Number}  review_comments
+ * @property {Number}  commits
+ * @property {Number}  additions
+ * @property {Number}  deletions
+ * @property {Number}  changed_files
+ * @property {Array}   files
+ * @property {Object}  review
+ * @property {String}  review.status
+ * @property {Array}   review.reviewers
+ * @property {Date}    review.started_at
+ * @property {Date}    review.updated_at
+ * @property {Date}    review.completed_at
+ */

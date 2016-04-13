@@ -4,7 +4,7 @@ import { withUser, withPullRequest } from './common';
 
 describe('services/model', function () {
 
-  it('should apply pre-save hooks and extenderes', function (done) {
+  it('should apply save hooks and extenderes', function (done) {
 
     const addon = function (options, imports) {
       return {
@@ -26,7 +26,7 @@ describe('services/model', function () {
       services: {
         model: {
           options: {
-            addons: { pull_request: ['simple-addon'] }
+            addons: { user: ['simple-addon'] }
           },
           dependencies: ['logger', 'mongoose', 'simple-addon']
         },
@@ -34,10 +34,52 @@ describe('services/model', function () {
       }
     };
 
-    withPullRequest(imports => {
-      const pullRequest = imports.pullRequest;
-      assert.equal(pullRequest.newProperty, 1);
+    withUser(imports => {
+      const user = imports.user;
+      assert.equal(user.newProperty, 1);
     }, config, done);
+
+  });
+
+  describe('services/model/items/user', function () {
+
+    it('should setup user', function (done) {
+
+      withUser(imports => {
+        const user = imports.user;
+
+        assert.equal(user._id, user.login);
+      }, {}, done);
+
+    });
+
+    describe('#findByLogin', function () {
+
+      it('should return user filtered by login', function (done) {
+
+        withUser(imports => {
+          const UserModel = imports.UserModel;
+
+          return Promise.resolve()
+            .then(() => UserModel.findByLogin('d4rkr00t'))
+            .then(result => assert.equal(result.login, 'd4rkr00t'));
+        }, {}, done);
+
+      });
+
+      it('should return null if user was not found', function (done) {
+
+        withUser(imports => {
+          const UserModel = imports.UserModel;
+
+          return Promise.resolve()
+            .then(() => UserModel.findByLogin('sbmaxx'))
+            .then(result => assert.isNull(result));
+        }, {}, done);
+
+      });
+
+    });
 
   });
 
@@ -79,6 +121,7 @@ describe('services/model', function () {
             .then(result => {
               assert.isArray(result);
               assert.lengthOf(result, 1);
+              assert.equal(result[0].id, 40503811);
             });
         }, {}, done);
 
@@ -134,7 +177,7 @@ describe('services/model', function () {
 
     describe('#findByNumberAndRepository', function () {
 
-      it('should return pull requests filtered by reviewer', function (done) {
+      it('should return pull requests filtered by number', function (done) {
 
         withPullRequest(imports => {
           const pullRequest = imports.pullRequest;
@@ -202,53 +245,6 @@ describe('services/model', function () {
                   assert.isArray(result);
                   assert.lengthOf(result, 1);
                 });
-            });
-        }, {}, done);
-
-      });
-
-    });
-
-  });
-
-  describe('services/model/items/user', function () {
-
-    it('should setup user', function (done) {
-
-      withUser(imports => {
-        const user = imports.user;
-
-        assert.equal(user.login, user._id);
-      }, {}, done);
-
-    });
-
-    describe('#findByLogin', function () {
-
-      it('should return login filtered by login', function (done) {
-
-        withUser(imports => {
-          const UserModel = imports.UserModel;
-
-          return Promise.resolve()
-            .then(() => UserModel.findByLogin('d4rkr00t'))
-            .then(result => {
-              assert.isObject(result, 'd4rkr00t');
-              assert.deepEqual(result.login, 'd4rkr00t');
-            });
-        }, {}, done);
-
-      });
-
-      it('should return null if user was not found', function (done) {
-
-        withUser(imports => {
-          const UserModel = imports.UserModel;
-
-          return Promise.resolve()
-            .then(() => UserModel.findByLogin('sbmaxx'))
-            .then(result => {
-              assert.isNull(result);
             });
         }, {}, done);
 

@@ -21,7 +21,6 @@ export function withModel(test, config, done) {
 
   config = _.merge({
     services: {
-      events: { path: './src/services/events' },
       logger: {
         path: './src/services/logger',
         options: { transports: [] }

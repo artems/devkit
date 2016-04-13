@@ -1,5 +1,8 @@
 {
   "services": {
+    "queue": {
+      "path": "./core/services/queue"
+    },
     "events": {
       "path": "./src/services/events"
     },

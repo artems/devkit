@@ -40,3 +40,12 @@ export function setupModel(modelName, model) {
   };
 
 }
+
+/**
+ * @typedef {Object} User
+ *
+ * @property {String} login
+ * @property {String} html_url
+ * @property {String} avatar_url
+ * @property {Array}  notification_transports
+ */
