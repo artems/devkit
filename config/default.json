@@ -1,24 +1,32 @@
 {
-  "cluster": {
-    "workers": 4
-  },
   "services": {
-    "http": {
-      "path": "./services/http",
-      "options": {
-        "port": "8080"
-      },
-      "dependencies": [
-        "logger"
-      ]
+    "events": {
+      "path": "./src/services/events"
     },
     "logger": {
-      "path": "./services/logger",
+      "path": "./src/services/logger",
       "options": {
         "transports": [
           { "name": "console", "timestamp": true, "colorize": true }
         ]
       }
+    },
+    "mongoose": {
+      "path": "./src/services/mongoose",
+      "options": {
+        "host": "mongodb://localhost/devexp"
+      },
+      "dependencies": ["logger"]
+    },
+    "model": {
+      "path": "./src/services/model",
+      "options": {
+        "addons": {
+          "pull_request": [
+          ]
+        }
+      },
+      "dependencies": ["mongoose"]
     }
   }
 }

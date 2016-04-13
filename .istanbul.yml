@@ -1,0 +1,7 @@
+instrumentation:
+    excludes:
+      - "app.js"
+      - "start.js"
+      - "**/__tests__/**"
+      - "**/__mocks__/**"
+    include-all-sources: true
