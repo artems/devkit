@@ -7,14 +7,19 @@ import * as pullRequestModel from './items/pull-request';
 
 export default function setup(options, imports) {
 
+  const logger = imports.logger;
   const mongoose = imports.mongoose;
 
   const saveHooks = {};
   const extenders = {};
 
   forEach(options.addons, (list, modelName) => {
-    forEach(list, addonPath => {
-      const addon = imports.require(addonPath);
+    forEach(list, addonName => {
+      const addon = imports[addonName];
+
+      if (!addon) {
+        throw new Error(`Cannot find addon with name "${addonName}"`);
+      }
 
       if (!saveHooks[modelName]) {
         saveHooks[modelName] = [];
@@ -26,25 +31,28 @@ export default function setup(options, imports) {
     });
   });
 
-  const addonBroker = new AddonBroker(saveHooks, extenders);
+  const broker = new AddonBroker(saveHooks, extenders, logger);
 
   const setup = function setup(modelName, module) {
+    // setup schema
     const base = module.setupSchema();
-    const schema = addonBroker.setupExtenders(modelName, base);
+    const schema = broker.setupExtenders(modelName, base);
+    const mongooseModel = new Schema(schema);
 
-    const model = new Schema(schema);
+    // setup methods
+    module.setupModel(modelName, mongooseModel);
 
-    module.setupModel(modelName, model);
+    // setup save hooks
+    broker.setupSaveHooks(modelName, mongooseModel);
 
-    addonBroker.setupSaveHooks(modelName, model);
-
-    mongoose.model(modelName, model);
+    // register model
+    mongoose.model(modelName, mongooseModel);
   };
 
-  setup('user', user);
-  setup('pull_request', pullRequest);
+  setup('user', userModel);
+  setup('pull_request', pullRequestModel);
 
-  return function(modelName) {
+  return function (modelName) {
     return mongoose.model(modelName);
   };
 

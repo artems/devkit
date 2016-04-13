@@ -71,8 +71,8 @@ export function setupModel(modelName, model) {
    * Set mongo id the same as pull request id.
    */
   model.virtual('id')
-    .get(() => this._id)
-    .set(id => { this._id = id; });
+    .get(function () { return this._id; })
+    .set(function (id) { this._id = id; });
 
   model.methods.toString = function () {
     return '[' + this.id + ' – ' + this.title + ']' + ' ' + this.html_url;
@@ -125,7 +125,7 @@ export function setupModel(modelName, model) {
    *
    * @param {String} login
    *
-   * @return {Promise.<PullRequestReview>}
+   * @return {Promise.<PullRequest>}
    */
   model.statics.findInReview = function () {
     const req = {
@@ -143,7 +143,7 @@ export function setupModel(modelName, model) {
    *
    * @param {String} login
    *
-   * @return {Promise.<PullRequestReview>}
+   * @return {Promise.<PullRequest>}
    */
   model.statics.findInReviewByReviewer = function (login) {
     const req = {

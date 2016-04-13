@@ -17,12 +17,15 @@
   ],
   "precommit.silent": true,
   "scripts": {
-    "test": "$npm_package_config_mocha --reporter spec $npm_package_config_pattern_test",
+    "test": "$npm_package_config_mocha $npm_package_config_pattern_test",
+    "test:e2e": "$npm_package_config_mocha $npm_package_config_pattern_e2e",
     "test:watch": "$npm_package_config_mocha --watch --reporter spec $npm_package_config_pattern_test",
     "start": "node start.js",
     "start:watch": "nodemon start.js -e js,json,html --ignore node_modules/",
+    "jsdoc": "jsdoc -r -d jsdoc src",
     "eslint": "eslint .",
-    "coverage": "babel-node ./node_modules/.bin/babel-istanbul cover --report text --report lcovonly --report html _mocha -- -r ./tests/setup.js --reporter dot $npm_package_config_pattern_test",
+    "coverage": "$npm_package_config_istanbul $npm_package_config_pattern_test",
+    "coverage:e2e": "$npm_package_config_istanbul $npm_package_config_pattern_test $npm_package_config_pattern_e2e",
     "coveralls": "npm run coverage && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
   },
   "dependencies": {
@@ -46,10 +49,10 @@
   "devDependencies": {
     "babel-cli": "^6.6.5",
     "babel-eslint": "^6.0.0",
-    "babel-istanbul": "^0.7.0",
     "chai": "^3.4.1",
     "coveralls": "^2.11.6",
     "eslint": "2.6.0",
+    "istanbul": "^1.0.0-alpha.2",
     "mocha": "^2.3.4",
     "node-architect": "^0.0.8",
     "nodemon": "^1.8.1",
@@ -59,7 +62,9 @@
     "supertest": "^1.2.0"
   },
   "config": {
-    "mocha": "mocha --compilers js:babel-register -r ./tests/setup.js",
+    "mocha": "mocha --compilers js:babel-register -r ./tests/setup.js --reporter progress",
+    "istanbul": "babel-node ./node_modules/.bin/istanbul cover --report text --report lcovonly --report html _mocha -- -r ./tests/setup.js --reporter dot",
+    "pattern_e2e": "./tests/e2e/**.js",
     "pattern_test": "./src/**/__tests__/**.js",
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"

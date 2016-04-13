@@ -26,7 +26,10 @@
           ]
         }
       },
-      "dependencies": ["mongoose"]
+      "dependencies": [
+        "logger",
+        "mongoose"
+      ]
     }
   }
 }

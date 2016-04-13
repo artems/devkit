@@ -23,8 +23,8 @@ export function setupModel(modelName, model) {
    * Set mongo id the same as user login
    */
   model.virtual('login')
-    .get(() => this._id)
-    .set(login => { this._id = login; });
+    .get(function () { return this._id; })
+    .set(function (login) { this._id = login; });
 
   /**
    * Find user by login

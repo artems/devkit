@@ -1,7 +1,7 @@
 import { modelMock as userMock } from '../items/__mocks__/user';
 import { modelMock as pullRequestMock } from '../items/__mocks__/pull-request';
 
-export default function () {
+export default function mock() {
   const get = sinon.stub();
 
   get.withArgs('user').returns(userMock());

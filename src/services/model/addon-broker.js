@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { cloneDeep, forEach, merge } from 'lodash';
 
 /**
  * Addon broker helps to extend base model schema and setup save hooks.
@@ -44,7 +44,7 @@ export class AddonBroker {
     model.pre('save', function (next) {
       const promise = [];
 
-      _.forEach(saveHooks, hook => {
+      forEach(saveHooks, (hook) => {
         promise.push(hook(this));
       });
 
@@ -61,10 +61,10 @@ export class AddonBroker {
    * @return {Object} extended schema
    */
   setupExtenders(name, schema) {
-    let newSchema = _.cloneDeep(schema);
+    let newSchema = cloneDeep(schema);
 
-    _.forEach(this.get(name).extenders, (extender) => {
-      newSchema = _.merge(newSchema, extender(schema));
+    forEach(this.get(name).extenders, (extender) => {
+      newSchema = merge(newSchema, extender(schema));
     });
 
     return newSchema;

@@ -6,7 +6,7 @@ export default function mock() {
     body: 'body',
     title: 'title',
     number: 2,
-    html_url: 'html_url'
+    html_url: 'html_url',
     state: 'open',
     user: { id: 3, login: 'user.login' },
     repository: {

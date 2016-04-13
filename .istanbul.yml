@@ -2,6 +2,7 @@ instrumentation:
     excludes:
       - "app.js"
       - "start.js"
+      - "jsdoc/**"
       - "**/__tests__/**"
       - "**/__mocks__/**"
     include-all-sources: true

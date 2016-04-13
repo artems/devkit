@@ -1,39 +1,51 @@
-import * as pullRequest from '../../model/models/pull-request';
+import schemaModelMock from '../__mocks__/schema';
+import pullRequestMock from '../__mocks__/pull-request';
+import * as pullRequestModel from '../pull-request';
 
-describe('services/model/models/pull-request', function () {
+describe('services/model/items/pull-request', function () {
 
   describe('#setupSchema', function () {
 
     it('should return schema', function () {
-      const schema = pullRequest.setupSchema();
+      const schema = pullRequestModel.setupSchema();
 
       assert.isObject(schema);
       assert.property(schema, '_id');
+      assert.property(schema, 'number');
     });
 
   });
 
   describe('#setupModel', function () {
 
-    let model;
-
+    let model, pullRequest;
     beforeEach(function () {
+      model = schemaModelMock();
+      pullRequest = pullRequestMock();
 
-      model = {
-        set: sinon.stub().returnsThis(),
-        path: sinon.stub().returnsThis(),
-        methods: {},
-        statics: {}
-      };
-
-      model.set.callsArgOnWith(0, model, 123456789);
-
-      pullRequest.setupModel('pull_request', model);
+      pullRequestModel.setupModel('pull_request', model);
     });
 
-    it('should set _id as id', function () {
-      assert.equal(model._id, 123456789);
-      assert.calledWith(model.path, 'id');
+    it('should add method "toString"', function () {
+      assert.isFunction(model.methods.toString);
+      assert.equal(model.methods.toString.call(pullRequest), '[1 – title] html_url');
+    });
+
+  });
+
+  describe('#getUserLogin', function () {
+
+    let pullRequest;
+    beforeEach(function () {
+      pullRequest = pullRequestMock();
+    });
+
+    it('should return pullRequest repository owner', function () {
+      assert.equal(pullRequestModel.getUserLogin(pullRequest), 'repository.owner.login');
+    });
+
+    it('should return an empty string if pullRequest broken', function () {
+      assert.equal(pullRequestModel.getUserLogin({}), '');
     });
 
   });

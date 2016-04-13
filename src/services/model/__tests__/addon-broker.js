@@ -19,9 +19,8 @@ describe('services/model/addon-broker', function () {
         };
       };
 
-      const addonBroker = new AddonBroker(null, { modelA: [extender] });
-
-      const schema = addonBroker.setupExtenders('modelA', baseSchema);
+      const broker = new AddonBroker(null, { modelA: [extender] });
+      const schema = broker.setupExtenders('modelA', baseSchema);
 
       assert.deepEqual(schema, { moduleA: { fieldA: Number, fieldB: String } });
     });
@@ -55,9 +54,9 @@ describe('services/model/addon-broker', function () {
         });
       };
 
-      const addonBroker = new AddonBroker({ modelA: [saveHook] }, null);
+      const broker = new AddonBroker({ modelA: [saveHook] }, null);
 
-      addonBroker.setupSaveHooks('modelA', modelStub);
+      broker.setupSaveHooks('modelA', modelStub);
 
       objectStub.save();
     });
