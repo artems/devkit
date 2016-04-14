@@ -77,7 +77,7 @@ export default class PullRequestGitHub {
 
       this.github.pullRequests.update(req, err => {
         if (err) {
-          reject(new Error('Cannot update a pull request description:\n' + err));
+          reject(new Error('Cannot update a pull request:\n' + err));
           return;
         }
 
@@ -125,7 +125,7 @@ export default class PullRequestGitHub {
           return this.syncPullRequest(local);
         })
         .then(local => {
-          const section = _.clone(local.get('section') || {});
+          const section = _.clone(local.get('section')) || {};
           section[sectionId] = { content, position };
           local.set('section', section);
 
@@ -133,7 +133,7 @@ export default class PullRequestGitHub {
 
           return local.save();
         })
-        .then(this.updatePullRequestOnGitHub.bind(this))
+        .then(::this.updatePullRequestOnGitHub)
         .then(resolve, reject);
     });
   }

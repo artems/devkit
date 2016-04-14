@@ -10,7 +10,6 @@ describe('services/github', function () {
 
     const github = service(options);
 
-    assert.property(github, 'repos');
     assert.property(github, 'pullRequests');
 
   });

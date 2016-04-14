@@ -1,6 +1,4 @@
-import { Schema } from 'mongoose';
-
-export default function setup(options, imports) {
+export default function setup() {
 
   return {
 
@@ -11,7 +9,7 @@ export default function setup(options, imports) {
      */
     extender() {
       return {
-        section: Schema.Types.Mixed
+        section: {}
       };
     }
 

@@ -2,7 +2,7 @@ import service from '../index';
 import { modelMock } from '../../model/items/__mocks__/pull-request';
 import pullRequestGitHubMock from '../__mocks__/index';
 
-describe('services/pull-request-github', () => {
+describe('services/pull-request-github', function () {
 
   let options, imports;
   let github, PullRequestModel;
