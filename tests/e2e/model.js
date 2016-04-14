@@ -10,7 +10,7 @@ export function withModel(test, config, done) {
     services: {
       logger: {
         path: './src/services/logger',
-        options: { transports: [] }
+        options: { handlers: {} }
       },
       mongoose: {
         path: './src/services/mongoose',

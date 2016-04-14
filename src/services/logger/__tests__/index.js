@@ -1,14 +1,5 @@
 import service from '../index';
 import loggerMock from '../__mocks__/index';
-import { Writable } from 'stream';
-
-class MyDummyWritableStream extends Writable {
-
-  _write(chunk, encoding, callback) {
-    callback();
-  }
-
-}
 
 describe('services/logger', function () {
 
@@ -34,36 +25,6 @@ describe('services/logger', function () {
     assert.property(mock, 'info');
     assert.property(mock, 'warn');
     assert.property(mock, 'error');
-
-  });
-
-  describe('#options', function () {
-
-    it('should accept `file` and `console` transports', function () {
-
-      const options = {
-        transports: [
-          {
-            name: 'stream',
-            stream: new MyDummyWritableStream()
-          },
-          {
-            name: 'console',
-            timestamp: true
-          }
-        ]
-      };
-
-      service(options);
-    });
-
-    it('should throw an error if unknown transport was given', function () {
-      const options = {
-        transports: [{ name: 'blackhole' }]
-      };
-
-      assert.throws(() => service(options), /blackhole/);
-    });
 
   });
 

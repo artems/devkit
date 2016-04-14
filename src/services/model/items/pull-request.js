@@ -1,5 +1,3 @@
-import { Schema } from 'mongoose';
-
 export function setupSchema() {
   return {
     _id: Number,
@@ -60,8 +58,7 @@ export function setupSchema() {
       started_at: Date,
       updated_at: Date,
       completed_at: Date
-    },
-    section: Schema.Types.Mixed
+    }
   };
 }
 

@@ -9,10 +9,43 @@
     "logger": {
       "path": "./src/services/logger",
       "options": {
-        "transports": [
-          { "name": "console", "timestamp": true, "colorize": true }
-        ]
+        "formatters": {
+          "default": {
+            "format": "[%(date)s] %-15.15(name)s %(levelname)s: %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S.%L%z",
+            "colorize": false
+          }
+        },
+        "handlers": {
+          "terminal": {
+            "class": "intel/handlers/console",
+            "level": "VERBOSE",
+            "formatter": "default"
+          }
+        },
+        "loggers": {
+          "app": {
+            "level": "INFO",
+            "handlers": ["terminal"],
+            "handleExceptions": true,
+            "exitOnError": false
+          }
+        }
       }
+    },
+    "github": {
+      "path": "./src/services/github",
+      "options": {
+        "host": "api.github.com",
+        "debug": false,
+        "version": "3.0.0",
+        "timeout": 5000,
+        "protocol": "https",
+        "headers": {
+          "user-agent": "DevExp-App"
+        }
+      },
+      "dependencies": []
     },
     "mongoose": {
       "path": "./src/services/mongoose",
@@ -26,12 +59,37 @@
       "options": {
         "addons": {
           "pull_request": [
+            "pull-request-github-addon"
           ]
         }
       },
       "dependencies": [
-        "mongoose"
+        "mongoose",
+        "pull-request-github-addon"
       ]
+    },
+    "pull-request-model": {
+      "path": "./src/services/pull-request-model",
+      "dependencies": [
+        "model"
+      ]
+    },
+    "pull-request-github": {
+      "path": "./src/services/pull-request-github",
+      "options": {
+        "separator": {
+          "top": "<div id='devexp-content-top'></div><hr>",
+          "bottom": "<div id='devexp-content-bottom'></div>"
+        }
+      },
+      "dependencies": [
+        "logger",
+        "github",
+        "pull-request-model"
+      ]
+    },
+    "pull-request-github-addon": {
+      "path": "./src/services/pull-request-github/addon"
     }
   }
 }
