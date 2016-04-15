@@ -1,0 +1,26 @@
+{
+
+  "team-github": {
+    "path": "./src/services/team/github",
+    "options": {
+      "orgName": "devexp-org",
+      "slugName": "owners"
+    },
+    "dependencies": [
+      "github"
+    ]
+  },
+
+  "team-static": {
+    "path": "./src/services/team/static",
+    "options": {
+      "members": [
+        "artems",
+        "d4rkr00t",
+        "mishanga",
+        "sbmaxx"
+      ]
+    }
+  }
+
+}

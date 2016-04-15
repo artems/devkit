@@ -1,4 +1,4 @@
-import Queue from '../../queue';
+import Queue from '../queue';
 
 describe('services/queue', () => {
 
@@ -21,6 +21,7 @@ describe('services/queue', () => {
     });
 
     it('should add a task to queue if previous tasks were not finished', function (done) {
+
       const order = [];
 
       const longTask = () => {
@@ -58,9 +59,11 @@ describe('services/queue', () => {
           done();
         })
         .catch(done);
+
     });
 
     it('should run a task even if previous tasks will be rejected', function (done) {
+
       const longTask = () => {
         return new Promise((resolve, reject) => {
           setTimeout(() => {
@@ -84,6 +87,7 @@ describe('services/queue', () => {
           done();
         })
         .catch(done);
+
     });
 
   });

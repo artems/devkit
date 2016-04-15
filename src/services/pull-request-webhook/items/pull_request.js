@@ -9,10 +9,10 @@
 export default function webhook(payload, imports) {
 
   const events = imports.events;
-  const github = imports.github;
   const logger = imports.logger.getLogger('webhook');
 
   const PullRequestModel = imports['pull-request-model'];
+  const pullRequestGitHub = imports['pull-request-github'];
 
   const pullRequestWebhook = payload.pull_request;
 
@@ -29,7 +29,7 @@ export default function webhook(payload, imports) {
         pullRequest = new PullRequestModel(pullRequestWebhook);
       }
 
-      return github
+      return pullRequestGitHub
         .loadPullRequestFiles(pullRequest)
         .then(files => {
           pullRequest.set('files', files);

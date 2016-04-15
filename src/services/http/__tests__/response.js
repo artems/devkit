@@ -1,4 +1,4 @@
-import service from '../../http/response';
+import service from '../response';
 
 describe('services/http/response', function () {
 

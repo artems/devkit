@@ -1,5 +1,11 @@
 export default function mock() {
 
+  const orgsMock = {
+    getTeams: sinon.stub().callsArg(1),
+    getMembers: sinon.stub().callsArg(1),
+    getTeamMembers: sinon.stub().callsArg(1)
+  };
+
   const pullRequestsMock = {
     get: sinon.stub().callsArg(1),
     update: sinon.stub().callsArg(1),
@@ -7,6 +13,7 @@ export default function mock() {
   };
 
   return {
+    orgs: orgsMock,
     pullRequests: pullRequestsMock
   };
 

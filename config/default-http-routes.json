@@ -1,0 +1,13 @@
+{
+
+  "http-route-github": {
+    "path": "./src/services/pull-request-webhook",
+    "dependencies": [
+      "events",
+      "logger",
+      "pull-request-model",
+      "pull-request-github"
+    ]
+  }
+
+}

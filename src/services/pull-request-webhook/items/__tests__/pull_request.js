@@ -1,22 +1,27 @@
 import webhook from '..//pull_request';
 import loggerMock from '../../../logger/__mocks__/index';
 import eventsMock from '../../../events/__mocks__/index';
-import githubMock from '../../../pull-request-github/__mocks__/index';
 import pullRequestMock, { modelMock as pullRequestModelMock } from '../../../model/items/__mocks__/pull-request';
+import pullRequestGitHubMock from '../../../pull-request-github/__mocks__/index';
 
-describe('services/pull-request-github/items/pull_request', () => {
+describe('services/pull-request-webhook/items/pull_request', () => {
 
-  let payload, imports, github, logger, events;
-  let promise, pullRequest, PullRequestModel;
+  let payload, imports, logger, events;
+  let promise, pullRequest, PullRequestModel, pullRequestGitHub;
 
   beforeEach(function () {
 
-    github = githubMock();
     logger = loggerMock();
     events = eventsMock();
     PullRequestModel = pullRequestModelMock();
+    pullRequestGitHub = pullRequestGitHubMock();
 
-    imports = { 'pull-request-model': PullRequestModel, github, logger, events };
+    imports = {
+      events,
+      logger,
+      'pull-request-model': PullRequestModel,
+      'pull-request-github': pullRequestGitHub
+    };
 
     payload = {
       id: 123456789,
@@ -40,7 +45,7 @@ describe('services/pull-request-github/items/pull_request', () => {
       return Promise.resolve(x);
     };
 
-    github.loadPullRequestFiles.returns(promise([]));
+    pullRequestGitHub.loadPullRequestFiles.returns(promise([]));
 
     PullRequestModel.findById.returns(promise(pullRequest));
 

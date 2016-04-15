@@ -5,7 +5,7 @@ import bodyParser from 'body-parser';
 import loggerMock from '../../logger/__mocks__/index';
 import responseJSON from '../../http/response';
 
-describe('services/pull-request-github/index', function () {
+describe('services/pull-request-webhook', function () {
 
   let options, imports;
   let app, router, service, logger;

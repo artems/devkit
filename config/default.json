@@ -1,11 +1,14 @@
 {
   "services": {
+
     "queue": {
       "path": "./src/services/queue"
     },
+
     "events": {
       "path": "./src/services/events"
     },
+
     "logger": {
       "path": "./src/services/logger",
       "options": {
@@ -33,6 +36,7 @@
         }
       }
     },
+
     "github": {
       "path": "./src/services/github",
       "options": {
@@ -47,17 +51,23 @@
       },
       "dependencies": []
     },
+
     "http": {
       "path": "./src/services/http",
       "options": {
         "port": "8080",
         "routes": {
+          "/github": "http-route-github"
         }
       },
       "dependencies": [
-        "logger"
+        "logger",
+        "http-route-github"
       ]
     },
+
+    "#include:http-routes": "./default-http-routes.json",
+
     "mongoose": {
       "path": "./src/services/mongoose",
       "options": {
@@ -65,6 +75,7 @@
       },
       "dependencies": ["logger"]
     },
+
     "model": {
       "path": "./src/services/model",
       "options": {
@@ -79,12 +90,28 @@
         "pull-request-github-addon"
       ]
     },
+
+    "team": {
+      "path": "./src/services/team",
+      "options": {
+        "routes": [
+          { "team-github": ["*/*"] }
+        ]
+      },
+      "dependencies": [
+        "team-github"
+      ]
+    },
+
+    "#include:teams": "./default-teams.json",
+
     "pull-request-model": {
       "path": "./src/services/pull-request-model",
       "dependencies": [
         "model"
       ]
     },
+
     "pull-request-github": {
       "path": "./src/services/pull-request-github",
       "options": {
@@ -94,13 +121,14 @@
         }
       },
       "dependencies": [
-        "logger",
         "github",
         "pull-request-model"
       ]
     },
+
     "pull-request-github-addon": {
       "path": "./src/services/pull-request-github/addon"
     }
+
   }
 }

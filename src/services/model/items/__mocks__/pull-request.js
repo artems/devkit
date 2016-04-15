@@ -1,3 +1,5 @@
+import { get } from 'lodash';
+
 export default function mock() {
 
   const pull = {
@@ -28,9 +30,13 @@ export default function mock() {
 
   const promise = Promise.resolve(pull);
 
-  pull.get = sinon.stub();
+  pull.get = function () {};
   pull.set = sinon.stub().returnsThis();
   pull.save = sinon.stub().returns(promise);
+
+  sinon.stub(pull, 'get', function (path) {
+    return get(this, path);
+  });
 
   return pull;
 

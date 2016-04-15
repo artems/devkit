@@ -1,6 +1,6 @@
 import path from 'path';
 import request from 'supertest';
-import service from '../../http';
+import service from '../index';
 import indexRoute from '../routes/index';
 import staticRoute from '../routes/static';
 import loggerMock from '../../logger/__mocks__/index';

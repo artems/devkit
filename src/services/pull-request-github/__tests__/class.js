@@ -224,7 +224,7 @@ describe('services/pull-request-github/class', function () {
       sinon.stub(pullRequestGitHub, 'updatePullRequestOnGitHub').returns(Promise.resolve(pullRequest));
 
       const section = {};
-      pullRequest.get.withArgs('section').returns(section);
+      pullRequest.section = section;
     });
 
     it('should save a pull request with updated property `section`', function (done) {
@@ -246,7 +246,7 @@ describe('services/pull-request-github/class', function () {
     });
 
     it('should not reject promise if section does not exists in the pull request', function (done) {
-      pullRequest.get.withArgs('section').returns(null);
+      pullRequest.section = null;
 
       pullRequestGitHub.setBodySection(pullRequest, 'section', 'body', 100)
         .then(() => done())

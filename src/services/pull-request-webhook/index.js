@@ -8,7 +8,7 @@ const GITHUB_HEADER_EVENT = 'x-github-event';
 
 export default function setup(options, imports) {
 
-  const logger = imports.logger.getLogger('webhook');
+  const logger = imports.logger.getLogger('http.webhook');
 
   const githubRouter = router();
 
@@ -27,7 +27,7 @@ export default function setup(options, imports) {
       return;
     }
 
-    logger.info('New event comes, event=%s, action=%s', eventName, req.body.action);
+    logger.info('New event, event=%s, action=%s', eventName, req.body.action);
 
     switch (eventName) {
       case 'ping': {
