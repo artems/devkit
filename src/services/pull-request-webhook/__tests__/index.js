@@ -2,13 +2,10 @@ import express from 'express';
 import request from 'supertest';
 import proxyquire from 'proxyquire';
 import bodyParser from 'body-parser';
-
-// import responseJSON from '../../http/response';
 import loggerMock from '../../logger/__mocks__/index';
+import responseJSON from '../../http/response';
 
-const responseJSON = function () {};
-
-describe.skip('services/pull-request-github/routes', function () {
+describe('services/pull-request-github/routes', function () {
 
   let options, imports;
   let app, router, service, logger;
@@ -26,11 +23,11 @@ describe.skip('services/pull-request-github/routes', function () {
 
     issueCommentHookStub = sinon.stub().returns(Promise.resolve({}));
 
-    const routes = proxyquire('../routes', {
-      './webhooks/pull_request': {
+    const routes = proxyquire('../index', {
+      './items/pull_request': {
         'default': pullRequestHookStub
       },
-      './webhooks/issue_comment': {
+      './items/issue_comment': {
         'default': issueCommentHookStub
       }
     });
@@ -44,7 +41,7 @@ describe.skip('services/pull-request-github/routes', function () {
     app.use(router);
 
     request(app)
-      .get('/i')
+      .get('/webhook')
       .expect('Content-Type', /text\/html/)
       .expect(200)
       .expect('ok')
@@ -70,8 +67,8 @@ describe.skip('services/pull-request-github/routes', function () {
   describe('`/webhook` with header `x-github-event`', function () {
 
     beforeEach(function () {
-      app.use(responseJSON());
       app.use(bodyParser.json());
+      app.use(responseJSON());
 
       app.use(router);
     });

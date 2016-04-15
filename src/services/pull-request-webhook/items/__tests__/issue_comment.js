@@ -1,22 +1,21 @@
-import webhook from '../../items/issue_comment';
-import modelMock from '../../../model/__mocks__/index';
+import webhook from '../issue_comment';
 import loggerMock from '../../../logger/__mocks__/index';
 import eventsMock from '../../../events/__mocks__/index';
-import pullRequestMock from '../../../model/items/__mocks__/pull-request';
+import pullRequestMock, { modelMock as pullRequestModelMock } from '../../../model/items/__mocks__/pull-request';
 
-describe.skip('services/pull-request-github/webhooks/issue_comment', () => {
+describe('services/pull-request-github/webhooks/issue_comment', () => {
 
-  let payload, imports, model, logger, events;
-  let promise, pullRequest, pullRequestModel;
+  let payload, imports, logger, events;
+  let promise, pullRequest, PullRequestModel;
 
   beforeEach(function () {
-    model = modelMock();
+
     logger = loggerMock();
     events = eventsMock();
 
-    pullRequestModel = model.get('pull_request');
+    PullRequestModel = pullRequestModelMock();
 
-    imports = { 'pull-request-model': pullRequestModel, logger, events };
+    imports = { 'pull-request-model': PullRequestModel, logger, events };
 
     payload = {
       action: 'issue_comment',
@@ -36,8 +35,8 @@ describe.skip('services/pull-request-github/webhooks/issue_comment', () => {
 
     pullRequest = pullRequestMock();
 
-    pullRequestModel
-      .findByRepositoryAndNumber.returns(promise(pullRequest));
+    PullRequestModel.findByRepositoryAndNumber.returns(promise(pullRequest));
+
   });
 
   it('should trigger system event `github:issue_comment`', function (done) {
@@ -49,13 +48,11 @@ describe.skip('services/pull-request-github/webhooks/issue_comment', () => {
       .catch(done);
   });
 
-  it('should fail if pull request was not found', function (done) {
-    pullRequestModel
-      .findByRepositoryAndNumber.returns(promise(null));
+  it('should reject promise if pull request was not found', function (done) {
+    PullRequestModel.findByRepositoryAndNumber.returns(promise(null));
 
     webhook(payload, imports)
       .catch(e => {
-        assert.instanceOf(e, Error);
         assert.match(e.message, /not found/);
         done();
       })

@@ -1,23 +1,22 @@
-import webhook from '../../items/pull_request';
-import modelMock from '../../../model/__mocks__/index';
-import pullRequestMock from '../../../model/items/__mocks__/pull-request';
+import webhook from '..//pull_request';
 import loggerMock from '../../../logger/__mocks__/index';
 import eventsMock from '../../../events/__mocks__/index';
 import githubMock from '../../../pull-request-github/__mocks__/index';
+import pullRequestMock, { modelMock as pullRequestModelMock } from '../../../model/items/__mocks__/pull-request';
 
-describe.skip('services/pull-request-github/webhooks/pull_request', () => {
+describe('services/pull-request-github/items/pull_request', () => {
 
-  let payload, imports, model, github, logger, events;
-  let promise, pullRequest, pullRequestModel;
+  let payload, imports, github, logger, events;
+  let promise, pullRequest, PullRequestModel;
 
   beforeEach(function () {
-    model = modelMock();
+
     github = githubMock();
     logger = loggerMock();
     events = eventsMock();
-    pullRequestModel = model.get('pull_request');
+    PullRequestModel = pullRequestModelMock();
 
-    imports = { 'pull-request-model': pullRequestModel, github, logger, events };
+    imports = { 'pull-request-model': PullRequestModel, github, logger, events };
 
     payload = {
       id: 123456789,
@@ -41,14 +40,13 @@ describe.skip('services/pull-request-github/webhooks/pull_request', () => {
       return Promise.resolve(x);
     };
 
-    model.get('pull_request')
-      .findById.returns(promise(pullRequest));
+    github.loadPullRequestFiles.returns(promise([]));
 
-    github
-      .loadPullRequestFiles.returns(promise([]));
+    PullRequestModel.findById.returns(promise(pullRequest));
+
   });
 
-  it('should trigger system event `github:pull_request`', function (done) {
+  it('should trigger event `github:pull_request`', function (done) {
     webhook(payload, imports)
       .then(() => {
         events.emit.calledWith('github:pull_requset');
@@ -57,12 +55,11 @@ describe.skip('services/pull-request-github/webhooks/pull_request', () => {
       .catch(done);
   });
 
-  it('should create new object if pull request is not found', function (done) {
-    model.get('pull_request')
-      .findById.returns(promise(null));
+  it('should create new object if pull request was not found', function (done) {
+    PullRequestModel.findById.returns(promise(null));
 
     webhook(payload, imports)
-      .then(() => done())
+      .then(pullRequest => { assert.isObject(pullRequest); done(); })
       .catch(done);
   });
 
