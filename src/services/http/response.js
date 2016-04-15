@@ -2,6 +2,11 @@ export default function middleware() {
 
   return function (req, res, next) {
 
+    /**
+     * Alias for "json" method
+     *
+     * @param {*} data - response data
+     */
     res.ok = function (data) {
       this.json(data);
     };
@@ -16,7 +21,7 @@ export default function middleware() {
     };
 
     /**
-     * Send error message.
+     * Send failure response.
      *
      * @param {String} [message] — error message (default: error).
      * @param {Number} [status] — http response status (default: 500).

@@ -79,12 +79,12 @@ describe('services/http', function () {
 
   });
 
-  it('should return 404 if file not found in /public', function (done) {
+  it('should return 404 if file is not found in /public', function (done) {
 
     service(options, imports)
       .then(app => {
         request(app)
-          .get('/public/file-not-exists')
+          .get('/public/file-does-not-exist')
           .expect(404)
           .end(err => {
             app.shutdown(() => done(err));
@@ -92,6 +92,12 @@ describe('services/http', function () {
       })
       .catch(done);
 
+  });
+
+  it('should throw an error if route module is not given', function () {
+    imports.index = null;
+
+    assert.throws(() => service(options, imports), /cannot.*index/i);
   });
 
 });

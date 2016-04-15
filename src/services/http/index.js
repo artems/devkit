@@ -1,6 +1,5 @@
-import { forEach } from 'lodash';
 import express from 'express';
-
+import { forEach } from 'lodash';
 import bodyParser from 'body-parser';
 import responseTime from 'response-time';
 import responseJSON from './response';
@@ -9,7 +8,7 @@ export default function setup(options, imports) {
 
   const app = express();
   const port = options.port;
-  const logger = imports.logger.getLogger('app.http');
+  const logger = imports.logger.getLogger('http');
 
   app.use(bodyParser.json());
   app.use(responseTime());
@@ -17,6 +16,9 @@ export default function setup(options, imports) {
 
   forEach(options.routes, (router, route) => {
     const routerModule = imports[router];
+    if (!routerModule) {
+      throw new Error(`Cannot find route module "${router}"`);
+    }
 
     app.use(route, routerModule);
   });

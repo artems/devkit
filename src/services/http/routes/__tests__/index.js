@@ -31,4 +31,9 @@ describe('services/http/routes/index', function () {
       .end(done);
   });
 
+  it('should throw an error if assets path is not given', function () {
+    options = {};
+    assert.throws(() => service(options, imports), /assets/);
+  });
+
 });

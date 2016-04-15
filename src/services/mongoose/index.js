@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 export default function setup(options, imports) {
 
-  const logger = imports.logger.getLogger('app.mongoose');
+  const logger = imports.logger.getLogger('mongoose');
 
   const connection = mongoose.createConnection(options.host);
 

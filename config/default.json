@@ -24,7 +24,7 @@
           }
         },
         "loggers": {
-          "app": {
+          "root": {
             "level": "INFO",
             "handlers": ["terminal"],
             "handleExceptions": true,

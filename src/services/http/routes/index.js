@@ -3,7 +3,11 @@ import { Router as router } from 'express';
 
 export default function setup(options, imports) {
 
-  const assetsPath = path.resolve(options.assets || '.');
+  if (!options.assets) {
+    throw new Error('Required parameter "assets" is not given');
+  }
+
+  const assetsPath = path.resolve(options.assets);
 
   const indexRouter = router();
 
