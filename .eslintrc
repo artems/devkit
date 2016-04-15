@@ -173,7 +173,7 @@
     "operator-linebreak": [2, "after", { "overrides": { "?": "before", ":": "before" } }],
     "padded-blocks": [0],
     "quote-props": [2, "as-needed", { "keywords": true }],
-    "quotes": [2, "single"],
+    "quotes": [2, "single", "avoid-escape"],
     "semi-spacing": [2, { "before": false, "after": true }],
     "semi": [2, "always"],
     "sort-vars": [0],

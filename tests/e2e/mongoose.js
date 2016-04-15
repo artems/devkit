@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { withApp } from './common';
 import pullRequestHook from './data/pull_request_webhook';
 
-const MONGODB_HOST = 'mongodb://localhost/devexp_test';
+export const MONGODB_HOST = 'mongodb://localhost/devexp_test';
 
 export function withModel(test, config, done) {
 
@@ -19,7 +19,7 @@ export function withModel(test, config, done) {
       },
       model: {
         path: './src/services/model',
-        dependencies: ['logger', 'mongoose']
+        dependencies: ['mongoose']
       }
     }
   }, config);

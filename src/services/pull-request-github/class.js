@@ -33,7 +33,7 @@ export default class PullRequestGitHub {
 
       this.github.pullRequests.get(req, (err, remote) => {
         if (err) {
-          reject(new Error('Cannot receive a pull request from github:\n' + err));
+          reject(new Error('Cannot receive a pull request from github: ' + err));
           return;
         }
 
@@ -55,7 +55,7 @@ export default class PullRequestGitHub {
           local.set(remote);
           local.save(err => {
             if (err) {
-              reject(new Error('Cannot save a pull request from github:\n' + err));
+              reject(new Error('Cannot save a pull request from github: ' + err));
               return;
             }
 
@@ -77,7 +77,7 @@ export default class PullRequestGitHub {
 
       this.github.pullRequests.update(req, err => {
         if (err) {
-          reject(new Error('Cannot update a pull request:\n' + err));
+          reject(new Error('Cannot update a pull request: ' + err));
           return;
         }
 
@@ -97,7 +97,7 @@ export default class PullRequestGitHub {
 
       this.github.pullRequests.getFiles(req, (err, files) => {
         if (err) {
-          reject(new Error('Cannot receive files from the pull request:\n' + err));
+          reject(new Error('Cannot receive files from the pull request: ' + err));
           return;
         }
 
