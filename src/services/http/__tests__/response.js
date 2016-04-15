@@ -18,13 +18,11 @@ describe('services/http/response', function () {
   it('should expand `response` object', function (done) {
 
     middlewere(req, res, () => {
-
       assert.property(res, 'ok');
       assert.property(res, 'error');
       assert.property(res, 'success');
 
       done();
-
     });
 
   });

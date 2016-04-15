@@ -112,18 +112,9 @@ export default class PullRequestGitHub {
       .then(::this.savePullRequestToDatabase);
   }
 
-  setBodySection(id, sectionId, content, position = Infinity) {
+  setBodySection(local, sectionId, content, position = Infinity) {
     return new Promise((resolve, reject) => {
-      this.PullRequestModel
-        .findById(id)
-        .then(local => {
-          if (!local) {
-            reject(new Error(`Pull request ${id} not found`));
-            return;
-          }
-
-          return this.syncPullRequest(local);
-        })
+      this.syncPullRequest(local)
         .then(local => {
           const section = _.clone(local.get('section')) || {};
           section[sectionId] = { content, position };
@@ -131,8 +122,9 @@ export default class PullRequestGitHub {
 
           this.fillPullRequestBody(local);
 
-          return local.save();
+          return local;
         })
+        .then(::this.savePullRequestToDatabase)
         .then(::this.updatePullRequestOnGitHub)
         .then(resolve, reject);
     });

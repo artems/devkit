@@ -204,7 +204,7 @@ describe('services/pull-request-github', function () {
         const pullRequestGitHub = imports['pull-request-github'];
 
         return pullRequestGitHub
-          .setBodySection(pullRequest.id, 'time', time)
+          .setBodySection(pullRequest, 'time', time)
           .then(pullRequestSaved => {
             return pullRequestGitHub.loadPullRequestFromGitHub(pullRequest);
           })

@@ -47,6 +47,17 @@
       },
       "dependencies": []
     },
+    "http": {
+      "path": "./src/services/http",
+      "options": {
+        "port": "8080",
+        "routes": {
+        }
+      },
+      "dependencies": [
+        "logger"
+      ]
+    },
     "mongoose": {
       "path": "./src/services/mongoose",
       "options": {
