@@ -229,7 +229,7 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
 
     it('should save a pull request with updated property `section`', function (done) {
 
-      pullRequestGitHub.setBodySection(pullRequest, 'section', 'body', 100)
+      pullRequestGitHub.setBodySection(pullRequest, 'section', 'body')
         .then(result => {
           assert.called(pullRequestGitHub.syncPullRequest);
           assert.called(pullRequestGitHub.savePullRequestToDatabase);

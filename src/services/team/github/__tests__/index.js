@@ -29,6 +29,10 @@ describe('services/team/github', function () {
       github = githubMock();
     });
 
+    it('should throw an error if `orgNmae` is not given', function () {
+      assert.throws(() => new GitHubTeam(github), /orgName/);
+    });
+
     it('should use method `getMembers` to obtain team if slug is not given', function (done) {
       github.orgs.getMembers.callsArgWith(1, null, []);
 
