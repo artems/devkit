@@ -15,7 +15,6 @@ export default function setup(options, imports) {
         resolve(connection);
       })
       .on('error', (error) => {
-        logger.error(error);
         reject(error);
       });
   });

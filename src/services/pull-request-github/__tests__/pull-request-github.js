@@ -1,8 +1,6 @@
 import PullRequestGitHub from '../pull-request-github';
 import githubMock from '../../github/__mocks__/index';
-import pullRequestMock from '../../model/collections/__mocks__/pull-request';
-import { modelMock as pullRequestModelMock } from '../../model/collections/__mocks__/pull-request';
-
+import { pullRequestMock, pullRequestModelMock } from '../../model/collections/__mocks__/pull-request';
 
 describe('services/pull-request-github/PullRequestGitHub', function () {
 

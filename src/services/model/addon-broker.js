@@ -6,10 +6,12 @@ import { cloneDeep, forEach, merge } from 'lodash';
 export class AddonBroker {
 
   /**
+   * @param {Object[]} mixins - each minxin add methods to model
    * @param {Object[]} saveHooks - each saveHook setup hook to model
    * @param {Object[]} extenders - each extender return parial schema
    */
-  constructor(saveHooks, extenders) {
+  constructor(mixins, saveHooks, extenders) {
+    this.mixins = mixins || {};
     this.saveHooks = saveHooks || {};
     this.extenders = extenders || {};
   }
@@ -23,9 +25,22 @@ export class AddonBroker {
    */
   get(model) {
     return {
+      mixins: this.mixins[model] || [],
       saveHooks: this.saveHooks[model] || [],
       extenders: this.extenders[model] || []
     };
+  }
+
+  /**
+   * Add mixins to model
+   *
+   * @param {String} name - model name.
+   * @param {Object} model - mongoose model.
+   */
+  setupModel(name, model) {
+    forEach(this.get(name).mixins, (mixin) => {
+      mixin(model);
+    });
   }
 
   /**

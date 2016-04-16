@@ -1,7 +1,7 @@
 import webhook from '../issue_comment';
 import loggerMock from '../../../logger/__mocks__/index';
 import eventsMock from '../../../events/__mocks__/index';
-import pullRequestMock, { modelMock as pullRequestModelMock } from '../../../model/collections/__mocks__/pull-request';
+import { pullRequestMock, pullRequestModelMock } from '../../../model/collections/__mocks__/pull-request';
 
 describe('services/pull-request-webhook/webhooks/issue_comment', () => {
 

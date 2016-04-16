@@ -35,9 +35,7 @@ describe('services/model', function () {
       }
     };
 
-    mongoose = {
-      model: sinon.stub()
-    };
+    mongoose = { model: sinon.stub() };
 
     imports = { mongoose, addon1, addon2 };
 
@@ -45,9 +43,9 @@ describe('services/model', function () {
 
   it('should setup model', function () {
     const model = service(options, imports);
-    assert.isFunction(model);
 
-    imports.mongoose.model.reset();
+    assert.isFunction(model);
+    mongoose.model.reset();
 
     model('user');
 
@@ -61,4 +59,5 @@ describe('services/model', function () {
 
     assert.throws(() => service(options, imports), /cannot find/i);
   });
+
 });

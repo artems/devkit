@@ -1,9 +1,10 @@
 import path from 'path';
 import request from 'supertest';
 import service from '../index';
+import loggerMock from '../../logger/__mocks__/index';
+
 import indexRoute from '../routes/index';
 import staticRoute from '../routes/static';
-import loggerMock from '../../logger/__mocks__/index';
 
 describe('services/http', function () {
 
@@ -12,7 +13,6 @@ describe('services/http', function () {
   beforeEach(function () {
 
     options = {
-      port: 8080,
       routes: {
         '/': 'index',
         '/public': 'bundle'
@@ -79,7 +79,7 @@ describe('services/http', function () {
 
   });
 
-  it('should return 404 if file is not found in /public', function (done) {
+  it('should return status 404 if the file is not found in /public', function (done) {
 
     service(options, imports)
       .then(app => {

@@ -3,29 +3,27 @@ import loggerMock from '../__mocks__/index';
 
 describe('services/logger', function () {
 
+  const methods = [
+    'log',
+    'info',
+    'warn',
+    'error'
+  ];
+
   it('should be resolved to Logger', function () {
+    const logger = service({});
 
-    const options = {
-      transports: []
-    };
-
-    const logger = service(options);
-
-    assert.property(logger, 'log');
-    assert.property(logger, 'info');
-    assert.property(logger, 'warn');
-    assert.property(logger, 'error');
-
+    methods.forEach(function (method) {
+      assert.property(logger, method);
+    });
   });
 
   it('the mock object should have the same methods', function () {
     const mock = loggerMock();
 
-    assert.property(mock, 'log');
-    assert.property(mock, 'info');
-    assert.property(mock, 'warn');
-    assert.property(mock, 'error');
-
+    methods.forEach(function (method) {
+      assert.property(mock, method);
+    });
   });
 
 });

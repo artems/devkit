@@ -1,92 +1,96 @@
 import Queue from '../queue';
 
-describe('services/queue/Queue', () => {
+describe('services/queue', function () {
 
-  let id, queue;
+  describe('Queue', function () {
 
-  beforeEach(() => {
-    id = 'just_id';
-    queue = new Queue();
-  });
+    let id, queue;
 
-  describe('#dispatch', () => {
-
-    it('should add a task to queue and execute it', function (done) {
-      const task = () => Promise.resolve();
-
-      queue
-        .dispatch(id, task)
-        .then(() => done())
-        .catch(done);
+    beforeEach(() => {
+      id = 'just_id';
+      queue = new Queue();
     });
 
-    it('should add a task to queue if previous tasks were not finished', function (done) {
+    describe('#dispatch', function () {
 
-      const order = [];
+      it('should add a task to queue and execute it', function (done) {
+        const task = () => Promise.resolve();
 
-      const longTask = () => {
-        order.push('start long task');
+        queue
+          .dispatch(id, task)
+          .then(() => done())
+          .catch(done);
+      });
 
-        return new Promise(resolve => {
-          setTimeout(() => {
-            order.push('finish long task');
-            resolve();
-          }, 10);
-        });
-      };
+      it('should add a task to queue if previous tasks were not finished', function (done) {
 
-      const shortTask = () => {
-        order.push('run short task');
+        const order = [];
 
-        return Promise.resolve();
-      };
+        const longTask = () => {
+          order.push('start long task');
 
-      order.push('enqueue long task');
-      queue.dispatch(id, longTask);
+          return new Promise(resolve => {
+            setTimeout(() => {
+              order.push('finish long task');
+              resolve();
+            }, 10);
+          });
+        };
 
-      order.push('enqueue short task');
-      queue
-        .dispatch(id, shortTask)
-        .then(() => {
-          assert.deepEqual(order, [
-            'enqueue long task',
-            'start long task',
-            'enqueue short task',
-            'finish long task',
-            'run short task'
-          ]);
+        const shortTask = () => {
+          order.push('run short task');
 
-          done();
-        })
-        .catch(done);
+          return Promise.resolve();
+        };
 
-    });
+        order.push('enqueue long task');
+        queue.dispatch(id, longTask);
 
-    it('should run a task even if previous tasks will be rejected', function (done) {
+        order.push('enqueue short task');
+        queue
+          .dispatch(id, shortTask)
+          .then(() => {
+            assert.deepEqual(order, [
+              'enqueue long task',
+              'start long task',
+              'enqueue short task',
+              'finish long task',
+              'run short task'
+            ]);
 
-      const longTask = () => {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => {
-            reject();
-          }, 10);
-        });
-      };
+            done();
+          })
+          .catch(done);
 
-      let taskExecuted = false;
-      const shortTask = () => {
-        taskExecuted = true;
-        return Promise.resolve();
-      };
+      });
 
-      queue.dispatch(id, longTask);
+      it('should run a task even if previous tasks will be rejected', function (done) {
 
-      queue
-        .dispatch(id, shortTask)
-        .then(() => {
-          assert(taskExecuted);
-          done();
-        })
-        .catch(done);
+        const longTask = () => {
+          return new Promise((resolve, reject) => {
+            setTimeout(() => {
+              reject();
+            }, 10);
+          });
+        };
+
+        let taskExecuted = false;
+        const shortTask = () => {
+          taskExecuted = true;
+          return Promise.resolve();
+        };
+
+        queue.dispatch(id, longTask);
+
+        queue
+          .dispatch(id, shortTask)
+          .then(() => {
+            assert(taskExecuted);
+            done();
+          })
+          .catch(done);
+
+      });
 
     });
 

@@ -4,11 +4,7 @@ describe('services/queue', function () {
 
   it('should be resolved to Queue', function () {
 
-    const options = {
-      transports: []
-    };
-
-    const queue = service(options);
+    const queue = service();
 
     assert.property(queue, 'dispatch');
 

@@ -15,7 +15,7 @@ describe('services/http/response', function () {
     middlewere = service();
   });
 
-  it('should expand `response` object', function (done) {
+  it('should extend `response` object', function (done) {
 
     middlewere(req, res, () => {
       assert.property(res, 'ok');
@@ -44,23 +44,19 @@ describe('services/http/response', function () {
   describe('#success', function () {
 
     it('should pass argument to `response.json` wrapped as `{ data: ... }`', function () {
-
       middlewere(req, res, () => {
         res.success(data);
 
         assert.calledWithExactly(res.json, { data: data });
       });
-
     });
 
     it('should pass empty object if no argument', function () {
-
       middlewere(req, res, () => {
         res.success();
 
         assert.calledWithExactly(res.json, { data: {} });
       });
-
     });
 
   });
@@ -68,12 +64,10 @@ describe('services/http/response', function () {
   describe('#error', function () {
 
     it('should send default error message and status', function (done) {
-
       middlewere(req, res, () => {
         res.error();
         done();
       });
-
     });
 
     it('should send custom status', function () {

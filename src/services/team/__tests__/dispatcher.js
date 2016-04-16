@@ -1,5 +1,5 @@
 import TeamDispatcher from '../dispatcher';
-import pullRequestMock from '../../model/collections/__mocks__/pull-request';
+import { pullRequestMock } from '../../model/collections/__mocks__/pull-request';
 
 describe('services/team/dispatcher', () => {
 

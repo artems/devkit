@@ -2,6 +2,9 @@ import { isEmpty } from 'lodash';
 
 export default class Queue {
 
+  /**
+   * @constructor
+   */
   constructor() {
     this.queue = {};
   }
@@ -9,6 +12,7 @@ export default class Queue {
   /**
    * Add a new item to the queue.
    *
+   * @protected
    * @param {String} id - uniq key
    * @param {Function} callback
    *
@@ -24,6 +28,7 @@ export default class Queue {
   /**
    * Queue step.
    *
+   * @protected
    * @param {String} id
    */
   step(id) {
@@ -32,22 +37,21 @@ export default class Queue {
     }
 
     const section = this.queue[id];
-    const item = section.queue.shift();
-
-    section.active = true;
+    const queueItem = section.queue.shift();
 
     let fulfilled = false;
+    section.active = true;
 
-    item
+    queueItem
       .callback()
       .catch(err => {
-        item.reject(err);
         fulfilled = true;
+        queueItem.reject(err);
       })
       .then(() => {
         section.active = false;
 
-        fulfilled || item.resolve();
+        fulfilled || queueItem.resolve();
 
         if (isEmpty(section.queue)) {
           this.queue[id] = null;

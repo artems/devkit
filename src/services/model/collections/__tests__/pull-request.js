@@ -1,5 +1,5 @@
 import schemaModelMock from '../__mocks__/schema';
-import pullRequestMock from '../__mocks__/pull-request';
+import { pullRequestMock } from '../__mocks__/pull-request';
 import * as pullRequestModel from '../pull-request';
 
 describe('services/model/collections/pull-request', function () {
@@ -26,7 +26,7 @@ describe('services/model/collections/pull-request', function () {
       pullRequestModel.setupModel('pull_request', model);
     });
 
-    it('should add method "toString"', function () {
+    it('should add the method "toString"', function () {
       assert.isFunction(model.methods.toString);
       assert.equal(model.methods.toString.call(pullRequest), '[1 – title] html_url');
     });

@@ -1,4 +1,4 @@
-export default function dispatcherMock() {
+export default function mock() {
 
   return {
     findTeamByPullRequest: sinon.stub(),

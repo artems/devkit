@@ -1,11 +1,16 @@
-import { modelMock as userMock } from '../collections/__mocks__/user';
-import { modelMock as pullRequestMock } from '../collections/__mocks__/pull-request';
+import { userModelMock } from '../collections/__mocks__/user';
+import { pullRequestModelMock } from '../collections/__mocks__/pull-request';
 
 export default function mock() {
-  const get = sinon.stub();
 
-  get.withArgs('user').returns(userMock());
-  get.withArgs('pull_request').returns(pullRequestMock());
+  const model = sinon.stub();
 
-  return get;
+  model.withArgs('user')
+    .returns(userModelMock());
+
+  model.withArgs('pull_request')
+    .returns(pullRequestModelMock());
+
+  return model;
+
 }

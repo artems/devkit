@@ -1,8 +1,8 @@
 import { get } from 'lodash';
 
-export default function mock() {
+export function pullRequestMock() {
 
-  const pull = {
+  const pullRequest = {
     id: 1,
     _id: 1,
     body: 'body',
@@ -28,31 +28,29 @@ export default function mock() {
     }
   };
 
-  const promise = Promise.resolve(pull);
+  pullRequest.get = function () {};
+  pullRequest.set = sinon.stub().returnsThis();
+  pullRequest.save = sinon.stub().returns(Promise.resolve(pullRequest));
 
-  pull.get = function () {};
-  pull.set = sinon.stub().returnsThis();
-  pull.save = sinon.stub().returns(promise);
-
-  sinon.stub(pull, 'get', function (path) {
+  sinon.stub(pullRequest, 'get', function (path) {
     return get(this, path);
   });
 
-  return pull;
+  return pullRequest;
 
 }
 
-export function modelMock() {
+export function pullRequestModelMock() {
 
   const stub = function () {
-    return mock();
+    return pullRequestMock();
   };
 
-  stub.findById = sinon.stub();
-  stub.findByUser = sinon.stub();
-  stub.findByReviewer = sinon.stub();
-  stub.findInReviewByReviewer = sinon.stub();
-  stub.findByRepositoryAndNumber = sinon.stub();
+  stub.findById = sinon.stub().returns(Promise.resolve());
+  stub.findByUser = sinon.stub().returns(Promise.resolve());
+  stub.findByReviewer = sinon.stub().returns(Promise.resolve());
+  stub.findInReviewByReviewer = sinon.stub().returns(Promise.resolve());
+  stub.findByRepositoryAndNumber = sinon.stub().returns(Promise.resolve());
 
   return stub;
 

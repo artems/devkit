@@ -1,6 +1,6 @@
 import GitHub from 'github';
 
-export default function setup(options, imports) {
+export default function setup(options) {
 
   const github = new GitHub(options);
 

@@ -1,25 +1,28 @@
-export default function mock() {
+import { get } from 'lodash';
+
+export function userMock() {
 
   const user = {
-    id: 1,
     _id: 1,
-    notification_transports: []
+    contacts: []
   };
 
-  const promise = Promise.resolve(user);
-
-  user.get = sinon.stub();
+  user.get = function () {};
   user.set = sinon.stub().returnsThis();
-  user.save = sinon.stub().returns(promise);
+  user.save = sinon.stub().returns(Promise.resolve(user));
+
+  sinon.stub(user, 'get', function (path) {
+    return get(this, path);
+  });
 
   return user;
 
 }
 
-export function modelMock() {
+export function userModelMock() {
 
   const stub = function () {
-    return mock();
+    return userMock();
   };
 
   stub.findByLogin = sinon.stub();

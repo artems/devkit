@@ -1,6 +1,6 @@
 import { AddonBroker } from '../addon-broker';
 
-describe('services/model/addon-broker', function () {
+describe('services/model', function () {
 
   describe('AddonBroker', function () {
 
@@ -19,7 +19,7 @@ describe('services/model/addon-broker', function () {
         };
       };
 
-      const broker = new AddonBroker(null, { modelA: [extender] });
+      const broker = new AddonBroker(null, null, { modelA: [extender] });
       const schema = broker.setupExtenders('modelA', baseSchema);
 
       assert.deepEqual(schema, { moduleA: { fieldA: Number, fieldB: String } });
@@ -54,7 +54,7 @@ describe('services/model/addon-broker', function () {
         });
       };
 
-      const broker = new AddonBroker({ modelA: [saveHook] }, null);
+      const broker = new AddonBroker(null, { modelA: [saveHook] }, null);
 
       broker.setupSaveHooks('modelA', modelStub);
 

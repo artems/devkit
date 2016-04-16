@@ -2,35 +2,38 @@ import { Schema } from 'mongoose';
 import { forEach } from 'lodash';
 import { AddonBroker } from './addon-broker';
 
-import * as userModel from './collections/user';
-import * as pullRequestModel from './collections/pull-request';
+import * as UserModel from './collections/user';
+import * as PullRequestModel from './collections/pull-request';
 
 export default function setup(options, imports) {
 
-  const mongoose = imports.mongoose;
-
+  const mixins = {};
   const saveHooks = {};
   const extenders = {};
 
+  const mongoose = imports.mongoose;
+
   forEach(options.addons, (list, modelName) => {
-    forEach(list, addonName => {
+    forEach(list, (addonName) => {
       const addon = imports[addonName];
 
       if (!addon) {
-        throw new Error(`Cannot find addon with name "${addonName}"`);
+        throw new Error(`Cannot find the addon "${addonName}"`);
       }
 
-      if (!saveHooks[modelName]) {
+      if (!mixins[modelName]) {
+        mixins[modelName] = [];
         saveHooks[modelName] = [];
         extenders[modelName] = [];
       }
 
+      addon.mixin && saveHooks[modelName].push(addon.mixin);
       addon.saveHook && saveHooks[modelName].push(addon.saveHook);
       addon.extender && extenders[modelName].push(addon.extender);
     });
   });
 
-  const broker = new AddonBroker(saveHooks, extenders);
+  const broker = new AddonBroker(mixins, saveHooks, extenders);
 
   const setup = function setup(modelName, module) {
     // setup schema
@@ -40,6 +43,7 @@ export default function setup(options, imports) {
 
     // setup methods
     module.setupModel(modelName, mongooseModel);
+    broker.setupModel(modelName, mongooseModel);
 
     // setup save hooks
     broker.setupSaveHooks(modelName, mongooseModel);
@@ -48,8 +52,8 @@ export default function setup(options, imports) {
     mongoose.model(modelName, mongooseModel);
   };
 
-  setup('user', userModel);
-  setup('pull_request', pullRequestModel);
+  setup('user', UserModel);
+  setup('pull_request', PullRequestModel);
 
   return function (modelName) {
     return mongoose.model(modelName);

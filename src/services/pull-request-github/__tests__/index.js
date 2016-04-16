@@ -1,6 +1,6 @@
 import service from '../index';
-import { modelMock } from '../../model/collections/__mocks__/pull-request';
 import pullRequestGitHubMock from '../__mocks__/index';
+import { pullRequestModelMock } from '../../model/collections/__mocks__/pull-request';
 
 describe('services/pull-request-github', function () {
 
@@ -11,7 +11,7 @@ describe('services/pull-request-github', function () {
     options = {};
 
     github = sinon.stub();
-    PullRequestModel = modelMock();
+    PullRequestModel = pullRequestModelMock();
 
     imports = { github, 'pull-request-model': PullRequestModel };
   });
