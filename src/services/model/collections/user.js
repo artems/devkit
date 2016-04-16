@@ -1,15 +1,15 @@
 import { Schema } from 'mongoose';
 
-const notificationTransport = new Schema({
+const Contact = new Schema({
   id: String,
-  username: String
+  account: String
 });
 
 export function setupSchema() {
   return {
     _id: String,
-    notification_transports: {
-      type: [notificationTransport],
+    contacts: {
+      type: [Contact],
       'default': []
     }
   };
@@ -45,5 +45,5 @@ export function setupModel(modelName, model) {
  * @property {String} login
  * @property {String} html_url
  * @property {String} avatar_url
- * @property {Array}  notification_transports
+ * @property {Array.<User.Contact>} contacts
  */

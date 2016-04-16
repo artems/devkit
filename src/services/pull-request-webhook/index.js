@@ -1,8 +1,8 @@
 import { isPlainObject } from 'lodash';
 import { Router as router } from 'express';
 
-import pullRequestHook from './items/pull_request';
-import issueCommentHook from './items/issue_comment';
+import pullRequestHook from './webhooks/pull_request';
+import issueCommentHook from './webhooks/issue_comment';
 
 const GITHUB_HEADER_EVENT = 'x-github-event';
 

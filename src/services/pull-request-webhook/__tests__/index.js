@@ -24,10 +24,10 @@ describe('services/pull-request-webhook', function () {
     issueCommentHookStub = sinon.stub().returns(Promise.resolve({}));
 
     const routes = proxyquire('../index', {
-      './items/pull_request': {
+      './webhooks/pull_request': {
         'default': pullRequestHookStub
       },
-      './items/issue_comment': {
+      './webhooks/issue_comment': {
         'default': issueCommentHookStub
       }
     });

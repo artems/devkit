@@ -1,4 +1,5 @@
 export function setupSchema() {
+
   return {
     _id: Number,
     body: String,
@@ -60,6 +61,7 @@ export function setupSchema() {
       completed_at: Date
     }
   };
+
 }
 
 export function setupModel(modelName, model) {

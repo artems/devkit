@@ -2,8 +2,8 @@ import { Schema } from 'mongoose';
 import { forEach } from 'lodash';
 import { AddonBroker } from './addon-broker';
 
-import * as userModel from './items/user';
-import * as pullRequestModel from './items/pull-request';
+import * as userModel from './collections/user';
+import * as pullRequestModel from './collections/pull-request';
 
 export default function setup(options, imports) {
 

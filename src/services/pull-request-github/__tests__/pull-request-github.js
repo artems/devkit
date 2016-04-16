@@ -1,10 +1,10 @@
-import PullRequestGitHub from '../class';
+import PullRequestGitHub from '../pull-request-github';
 import githubMock from '../../github/__mocks__/index';
-import pullRequestMock from '../../model/items/__mocks__/pull-request';
-import { modelMock as pullRequestModelMock } from '../../model/items/__mocks__/pull-request';
+import pullRequestMock from '../../model/collections/__mocks__/pull-request';
+import { modelMock as pullRequestModelMock } from '../../model/collections/__mocks__/pull-request';
 
 
-describe('services/pull-request-github/class', function () {
+describe('services/pull-request-github/PullRequestGitHub', function () {
 
   let github, pullRequest, PullRequestModel, pullRequestGitHub, options;
 

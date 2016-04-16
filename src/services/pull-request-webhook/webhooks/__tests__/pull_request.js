@@ -1,10 +1,10 @@
 import webhook from '..//pull_request';
 import loggerMock from '../../../logger/__mocks__/index';
 import eventsMock from '../../../events/__mocks__/index';
-import pullRequestMock, { modelMock as pullRequestModelMock } from '../../../model/items/__mocks__/pull-request';
+import pullRequestMock, { modelMock as pullRequestModelMock } from '../../../model/collections/__mocks__/pull-request';
 import pullRequestGitHubMock from '../../../pull-request-github/__mocks__/index';
 
-describe('services/pull-request-webhook/items/pull_request', () => {
+describe('services/pull-request-webhook/webhooks/pull_request', () => {
 
   let payload, imports, logger, events;
   let promise, pullRequest, PullRequestModel, pullRequestGitHub;

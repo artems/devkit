@@ -2,7 +2,7 @@ import schemaModelMock from '../__mocks__/schema';
 import pullRequestMock from '../__mocks__/pull-request';
 import * as pullRequestModel from '../pull-request';
 
-describe('services/model/items/pull-request', function () {
+describe('services/model/collections/pull-request', function () {
 
   describe('#setupSchema', function () {
 

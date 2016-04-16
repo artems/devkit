@@ -1,5 +1,5 @@
 import service from '../index';
-import { modelMock } from '../../model/items/__mocks__/pull-request';
+import { modelMock } from '../../model/collections/__mocks__/pull-request';
 import pullRequestGitHubMock from '../__mocks__/index';
 
 describe('services/pull-request-github', function () {

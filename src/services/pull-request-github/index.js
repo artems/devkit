@@ -1,4 +1,4 @@
-import PullRequestGitHub from './class';
+import PullRequestGitHub from './pull-request-github';
 
 export default function setup(options, imports) {
 

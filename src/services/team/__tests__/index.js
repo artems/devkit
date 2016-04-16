@@ -1,6 +1,6 @@
 import service from '../';
 import teamMock from '../__mocks__/team';
-import pullRequestMock from '../../model/items/__mocks__/pull-request';
+import pullRequestMock from '../../model/collections/__mocks__/pull-request';
 
 describe('services/team', function () {
 
