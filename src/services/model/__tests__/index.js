@@ -28,6 +28,8 @@ describe('services/model', function () {
     };
 
     const addon2 = {
+      mixin: function () {},
+
       extender: function () {
         return {
           magic: String

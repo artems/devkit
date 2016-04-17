@@ -63,7 +63,12 @@ export default class PullRequestAction {
         }
 
         review.status = 'inprogress';
-        review.started_at = new Date();
+
+        if (!review.started_at) {
+          review.started_at = new Date();
+        }
+
+        review.updated_at = new Date();
 
         pullRequest.set('review', review);
 
@@ -96,6 +101,7 @@ export default class PullRequestAction {
         }
 
         review.status = 'notstarted';
+        review.updated_at = new Date();
 
         pullRequest.set('review', review);
 
@@ -185,6 +191,7 @@ export default class PullRequestAction {
         }
 
         pullRequest.set('review.reviewers', reviewers);
+        pullRequest.set('review.updated_at', new Date());
 
         return pullRequest.save();
       })

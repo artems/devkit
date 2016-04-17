@@ -1,8 +1,8 @@
-* node-architect
-  * обрабатывать reject для shutdown'a
-* переименовать notification-transports в контакты в схеме user
-* разнести по разным файлам моки для модели и инстанса
-* заменить user'a в пулл-реквесте через ref
+# TODO
+* сделать pullRequestAction миксом к pullRequest
 * кешировать вызов getDevelopersForReview
+* node-architect: обрабатывать reject для shutdown'a
+
+# NOTES
 * добавлять модели через конфиг (user, pull-request)
-* заменить везде util.format
+* заменить user'a в пулл-реквесте на ref

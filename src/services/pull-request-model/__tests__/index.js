@@ -5,7 +5,7 @@ describe('services/pull-request-model', function () {
 
   let options, imports;
 
-  it('should be resolved to PullRequest', function () {
+  it('should be resolved to PullRequestModel', function () {
 
     options = {};
     imports = { model: modelMock() };

@@ -25,6 +25,16 @@ describe('services/model', function () {
       assert.deepEqual(schema, { moduleA: { fieldA: Number, fieldB: String } });
     });
 
+    it('should be able to add mixin', function () {
+      const mixin = sinon.stub();
+      const model = {};
+
+      const broker = new AddonBroker({ modelA: [mixin] }, null, null);
+      broker.setupModel('modelA', model);
+
+      assert.calledWith(mixin, model);
+    });
+
     it('should be able to add pre-save hook', function (done) {
       const modelStub = {
         pre: function (hookName, callback) {
