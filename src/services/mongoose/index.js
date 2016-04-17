@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+mongoose.Promise = global.Promise;
+
 export default function setup(options, imports) {
 
   const logger = imports.logger.getLogger('mongoose');

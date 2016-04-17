@@ -27,7 +27,7 @@ export default function setup(options, imports) {
         extenders[modelName] = [];
       }
 
-      addon.mixin && saveHooks[modelName].push(addon.mixin);
+      addon.mixin && mixins[modelName].push(addon.mixin);
       addon.saveHook && saveHooks[modelName].push(addon.saveHook);
       addon.extender && extenders[modelName].push(addon.extender);
     });

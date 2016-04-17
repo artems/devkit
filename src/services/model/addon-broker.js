@@ -6,7 +6,7 @@ import { cloneDeep, forEach, merge } from 'lodash';
 export class AddonBroker {
 
   /**
-   * @param {Object[]} mixins - each minxin add methods to model
+   * @param {Object[]} mixins - each mixin add methods to model
    * @param {Object[]} saveHooks - each saveHook setup hook to model
    * @param {Object[]} extenders - each extender return parial schema
    */
