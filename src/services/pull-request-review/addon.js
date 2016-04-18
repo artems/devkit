@@ -1,35 +1,10 @@
 import { Schema } from 'mongoose';
-import PullRequestReview from './class';
 
 export default function setup(options, imports) {
 
   return {
 
-    mixin(model) {
-
-      const { team, events, logger } = imports;
-
-      const review = new PullRequestReview(options, {
-        team,
-        events,
-        logger: logger.getLogger('review')
-      });
-
-      model.methods.stopReview = function () {
-        return review.stopReview(this);
-      };
-
-      model.methods.startReview = function () {
-        return review.startReview(this);
-      };
-
-      model.methods.approveReview = function (login) {
-        return review.approveReview(this, login);
-      };
-
-      model.methods.updateReviewers = function (reviewers) {
-        return review.updateReviewers(this, reviewers);
-      };
+    mixin(model, modelName) {
 
       /**
        * Find pull requests by reviewer
@@ -42,7 +17,8 @@ export default function setup(options, imports) {
         return this
           .model(modelName)
           .find({ 'review.reviewers.login': login })
-          .sort('-updated_at');
+          .sort('-updated_at')
+          .exec();
       };
 
       /**
@@ -60,7 +36,8 @@ export default function setup(options, imports) {
 
         return this
           .model(modelName)
-          .find(req, 'review');
+          .find(req, 'review')
+          .exec();
       };
 
       /**
@@ -79,7 +56,8 @@ export default function setup(options, imports) {
 
         return this
           .model(modelName)
-          .find(req, 'review');
+          .find(req, 'review')
+          .exec();
       };
 
     },

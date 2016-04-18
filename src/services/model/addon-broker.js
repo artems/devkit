@@ -39,7 +39,7 @@ export class AddonBroker {
    */
   setupModel(name, model) {
     forEach(this.get(name).mixins, (mixin) => {
-      mixin(model);
+      mixin(model, name);
     });
   }
 

@@ -78,7 +78,7 @@ export function withPullRequestReview(test, config, done) {
 
 }
 
-describe('services/pull-request-review', function () {
+describe('services/pull-request-review/class', function () {
 
   const afterSaveAndLoad = function (PullRequestModel, test) {
     return function (pullRequest) {

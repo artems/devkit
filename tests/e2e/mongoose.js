@@ -250,37 +250,6 @@ describe('services/model', function () {
 
     });
 
-    describe('#findByReviewer', function () {
-
-      it('should return pull requests filtered by reviewer', function (done) {
-
-        withPullRequest(imports => {
-          const pullRequest = imports.pullRequest;
-          const PullRequestModel = imports.PullRequestModel;
-
-          pullRequest.set('review', {
-            reviewers: [
-              { login: 'sbmaxx' },
-              { login: 'mishanga' }
-            ]
-          });
-
-          return pullRequest
-            .save()
-            .then(() => {
-              return PullRequestModel
-                .findByReviewer('sbmaxx')
-                .then(result => {
-                  assert.isArray(result);
-                  assert.lengthOf(result, 1);
-                });
-            });
-        }, {}, done);
-
-      });
-
-    });
-
     describe('#findByNumberAndRepository', function () {
 
       it('should return pull requests filtered by number', function (done) {
@@ -293,64 +262,6 @@ describe('services/model', function () {
             .findByRepositoryAndNumber('devexp-org/devexp', 49)
             .then(result => {
               assert.equal(result.id, pullRequest.id);
-            });
-        }, {}, done);
-
-      });
-
-    });
-
-    describe('#findInReview', function () {
-
-      it('should return all opened pull requests', function (done) {
-
-        withPullRequest(imports => {
-          const pullRequest = imports.pullRequest;
-          const PullRequestModel = imports.PullRequestModel;
-
-          pullRequest.set('review', {
-            status: 'inprogress',
-            reviewers: [{ login: 'sbmaxx' }, { login: 'mishanga' }]
-          });
-
-          return pullRequest
-            .save()
-            .then(() => {
-              return PullRequestModel
-                .findInReview()
-                .then(result => {
-                  assert.isArray(result);
-                  assert.lengthOf(result, 1);
-                });
-            });
-        }, {}, done);
-
-      });
-
-    });
-
-    describe('#findInReviewByReviewer', function () {
-
-      it('should return opened pull requests filtered by reviewer', function (done) {
-
-        withPullRequest(imports => {
-          const pullRequest = imports.pullRequest;
-          const PullRequestModel = imports.PullRequestModel;
-
-          pullRequest.set('review', {
-            status: 'inprogress',
-            reviewers: [{ login: 'sbmaxx' }, { login: 'mishanga' }]
-          });
-
-          return pullRequest
-            .save()
-            .then(() => {
-              return PullRequestModel
-                .findInReviewByReviewer('sbmaxx')
-                .then(result => {
-                  assert.isArray(result);
-                  assert.lengthOf(result, 1);
-                });
             });
         }, {}, done);
 

@@ -1,4 +1,4 @@
-import _, { cloneDeep, isString } from 'lodash';
+import { cloneDeep, isString, values } from 'lodash';
 
 export default class PullRequestGitHub {
 
@@ -86,18 +86,17 @@ export default class PullRequestGitHub {
   }
 
   syncPullRequestWithGitHub(local) {
-    return this.loadPullRequestFromGitHub(local)
-      .then(local => this.updatePullRequestOnGitHub(local))
+    return Promise.resolve(local)
+      .then(::this.loadPullRequestFromGitHub)
+      .then(::this.updatePullRequestOnGitHub)
       .then(local => local.save());
   }
 
-  savePayloadFromGitHub(local, payload) {
+  setPayload(local, payload) {
     const remote = payload.pull_request;
     remote.repository = payload.repository;
 
     local.set(remote);
-
-    return Promise.resolve(local);
   }
 
   setBodySection(local, sectionId, content, position = Infinity) {
@@ -107,8 +106,6 @@ export default class PullRequestGitHub {
     local.set('section', section);
 
     this.fillPullRequestBody(local);
-
-    return Promise.resolve(local);
   }
 
   fillPullRequestBody(local) {
@@ -140,8 +137,7 @@ export default class PullRequestGitHub {
   }
 
   buildBodyContent(section) {
-    return _
-      .values(section)
+    return values(section)
       .map(section => {
         return isString(section)
           ? { position: Infinity, content: section }

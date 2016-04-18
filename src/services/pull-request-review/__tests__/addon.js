@@ -1,35 +1,30 @@
-import proxyquire from 'proxyquire';
-
-import teamMock from '../../team/__mocks__/dispatcher';
-import eventsMock from '../../events/__mocks__/index';
-import loggerMock from '../../logger/__mocks__/index';
+import service from '../addon';
 import schemaMock from '../../model/collections/__mocks__/schema';
-import pullRequestReviewMock from '../__mocks__/index';
 
 describe('services/pull-request-review/addon', function () {
 
-  let options, imports;
-  let team, events, logger;
-  let service, pullRequestReviewStub;
+  let options, imports, model;
 
   beforeEach(function () {
-    team = teamMock();
-    events = eventsMock();
-    logger = loggerMock();
+    model = schemaMock();
 
     options = {};
-    imports = { team, events, logger };
+    imports = {};
+  });
 
-    pullRequestReviewStub = function () {
-      return pullRequestReviewStub;
-    };
-    pullRequestReviewMock(pullRequestReviewStub);
+  describe('#mixin', function () {
 
-    service = proxyquire('../addon', {
-      './class': {
-        'default': pullRequestReviewStub
-      }
-    }).default;
+    it('should setup static methods', function () {
+      const addon = service(options, imports);
+
+      assert.isFunction(addon.mixin);
+
+      addon.mixin(model);
+
+      assert.deepProperty(model, 'statics.findInReview');
+      assert.deepProperty(model, 'statics.findByReviewer');
+      assert.deepProperty(model, 'statics.findInReviewByReviewer');
+    });
 
   });
 
@@ -42,42 +37,6 @@ describe('services/pull-request-review/addon', function () {
 
       const extender = addon.extender();
       assert.isObject(extender);
-    });
-
-  });
-
-  describe('#mixin', function () {
-    let model, addon;
-
-    beforeEach(function () {
-      model = schemaMock();
-
-      addon = service(options, imports);
-      addon.mixin(model);
-    });
-
-    it('should pass call `stopReview`', function () {
-      model.methods.stopReview();
-
-      assert.called(pullRequestReviewStub.stopReview);
-    });
-
-    it('should pass call `startReview`', function () {
-      model.methods.startReview();
-
-      assert.called(pullRequestReviewStub.startReview);
-    });
-
-    it('should pass call `approveReview`', function () {
-      model.methods.approveReview();
-
-      assert.called(pullRequestReviewStub.approveReview);
-    });
-
-    it('should pass call `updateReviewers`', function () {
-      model.methods.updateReviewers();
-
-      assert.called(pullRequestReviewStub.updateReviewers);
     });
 
   });

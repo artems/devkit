@@ -1,4 +1,5 @@
-import PullRequestGitHub from '../pull-request-github';
+import PullRequestGitHub from '../class';
+
 import githubMock from '../../github/__mocks__/index';
 import { pullRequestMock } from '../../model/collections/__mocks__/pull-request';
 
@@ -7,7 +8,6 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
   let github, pullRequest, pullRequestGitHub, options;
 
   beforeEach(function () {
-
     github = githubMock();
     pullRequest = pullRequestMock();
 
@@ -39,7 +39,7 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
         .catch(done);
     });
 
-    it('should update pull request from data loaded from github', function (done) {
+    it('should update the pull request', function (done) {
       const data = {};
       github.pullRequests.get.callsArgWith(1, null, data);
 
@@ -81,14 +81,6 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
         .catch(done);
     });
 
-    it('should return pull request', function (done) {
-      github.pullRequests.update.callsArgWith(1, null);
-
-      pullRequestGitHub.updatePullRequestOnGitHub(pullRequest)
-        .then(result => { assert.equal(result, pullRequest); done(); })
-        .catch(done);
-    });
-
     it('should throw an error if github return error', function (done) {
       const err = new Error('just error');
       github.pullRequests.update.callsArgWith(1, err);
@@ -127,7 +119,7 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
         .catch(done);
     });
 
-    it('should update pull request files from data loaded from github', function (done) {
+    it('should update pull request files', function (done) {
       const data = [{ fiilename: 'a.txt' }];
       github.pullRequests.getFiles.callsArgWith(1, null, data);
 
@@ -153,9 +145,11 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
 
   describe('#syncPullRequestWithGitHub', function () {
 
-    it('should load pull request from github then save it to database', function (done) {
-      sinon.stub(pullRequestGitHub, 'loadPullRequestFromGitHub').returns(Promise.resolve(pullRequest));
-      sinon.stub(pullRequestGitHub, 'updatePullRequestOnGitHub').returns(Promise.resolve(pullRequest));
+    it('should load pull request from github and then save it to database', function (done) {
+      sinon.stub(pullRequestGitHub, 'loadPullRequestFromGitHub')
+        .returns(Promise.resolve(pullRequest));
+      sinon.stub(pullRequestGitHub, 'updatePullRequestOnGitHub')
+        .returns(Promise.resolve(pullRequest));
 
       pullRequestGitHub.syncPullRequestWithGitHub(pullRequest)
         .then(() => {
@@ -177,6 +171,17 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
 
   });
 
+  describe('#setPayload', function () {
+
+    it('should update pull request from payload', function () {
+      const payload = { pull_request: {}, repository: {}, organization: {} };
+      pullRequestGitHub.setPayload(pullRequest, payload);
+
+      assert.calledWith(pullRequest.set, payload.pull_request);
+    });
+
+  });
+
   describe('#setBodySection', function () {
 
     beforeEach(function () {
@@ -184,26 +189,22 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
       pullRequest.section = section;
     });
 
-    it('should save a pull request with updated property `section`', function (done) {
+    it('should updated property `section`', function () {
+      pullRequestGitHub.setBodySection(pullRequest, 'section', 'body');
 
-      pullRequestGitHub.setBodySection(pullRequest, 'section', 'body')
-        .then(result => {
-          assert.calledWith(
-            pullRequest.set,
-            sinon.match('section'),
-            sinon.match({ section: { content: 'body', position: sinon.match.number } })
-          );
-          done();
-        })
-        .catch(done);
+      assert.calledWith(
+        pullRequest.set,
+        sinon.match('section'),
+        sinon.match({ section: { content: 'body', position: sinon.match.number } })
+      );
     });
 
-    it('should not reject promise if section does not exists in the pull request', function (done) {
+    it('should not throw an error if section does not exists in the pull request', function () {
       pullRequest.section = null;
 
-      pullRequestGitHub.setBodySection(pullRequest, 'section', 'body', 100)
-        .then(() => done())
-        .catch(done);
+      assert.doesNotThrow(() => {
+        pullRequestGitHub.setBodySection(pullRequest, 'section', 'body', 100);
+      });
     });
 
   });

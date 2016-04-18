@@ -88,7 +88,8 @@ export function setupModel(modelName, model) {
     return this
       .model(modelName)
       .find({ 'user.login': login })
-      .sort('-updated_at');
+      .sort('-updated_at')
+      .exec();
   };
 
   /**
@@ -102,7 +103,8 @@ export function setupModel(modelName, model) {
   model.statics.findByRepositoryAndNumber = function (fullName, number) {
     return this
       .model(modelName)
-      .findOne({ number, 'repository.full_name': fullName });
+      .findOne({ number, 'repository.full_name': fullName })
+      .exec();
   };
 
 }

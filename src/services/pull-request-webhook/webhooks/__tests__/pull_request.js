@@ -7,16 +7,22 @@ import { pullRequestMock, pullRequestModelMock } from '../../../model/collection
 describe('services/pull-request-webhook/webhooks/pull_request', () => {
 
   let payload, imports, logger, events;
-  let promise, pullRequest, PullRequestModel, pullRequestGitHub;
+  let pullRequest, PullRequestModel, pullRequestGitHub;
 
   beforeEach(function () {
 
     logger = loggerMock();
     events = eventsMock();
-    pullRequest = pullRequestMock(pullRequestGitHubMock);
-    PullRequestModel = pullRequestModelMock(pullRequestGitHubMock);
+    pullRequest = pullRequestMock();
+    PullRequestModel = pullRequestModelMock();
+    pullRequestGitHub = pullRequestGitHubMock(pullRequest);
 
-    imports = { events, logger, 'pull-request-model': PullRequestModel };
+    imports = {
+      events,
+      logger,
+      'pull-request-model': PullRequestModel,
+      'pull-request-github': pullRequestGitHub
+    };
 
     payload = {
       id: 123456789,
@@ -34,11 +40,7 @@ describe('services/pull-request-webhook/webhooks/pull_request', () => {
       }
     };
 
-    promise = function (x) {
-      return Promise.resolve(x);
-    };
-
-    PullRequestModel.findById.returns(promise(pullRequest));
+    PullRequestModel.findById.returns(Promise.resolve(pullRequest));
 
   });
 
@@ -52,7 +54,7 @@ describe('services/pull-request-webhook/webhooks/pull_request', () => {
   });
 
   it('should create new object if pull request was not found', function (done) {
-    PullRequestModel.findById.returns(promise(null));
+    PullRequestModel.findById.returns(Promise.resolve(null));
 
     webhook(payload, imports)
       .then(pullRequest => { assert.isObject(pullRequest); done(); })

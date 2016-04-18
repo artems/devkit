@@ -114,8 +114,8 @@
       ]
     },
 
-    "pull-request-github-addon": {
-      "path": "./src/services/pull-request-github/addon",
+    "pull-request-github": {
+      "path": "./src/services/pull-request-github",
       "options": {
         "separator": {
           "top": "<div id='devexp-content-top'></div><hr>",
@@ -127,8 +127,12 @@
       ]
     },
 
-    "pull-request-review-addon": {
-      "path": "./src/services/pull-request-review/addon",
+    "pull-request-github-addon": {
+      "path": "./src/services/pull-request-github/addon"
+    },
+
+    "pull-request-review": {
+      "path": "./src/services/pull-request-review",
       "options": {
         "approveCount": 2,
         "teamOverrides": {
@@ -142,6 +146,10 @@
         "events",
         "logger"
       ]
+    },
+
+    "pull-request-review-addon": {
+      "path": "./src/services/pull-request-review/addon"
     }
 
   }

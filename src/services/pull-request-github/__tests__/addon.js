@@ -12,7 +12,6 @@ describe('services/pull-request-github/addon', function () {
       assert.isFunction(addon.extender);
 
       const extender = addon.extender();
-      assert.isObject(extender);
       assert.property(extender, 'section');
 
     });
