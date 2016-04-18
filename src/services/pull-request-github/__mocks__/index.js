@@ -1,12 +1,12 @@
-export default function mock() {
+export default function mock(pullRequest) {
 
-  return {
-    loadPullRequestFromGitHub: sinon.stub(),
-    savePullRequestToDatabase: sinon.stub(),
-    updatePullRequestOnGitHub: sinon.stub(),
-    loadPullRequestFiles: sinon.stub(),
-    syncPullRequest: sinon.stub(),
-    setBodySection: sinon.stub()
-  };
+  const promise = Promise.resolve(pullRequest);
+
+  pullRequest.loadPullRequestFromGitHub = sinon.stub().returns(promise);
+  pullRequest.updatePullRequestOnGitHub = sinon.stub().returns(promise);
+  pullRequest.loadPullRequestFiles = sinon.stub().returns(Promise.resolve([]));
+  pullRequest.syncPullRequestWithGitHub = sinon.stub().returns(promise);
+  pullRequest.savePayloadFromGitHub = sinon.stub().returns(promise);
+  pullRequest.setBodySection = sinon.stub();
 
 }

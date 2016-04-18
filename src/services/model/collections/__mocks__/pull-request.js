@@ -1,6 +1,6 @@
 import { get } from 'lodash';
 
-export function pullRequestMock() {
+export function pullRequestMock(mixin) {
 
   const pullRequest = {
     id: 1,
@@ -36,14 +36,18 @@ export function pullRequestMock() {
     return get(this, path);
   });
 
+  if (mixin) {
+    mixin(pullRequest);
+  }
+
   return pullRequest;
 
 }
 
-export function pullRequestModelMock() {
+export function pullRequestModelMock(mixin) {
 
   const stub = function () {
-    return pullRequestMock();
+    return pullRequestMock(mixin);
   };
 
   stub.findById = sinon.stub().returns(Promise.resolve());

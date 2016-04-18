@@ -1,16 +1,15 @@
 import PullRequestGitHub from '../pull-request-github';
 import githubMock from '../../github/__mocks__/index';
-import { pullRequestMock, pullRequestModelMock } from '../../model/collections/__mocks__/pull-request';
+import { pullRequestMock } from '../../model/collections/__mocks__/pull-request';
 
 describe('services/pull-request-github/PullRequestGitHub', function () {
 
-  let github, pullRequest, PullRequestModel, pullRequestGitHub, options;
+  let github, pullRequest, pullRequestGitHub, options;
 
   beforeEach(function () {
 
     github = githubMock();
     pullRequest = pullRequestMock();
-    PullRequestModel = pullRequestModelMock();
 
     options = {
       separator: {
@@ -19,7 +18,7 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
       }
     };
 
-    pullRequestGitHub = new PullRequestGitHub(github, PullRequestModel, options);
+    pullRequestGitHub = new PullRequestGitHub(github, options);
   });
 
   describe('#loadPullRequestFromGitHub', function () {
@@ -40,12 +39,12 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
         .catch(done);
     });
 
-    it('should return pull request loaded from github', function (done) {
+    it('should update pull request from data loaded from github', function (done) {
       const data = {};
       github.pullRequests.get.callsArgWith(1, null, data);
 
       pullRequestGitHub.loadPullRequestFromGitHub(pullRequest)
-        .then(result => { assert.equal(result, data); done(); })
+        .then(result => { assert.calledWith(pullRequest.set, data); done(); })
         .catch(done);
     });
 
@@ -54,46 +53,6 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
       github.pullRequests.get.callsArgWith(1, err);
 
       pullRequestGitHub.loadPullRequestFromGitHub(pullRequest)
-        .catch(result => {
-          assert.match(result.message, /just error/i);
-          assert.match(result.message, /cannot.*github/i);
-          done();
-        })
-        .catch(done);
-    });
-
-  });
-
-  describe('#savePullRequestToDatabase', function () {
-
-    beforeEach(function () {
-      pullRequest.save.callsArgWith(0, null);
-      PullRequestModel.findById.returns(Promise.resolve(pullRequest));
-    });
-
-    it('should save a pull request to database', function (done) {
-      pullRequestGitHub.savePullRequestToDatabase(pullRequest)
-        .then(result => {
-          assert.equal(result, pullRequest);
-          assert.calledWith(pullRequest.set, pullRequest);
-          done();
-        })
-        .catch(done);
-    });
-
-    it('should reject promise if pull requset was not found', function (done) {
-      PullRequestModel.findById.returns(Promise.resolve(null));
-
-      pullRequestGitHub.savePullRequestToDatabase(pullRequest)
-        .catch(result => { assert.match(result.message, /not found/); done(); })
-        .catch(done);
-    });
-
-    it('should reject promise if pull requset was not found', function (done) {
-      const err = new Error('just error');
-      pullRequest.save.callsArgWith(0, err);
-
-      pullRequestGitHub.savePullRequestToDatabase(pullRequest)
         .catch(result => {
           assert.match(result.message, /just error/i);
           assert.match(result.message, /cannot.*github/i);
@@ -168,12 +127,12 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
         .catch(done);
     });
 
-    it('should return pull request files loaded from github', function (done) {
+    it('should update pull request files from data loaded from github', function (done) {
       const data = [{ fiilename: 'a.txt' }];
       github.pullRequests.getFiles.callsArgWith(1, null, data);
 
       pullRequestGitHub.loadPullRequestFiles(pullRequest)
-        .then(result => { assert.deepEqual(result, data); done(); })
+        .then(result => { assert.calledWith(pullRequest.set, 'files', data); done(); })
         .catch(done);
     });
 
@@ -192,17 +151,22 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
 
   });
 
-  describe('#syncPullRequest', function () {
+  describe('#syncPullRequestWithGitHub', function () {
 
     it('should load pull request from github then save it to database', function (done) {
-      sinon.stub(pullRequestGitHub, 'loadPullRequestFromGitHub').returns(Promise.resolve());
-      sinon.stub(pullRequestGitHub, 'savePullRequestToDatabase').returns(Promise.resolve());
+      sinon.stub(pullRequestGitHub, 'loadPullRequestFromGitHub').returns(Promise.resolve(pullRequest));
+      sinon.stub(pullRequestGitHub, 'updatePullRequestOnGitHub').returns(Promise.resolve(pullRequest));
 
-      pullRequestGitHub.syncPullRequest(pullRequest)
+      pullRequestGitHub.syncPullRequestWithGitHub(pullRequest)
         .then(() => {
           assert(
             pullRequestGitHub.loadPullRequestFromGitHub.calledBefore(
-              pullRequestGitHub.savePullRequestToDatabase
+              pullRequestGitHub.updatePullRequestOnGitHub
+            )
+          );
+          assert(
+            pullRequestGitHub.updatePullRequestOnGitHub.calledBefore(
+              pullRequest.save
             )
           );
 
@@ -216,11 +180,6 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
   describe('#setBodySection', function () {
 
     beforeEach(function () {
-      PullRequestModel.findById.returns(Promise.resolve(pullRequest));
-      sinon.stub(pullRequestGitHub, 'syncPullRequest').returns(Promise.resolve(pullRequest));
-      sinon.stub(pullRequestGitHub, 'savePullRequestToDatabase').returns(Promise.resolve(pullRequest));
-      sinon.stub(pullRequestGitHub, 'updatePullRequestOnGitHub').returns(Promise.resolve(pullRequest));
-
       const section = {};
       pullRequest.section = section;
     });
@@ -229,10 +188,6 @@ describe('services/pull-request-github/PullRequestGitHub', function () {
 
       pullRequestGitHub.setBodySection(pullRequest, 'section', 'body')
         .then(result => {
-          assert.called(pullRequestGitHub.syncPullRequest);
-          assert.called(pullRequestGitHub.savePullRequestToDatabase);
-          assert.called(pullRequestGitHub.updatePullRequestOnGitHub);
-
           assert.calledWith(
             pullRequest.set,
             sinon.match('section'),

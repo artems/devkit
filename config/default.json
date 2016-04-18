@@ -114,8 +114,8 @@
       ]
     },
 
-    "pull-request-github": {
-      "path": "./src/services/pull-request-github",
+    "pull-request-github-addon": {
+      "path": "./src/services/pull-request-github/addon",
       "options": {
         "separator": {
           "top": "<div id='devexp-content-top'></div><hr>",
@@ -123,13 +123,8 @@
         }
       },
       "dependencies": [
-        "github",
-        "pull-request-model"
+        "github"
       ]
-    },
-
-    "pull-request-github-addon": {
-      "path": "./src/services/pull-request-github/addon"
     },
 
     "pull-request-review-addon": {

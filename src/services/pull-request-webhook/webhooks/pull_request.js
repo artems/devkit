@@ -12,34 +12,25 @@ export default function webhook(payload, imports) {
   const logger = imports.logger.getLogger('webhook');
 
   const PullRequestModel = imports['pull-request-model'];
-  const pullRequestGitHub = imports['pull-request-github'];
 
-  const pullRequestWebhook = payload.pull_request;
+  let isNewPullRequest = false;
 
-  pullRequestWebhook.repository = payload.repository;
-
-  let isNewPullRequest = true;
   return PullRequestModel
-    .findById(pullRequestWebhook.id)
+    .findById(payload.pull_request.id)
     .then(pullRequest => {
-      if (pullRequest) {
-        pullRequest.set(pullRequestWebhook);
-        isNewPullRequest = false;
-      } else {
-        pullRequest = new PullRequestModel(pullRequestWebhook);
+      if (!pullRequest) {
+        pullRequest = new PullRequestModel();
+        isNewPullRequest = true;
       }
 
-      return pullRequestGitHub
-        .loadPullRequestFiles(pullRequest)
-        .then(files => {
-          pullRequest.set('files', files);
-
-          return pullRequest;
-        });
+      return pullRequest
+        .savePayloadFromGitHub(payload)
+        .then(::pullRequest.loadPullRequestFiles())
+        .then(::pullRequest.save());
     })
-    .then(pullRequest => pullRequest.save())
     .then(pullRequest => {
       const action = isNewPullRequest ? 'saved' : 'updated';
+
       logger.info('Pull request %s %s', action, pullRequest.toString());
       events.emit('github:pull_request:' + payload.action, { pullRequest });
 

@@ -48,17 +48,6 @@ export function setupSchema() {
     files: {
       type: Array,
       'default': []
-    },
-    review: {
-      status: {
-        type: String,
-        'enum': ['notstarted', 'inprogress', 'changesneeded', 'complete'],
-        'default': 'notstarted'
-      },
-      reviewers: Array,
-      started_at: Date,
-      updated_at: Date,
-      completed_at: Date
     }
   };
 
@@ -103,20 +92,6 @@ export function setupModel(modelName, model) {
   };
 
   /**
-   * Find pull requests by reviewer
-   *
-   * @param {String} login
-   *
-   * @return {Promise.<PullRequest>}
-   */
-  model.statics.findByReviewer = function (login) {
-    return this
-      .model(modelName)
-      .find({ 'review.reviewers.login': login })
-      .sort('-updated_at');
-  };
-
-  /**
    * Find pull request by repository and number
    *
    * @param {String} fullName - repository full name
@@ -128,43 +103,6 @@ export function setupModel(modelName, model) {
     return this
       .model(modelName)
       .findOne({ number, 'repository.full_name': fullName });
-  };
-
-  /**
-   * Find open reviews
-   *
-   * @param {String} login
-   *
-   * @return {Promise.<PullRequest>}
-   */
-  model.statics.findInReview = function () {
-    const req = {
-      state: 'open',
-      'review.status': 'inprogress'
-    };
-
-    return this
-      .model(modelName)
-      .find(req, 'review');
-  };
-
-  /**
-   * Find open reviews by reviewer
-   *
-   * @param {String} login
-   *
-   * @return {Promise.<PullRequest>}
-   */
-  model.statics.findInReviewByReviewer = function (login) {
-    const req = {
-      state: 'open',
-      'review.status': 'inprogress',
-      'review.reviewers.login': login
-    };
-
-    return this
-      .model(modelName)
-      .find(req, 'review');
   };
 
 }

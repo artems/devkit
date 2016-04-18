@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { cloneDeep, isString } from 'lodash';
 
 export default class PullRequestGitHub {
 
@@ -6,14 +6,12 @@ export default class PullRequestGitHub {
    * @constructor
    *
    * @param {Object} github
-   * @param {Object} PullRequestModel
    * @param {Object} [options]
    * @param {String} [options.separator.top] - top body separator
    * @param {String} [options.separator.bottom] - bottom body separator
    */
-  constructor(github, PullRequestModel, options) {
+  constructor(github, options) {
     this.github = github;
-    this.PullRequestModel = PullRequestModel;
 
     this.separator = {
       top: options.separator && options.separator.top ||
@@ -37,31 +35,10 @@ export default class PullRequestGitHub {
           return;
         }
 
-        resolve(remote);
+        local.set(remote);
+
+        resolve(local);
       });
-    });
-  }
-
-  savePullRequestToDatabase(remote) {
-    return new Promise((resolve, reject) => {
-      this.PullRequestModel
-        .findById(remote.id)
-        .then(local => {
-          if (!local) {
-            reject(new Error(`Pull request ${remote.id} not found`));
-            return;
-          }
-
-          local.set(remote);
-          local.save(err => {
-            if (err) {
-              reject(new Error('Cannot save a pull request from github: ' + err));
-              return;
-            }
-
-            resolve(local);
-          });
-        });
     });
   }
 
@@ -101,33 +78,37 @@ export default class PullRequestGitHub {
           return;
         }
 
-        resolve(files.map(file => { delete file.patch; return file; }));
+        local.set('files', files.map(file => { delete file.patch; return file; }));
+
+        resolve(local);
       });
     });
   }
 
-  syncPullRequest(local) {
-    return this
-      .loadPullRequestFromGitHub(local)
-      .then(::this.savePullRequestToDatabase);
+  syncPullRequestWithGitHub(local) {
+    return this.loadPullRequestFromGitHub(local)
+      .then(local => this.updatePullRequestOnGitHub(local))
+      .then(local => local.save());
+  }
+
+  savePayloadFromGitHub(local, payload) {
+    const remote = payload.pull_request;
+    remote.repository = payload.repository;
+
+    local.set(remote);
+
+    return Promise.resolve(local);
   }
 
   setBodySection(local, sectionId, content, position = Infinity) {
-    return new Promise((resolve, reject) => {
-      this.syncPullRequest(local)
-        .then(local => {
-          const section = _.clone(local.get('section')) || {};
-          section[sectionId] = { content, position };
-          local.set('section', section);
+    const section = cloneDeep(local.get('section')) || {};
+    section[sectionId] = { content, position };
 
-          this.fillPullRequestBody(local);
+    local.set('section', section);
 
-          return local;
-        })
-        .then(::this.savePullRequestToDatabase)
-        .then(::this.updatePullRequestOnGitHub)
-        .then(resolve, reject);
-    });
+    this.fillPullRequestBody(local);
+
+    return Promise.resolve(local);
   }
 
   fillPullRequestBody(local) {
@@ -162,7 +143,7 @@ export default class PullRequestGitHub {
     return _
       .values(section)
       .map(section => {
-        return _.isString(section)
+        return isString(section)
           ? { position: Infinity, content: section }
           : section;
       })

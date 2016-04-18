@@ -13,15 +13,10 @@ describe('services/pull-request-webhook/webhooks/pull_request', () => {
 
     logger = loggerMock();
     events = eventsMock();
-    PullRequestModel = pullRequestModelMock();
-    pullRequestGitHub = pullRequestGitHubMock();
+    pullRequest = pullRequestMock(pullRequestGitHubMock);
+    PullRequestModel = pullRequestModelMock(pullRequestGitHubMock);
 
-    imports = {
-      events,
-      logger,
-      'pull-request-model': PullRequestModel,
-      'pull-request-github': pullRequestGitHub
-    };
+    imports = { events, logger, 'pull-request-model': PullRequestModel };
 
     payload = {
       id: 123456789,
@@ -39,13 +34,9 @@ describe('services/pull-request-webhook/webhooks/pull_request', () => {
       }
     };
 
-    pullRequest = pullRequestMock();
-
     promise = function (x) {
       return Promise.resolve(x);
     };
-
-    pullRequestGitHub.loadPullRequestFiles.returns(promise([]));
 
     PullRequestModel.findById.returns(promise(pullRequest));
 

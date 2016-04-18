@@ -5,8 +5,7 @@
     "dependencies": [
       "events",
       "logger",
-      "pull-request-model",
-      "pull-request-github"
+      "pull-request-model"
     ]
   }
 

@@ -1,5 +1,4 @@
 # TODO
-* сделать pullRequestAction миксом к pullRequest
 * кешировать вызов getDevelopersForReview
 * node-architect: обрабатывать reject для shutdown'a
 
