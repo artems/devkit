@@ -124,7 +124,7 @@ describe('services/model', function () {
 
   });
 
-  describe('services/model/items/user', function () {
+  describe('services/model/collections/user', function () {
 
     it('should setup user', function (done) {
 
@@ -166,7 +166,7 @@ describe('services/model', function () {
 
   });
 
-  describe('services/model/items/pull_request', function () {
+  describe('services/model/collections/pull_request', function () {
 
     it('should setup pull request', function (done) {
 

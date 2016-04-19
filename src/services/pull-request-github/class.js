@@ -88,6 +88,10 @@ export default class PullRequestGitHub {
   syncPullRequestWithGitHub(local) {
     return Promise.resolve(local)
       .then(::this.loadPullRequestFromGitHub)
+      .then(local => {
+        this.fillPullRequestBody(local);
+        return local;
+      })
       .then(::this.updatePullRequestOnGitHub)
       .then(local => local.save());
   }
