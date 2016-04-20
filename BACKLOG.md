@@ -1,4 +1,5 @@
 # TODO
+* заменить saveHooks на mixin
 * кешировать вызов getDevelopersForReview
 * node-architect: обрабатывать reject для shutdown'a
 

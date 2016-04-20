@@ -20,10 +20,14 @@ application
   });
 
 process.on('SIGINT', () => {
+  console.log(''); // echo new line char, after "^C"
+
   application
     .shutdown()
     .then(() => {
-      console.log('');
+      const timer = setTimeout(() => process.exit(), 2000);
+      // No need to wait this timer if the program is ready to exit.
+      timer.unref();
     })
     .catch(error => {
       console.error(error.stack ? error.stack : error);
