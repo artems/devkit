@@ -3,15 +3,16 @@ import { reject, isEmpty, includes } from 'lodash';
 /**
  * Review ignore step - removes reviewers which login match to one in the list.
  *
- * @param {Object} options
- * @param {Array} options.list - list of logins which should be ignored
- *
  * @return {Promise}
  */
-export default function ignoreService(options = {}) {
-  const list = options.list || [];
+export default function ignoreService() {
 
-  function ignore(review, payload) {
+  /**
+   * @param {Object} options
+   * @param {Array} options.list - list of logins which should be ignored
+   */
+  function ignore(review, options = {}) {
+    const list = options.list || [];
 
     if (isEmpty(review.team) || isEmpty(list)) {
       return Promise.resolve(review);

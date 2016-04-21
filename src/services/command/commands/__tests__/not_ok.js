@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash';
 
 import service from '../not_ok';
-import teamMock from '../../../team/__mocks__/dispatcher';
+import teamMock from '../../../team-dispatcher/__mocks__/dispatcher';
 import eventsMock from '../../../events/__mocks__/index';
 import loggerMock from '../../../logger/__mocks__/index';
 import { mockReviewers } from '../../__mocks__/index';

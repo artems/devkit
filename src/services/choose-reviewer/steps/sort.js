@@ -1,24 +1,30 @@
 /**
- * Sort reviewers by rank.
+ * Create review sort processor.
  *
- * @param {Review} review
- *
- * @return {Review} review
+ * @return {Function}
  */
-function sort(review) {
-  review.team = review.team.sort((a, b) => {
-    if (a.rank > b.rank) {
-      return -1;
-    } else if (b.rank > a.rank) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
-
-  return Promise.resolve(review);
-}
-
 export default function sortService() {
+
+  /**
+   * Sort reviewers by rank.
+   *
+   * @param {Review} review
+   *
+   * @return {Review} review
+   */
+  function sort(review) {
+    review.team = review.team.sort((a, b) => {
+      if (a.rank > b.rank) {
+        return -1;
+      } else if (b.rank > a.rank) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    return Promise.resolve(review);
+  }
+
   return sort;
 }

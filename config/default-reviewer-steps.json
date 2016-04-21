@@ -1,0 +1,43 @@
+{
+  "choose-reviewer-step-remove-author": {
+    "path": "./src/services/choose-reviewer/steps/remove_author"
+  },
+
+  "choose-reviewer-step-remove-already-reviewers": {
+    "path": "./src/services/choose-reviewer/steps/remove_already_reviewers"
+  },
+
+  "choose-reviewer-step-ignore": {
+    "path": "./src/services/choose-reviewer/steps/ignore"
+  },
+
+  "choose-reviewer-step-commiters": {
+    "path": "./src/services/choose-reviewer/steps/commiters",
+    "dependencies": [
+      "github"
+    ]
+  },
+
+  "choose-reviewer-step-path-related": {
+    "path": "./src/services/choose-reviewer/steps/path-related"
+  },
+
+  "choose-reviewer-step-random": {
+    "path": "./src/services/choose-reviewer/steps/random"
+  },
+
+  "choose-reviewer-step-load": {
+    "path": "./src/services/choose-reviewer/steps/load",
+    "dependencies": [
+      "pull-request-model"
+    ]
+  },
+
+  "choose-reviewer-step-sort": {
+    "path": "./src/services/choose-reviewer/steps/sort"
+  },
+
+  "choose-reviewer-step-total-number": {
+    "path": "./src/services/choose-reviewer/steps/total_number"
+  }
+}

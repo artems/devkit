@@ -150,7 +150,58 @@
 
     "pull-request-review-addon": {
       "path": "./src/services/pull-request-review/addon"
-    }
+    },
+
+    "choose-reviewer": {
+      "path": "./src/services/choose-reviewer",
+      "options": {
+        "steps": [
+          "remove-author",
+          "remove-already-reviewers",
+          "ignore",
+          "commiters",
+          "random",
+          "path-related",
+          "load",
+          "sort",
+          "total-number"
+        },
+        "stepOptions": {
+          "commiters": {
+            "max": 4,
+            "since": [4, "month"],
+            "ignore": ["config"],
+            "filesToCheck": 5,
+            "commitsCount": 10
+          },
+          "path-related": {
+            "max": 5,
+            "members": ["artems"],
+            "incPattern": ["*.js"],
+            "decPattern": ["*.json"]
+          },
+          "random": { "max": 5 },
+          "load": { "max": 1 },
+          "total-number": { "max": 2 }
+        }
+      },
+      "dependencies": [
+        "logger",
+        "team-dispatcher",
+        "pull-request-model",
+        "choose-reviewer-step-commiters",
+        "choose-reviewer-step-ignore",
+        "choose-reviewer-step-load",
+        "choose-reviewer-step-path-related",
+        "choose-reviewer-step-random",
+        "choose-reviewer-step-remove-already-reviewers",
+        "choose-reviewer-step-remove-author",
+        "choose-reviewer-step-sort",
+        "choose-reviewer-step-total-number"
+      ]
+    },
+
+    "#include:choose-reviewer-steps": "./default-reviewer-steps.json"
 
   }
 }

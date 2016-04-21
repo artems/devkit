@@ -1,3 +1,5 @@
+* передать опции из choose-reviewer в конкретный step
+
 # TODO
 * заменить saveHooks на mixin
 * кешировать вызов getDevelopersForReview

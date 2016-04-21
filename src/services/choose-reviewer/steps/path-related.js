@@ -103,29 +103,26 @@ export function decRank(options, review) {
 }
 
 /**
- * Creates path related step for choose reviewers service.
- *
  * @param {Object} options
  *
- * @return {Function}
+ * @return {Promise}
  */
-export function pathRelatedCreator(options) {
-  return function pathRelated(review) {
+export default function pathRelatedService() {
+
+  /**
+   * Creates path related step for choose reviewers service.
+   *
+   * @param {Object} options
+   *
+   * @return {Function}
+   */
+  function pathRelated(review, options) {
     return getFiles(review.pullRequest)
       .then(incRank(assign({}, options, { pattern: options.incPattern }), review))
       .then(decRank(assign({}, options, { pattern: options.decPattern }), review))
       .catch(() => review)
       .then(() => review);
   };
-}
-
-/**
- * @param {Object} options
- *
- * @return {Promise}
- */
-export default function pathRelatedService(options) {
-  const pathRelated = pathRelatedCreator(options);
 
   return pathRelated;
 }

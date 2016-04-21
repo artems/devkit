@@ -6,8 +6,8 @@ import service from '../add';
 import { getParticipant } from '../add';
 import { mockReviewers } from '../../__mocks__/index';
 import pullRequestReviewMock from '../../../pull-request-review/__mocks__/index';
-import teamMock from '../../../team/__mocks__/team';
-import teamDispatcherMock from '../../../team/__mocks__/dispatcher';
+import teamMock from '../../../team-dispatcher/__mocks__/team';
+import teamDispatcherMock from '../../../team-dispatcher/__mocks__/dispatcher';
 
 describe.skip('services/command/add', () => {
 

@@ -4,17 +4,19 @@ import _ from 'lodash';
  * Create review `load` processor.
  *
  * @param {Object} options
- * @param {Number} options.max - max rank which will be substract for amount of active reviews.
  * @param {Object} imports
  *
  * @return {Function}
  */
 export default function loadService(options, imports) {
 
-  const max = options.max;
+  /**
+   * @param {Object} options
+   * @param {Number} options.max - max rank which will be substract for amount of active reviews.
+   */
+  function load(review, options) {
 
-  function load(review, payload) {
-
+    const max = options.max;
     const promise = [];
     const pullRequestModel = imports['pull-request-model'];
 

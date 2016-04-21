@@ -28,8 +28,9 @@ export default class ChooseReviewer {
   setTeam(review) {
     return this.teamDispatcher
       .findTeamByPullRequest(review.pullRequest)
+      .then(team => team.getMembersForReview(review.pullRequest))
       .then(team => {
-        review.team = team.getMembersForReview(review.pullRequest);
+        review.team = team;
         return review;
       });
   }
@@ -42,7 +43,7 @@ export default class ChooseReviewer {
    * @return {Promise}
    */
   setSteps(review) {
-    return this.getSteps(review.pullRequest)
+    return this.getSteps(review)
       .then(steps => {
         review.steps = steps;
         return review;
@@ -52,16 +53,16 @@ export default class ChooseReviewer {
   /**
    * Get steps for team.
    *
-   * @param {Object} pullRequest
+   * @param {Review} review
    *
    * @return {Promise} { steps, stepOptions }
    */
-  getSteps(pullRequest) {
-    const teamName = this.teamDispatcher.findTeamNameByPullRequest(pullRequest);
+  getSteps(review) {
+    const teamName = this.teamDispatcher.findTeamNameByPullRequest(review.pullRequest);
 
     if (!teamName) {
       return Promise.reject(new Error(util.format(
-        'Team not found for pull request %s', pullRequest.toString()
+        'Team not found for pull request %s', review.pullRequest.toString()
       )));
     }
 
@@ -71,19 +72,21 @@ export default class ChooseReviewer {
 
     if (isEmpty(steps)) {
       return Promise.reject(new Error(
-        `There aren\'t any steps for given team "${teamName}"`, teamName
+        `There are no any steps for given team "${teamName}"`
       ));
     }
 
+    review.teamName = teamName;
+
     return new Promise((resolve, reject) => {
       resolve(steps.map(name => {
-        const ranker = this.imports[name];
+        const ranker = this.imports['choose-reviewer-step-' + name];
 
         if (!ranker) {
           reject(new Error(`There is no step with name "${name}"`));
         }
 
-        return ranker;
+        return { ranker, name };
       }));
 
     });
@@ -97,7 +100,7 @@ export default class ChooseReviewer {
    * @return {Promise}
    */
   addZeroRank(review) {
-    forEach(review.team, member => { member.rank = 0; });
+    forEach(review.team, (member) => { member.rank = 0; });
 
     return Promise.resolve(review);
   }
@@ -131,15 +134,19 @@ export default class ChooseReviewer {
    * @return {Promise}
    */
   stepsQueue(review) {
-    return review.steps.reduce((queue, ranker) => {
+    return review.steps.reduce((queue, { ranker, name }) => {
       return queue.then(review => {
-        this.logger.info('Choose reviewer phase is `%s`', ranker.name);
+        this.logger.info('Choose reviewer phase is `%s`', name);
         this.logger.info(
           'Temporary ranks are: %s',
           map(review.team, (x) => x.login + '#' + x.rank).join(' ')
         );
 
-        return ranker(review);
+        const rankerOptions =
+          get(this.options, ['teamOverrides', review.teamName, 'stepsOptions', name]) ||
+          get(this.options, ['stepsOptions', name]);
+
+        return ranker(review, rankerOptions);
       });
     }, Promise.resolve(review));
   }
@@ -165,9 +172,9 @@ export default class ChooseReviewer {
         this.logger.info('Choose reviewers complete %s', review.pullRequest.toString());
 
         this.logger.info('Reviewers are: %s',
-          (!isEmpty(review.team)) ?
-            review.team.map(x => x.login + '#' + x.rank).join(' ') :
-            'ooops, no reviewers were selected...'
+          isEmpty(review.team) ?
+            'ooops, no reviewers were selected...' :
+            review.team.map(x => x.login + '#' + x.rank).join(' ')
         );
 
         return review;

@@ -145,28 +145,26 @@ export function getSinceDate(date) {
  * Create review `commiters` processor.
  *
  * @param {Object} options
- * @param {Number} options.max - max rank for current step.
- * @param {Array}  options.since - how old commits need to retrieve
- * @param {Array}  options.ignore - list of patterns to ignore.
- * @param {Number} options.commitsCount - number of commits to inspect.
- * @param {Number} options.filesToCheck - number files to get commits in.
  * @param {Object} imports
  *
  * @return {Function}
  */
 export default function setup(options, imports) {
 
-  const max = options.max;
-
   /**
    * Add rank for commiters in same files as current pull request.
    *
    * @param {Review} review
-   * @param {Object} payload
+   * @param {Object} options
+   * @param {Array}  options.since - how old commits need to retrieve
+   * @param {Array}  options.ignore - list of patterns to ignore.
+   * @param {Number} options.commitsCount - number of commits to inspect.
+   * @param {Number} options.filesToCheck - number files to get commits in.
    *
    * @return {Promise}
    */
-  function commiters(review, payload) {
+  function commiters(review, options) {
+    const max = options.max;
 
     if (_.isEmpty(review.team)) {
       return Promise.resolve(review);

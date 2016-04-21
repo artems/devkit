@@ -3,8 +3,8 @@ import eventsMock from '../../../events/__mocks__/index';
 import loggerMock from '../../../logger/__mocks__/index';
 import { pullRequestMock } from '../../../model/collections/__mocks__/pull-request';
 import pullRequestReviewMock from '../../../pull-request-review/__mocks__/index';
-import teamMock from '../../../team/__mocks__/team';
-import teamDispatcherMock from '../../../team/__mocks__/dispatcher';
+import teamMock from '../../../team-dispatcher/__mocks__/team';
+import teamDispatcherMock from '../../../team-dispatcher/__mocks__/dispatcher';
 
 describe.skip('services/command/busy', () => {
 
