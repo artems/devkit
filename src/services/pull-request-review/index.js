@@ -1,13 +1,13 @@
-import PullRequestAction from './class';
+import PullRequestReview from './class';
 
 export default function setup(options, imports) {
 
-  const { team, events, logger } = imports;
+  const { events, logger, 'team-dispatcher': teamDispatcher } = imports;
 
-  const service = new PullRequestAction(options, {
-    team,
+  const service = new PullRequestReview(options, {
     events,
-    logger: logger.getLogger('review')
+    logger: logger.getLogger('review'),
+    teamDispatcher
   });
 
   return service;

@@ -1,23 +1,23 @@
 import service from '../index';
 
-import teamMock from '../../team/__mocks__/dispatcher';
 import loggerMock from '../../logger/__mocks__/index';
 import eventsMock from '../../events/__mocks__/index';
+import teamDispatcherMock from '../../team-dispatcher/__mocks__/dispatcher';
 import pullRequestReviewMock from '../__mocks__/index';
 
 describe('services/pull-request-review', function () {
 
   let options, imports;
-  let team, logger, events;
+  let logger, events, teamDispatcher;
 
   beforeEach(function () {
     options = {};
 
-    team = teamMock();
     logger = loggerMock();
     events = eventsMock();
+    teamDispatcher = teamDispatcherMock();
 
-    imports = { team: team, events, logger };
+    imports = { events, logger, 'team-dispatcher': teamDispatcher };
   });
 
   const methods = [
@@ -27,7 +27,7 @@ describe('services/pull-request-review', function () {
     'updateReviewers'
   ];
 
-  it('should be resolved to PullRequestAction', function () {
+  it('should be resolved to PullRequestReview', function () {
     const review = service(options, imports);
 
     methods.forEach(method => {

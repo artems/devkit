@@ -93,8 +93,8 @@
       ]
     },
 
-    "team": {
-      "path": "./src/services/team",
+    "team-dispatcher": {
+      "path": "./src/services/team-dispatcher",
       "options": {
         "routes": [
           { "team-github": ["*/*"] }
@@ -142,9 +142,9 @@
         }
       },
       "dependencies": [
-        "team",
         "events",
-        "logger"
+        "logger",
+        "team-dispatcher"
       ]
     },
 

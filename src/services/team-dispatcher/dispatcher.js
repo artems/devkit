@@ -1,6 +1,6 @@
 import minimatch from 'minimatch';
 
-export default class Dispatcher {
+export default class TeamDispatcher {
 
   /**
    * @constructor

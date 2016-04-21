@@ -9,12 +9,12 @@ export default class PullRequestReview {
    * @param {Object} options
    * @param {Object} imports
    */
-  constructor(options, { team, events, logger }) {
+  constructor(options, { events, logger, teamDispatcher }) {
     this.options = options;
 
-    this.team = team;
     this.events = events;
     this.logger = logger;
+    this.teamDispatcher = teamDispatcher;
   }
 
   /**
@@ -189,7 +189,7 @@ export default class PullRequestReview {
    * @return {Number}
    */
   getRequiredApproveCount(pullRequest) {
-    const teamName = this.team.findTeamNameByPullRequest(pullRequest);
+    const teamName = this.teamDispatcher.findTeamNameByPullRequest(pullRequest);
 
     return get(
       this.options,

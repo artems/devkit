@@ -1,3 +1,13 @@
+import teamMock from './team';
+import teamDispatcherMock from './dispatcher';
+
+export * from './team';
+export * from './dispatcher';
+
+export default function(teamName, member) {
+  return teamDispatcher(teamMock(member), teamName);
+}
+
 export function members() {
   return [
     { login: 'Black Panther' },

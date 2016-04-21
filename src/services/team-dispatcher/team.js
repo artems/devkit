@@ -1,15 +1,15 @@
 import { find } from 'lodash';
 
-export default class Team {
+export default class AbstractTeam {
 
   /**
    * Find team member by login.
-   * The member is not necessary to be an "active reviewer".
+   * The member is not necessary to be an "active reviewer" returned from `getMembersForReview`
    *
    * @param {PullRequest} pullRequest
    * @param {String} login
    *
-   * @return {Developer}
+   * @return {Promise.<Developer>}
    */
   findTeamMember(pullRequest, login) {
     return this.getMembersForReview()
@@ -17,11 +17,11 @@ export default class Team {
   }
 
   /**
-   * Returns "active" developers who will be chosen to review
+   * Returns "active" developers who may be chosen to review.
    *
    * @param {PullRequest} pullRequest
    *
-   * @return {Array.<Developer>}
+   * @return {Promise.<Array.<Developer>>}
    */
   getMembersForReview(pullRequest) {
     return Promise.resolve([]);

@@ -1,7 +1,7 @@
 {
 
   "team-github": {
-    "path": "./src/services/team/github",
+    "path": "./src/services/team-dispatcher/github",
     "options": {
       "orgName": "devexp-org",
       "slugName": "owners"
@@ -12,7 +12,7 @@
   },
 
   "team-static": {
-    "path": "./src/services/team/static",
+    "path": "./src/services/team-dispatcher/static",
     "options": {
       "members": [
         "artems",
