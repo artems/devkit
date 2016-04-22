@@ -152,8 +152,8 @@
       "path": "./src/services/pull-request-review/addon"
     },
 
-    "choose-reviewer": {
-      "path": "./src/services/choose-reviewer",
+    "reviewer-assignment": {
+      "path": "./src/services/reviewer-assignment",
       "options": {
         "steps": [
           "remove-author",
@@ -165,7 +165,7 @@
           "load",
           "sort",
           "total-number"
-        },
+        ],
         "stepOptions": {
           "commiters": {
             "max": 4,
@@ -188,20 +188,19 @@
       "dependencies": [
         "logger",
         "team-dispatcher",
-        "pull-request-model",
-        "choose-reviewer-step-commiters",
-        "choose-reviewer-step-ignore",
-        "choose-reviewer-step-load",
-        "choose-reviewer-step-path-related",
-        "choose-reviewer-step-random",
-        "choose-reviewer-step-remove-already-reviewers",
-        "choose-reviewer-step-remove-author",
-        "choose-reviewer-step-sort",
-        "choose-reviewer-step-total-number"
+        "reviewer-assignment-step-commiters",
+        "reviewer-assignment-step-ignore",
+        "reviewer-assignment-step-load",
+        "reviewer-assignment-step-path-related",
+        "reviewer-assignment-step-random",
+        "reviewer-assignment-step-remove-already-reviewers",
+        "reviewer-assignment-step-remove-author",
+        "reviewer-assignment-step-sort",
+        "reviewer-assignment-step-total-number"
       ]
     },
 
-    "#include:choose-reviewer-steps": "./default-reviewer-steps.json"
+    "#include:reviewer-assignment-steps": "./default-reviewer-steps.json"
 
   }
 }

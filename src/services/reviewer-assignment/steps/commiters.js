@@ -1,14 +1,15 @@
 import _ from 'lodash';
 import moment from 'moment';
+import minimatch from 'minimatch';
 
 /**
- * Return pull reqest files.
+ * Return pull request files.
  *
  * @param {Object} pullRequest
  * @param {Array}  ignorePatterns - patterns to ignore.
  * @param {Number} filesToCheck - number of files to keep for futher processing.
  *
- * @return {Promise}
+ * @return {Promise.<Array.<GitHubFile>>}
  */
 export function getFiles(pullRequest, ignorePatterns, filesToCheck) {
   let files = pullRequest.get('files');
@@ -22,29 +23,28 @@ export function getFiles(pullRequest, ignorePatterns, filesToCheck) {
       let keep = true;
 
       _.forEach(ignorePatterns, pattern => {
-        // TODO use minimatch
-        if (file.filename.match(pattern)) {
+        if (minimatch(file.filename, pattern)) {
           keep = false;
         }
       });
 
       return keep;
     })
-    .sampleSize(filesToCheck)
+    .sampleSize(filesToCheck || 5)
     .value();
 
   return Promise.resolve(files);
 }
 
 /**
- * Get last commits for files.
+ * Get last commits of files.
  *
  * @param {Object} github
  * @param {Object} pullRequest
  * @param {String} since - get commits which newer then since date.
  * @param {Number} commitsCount - number of commits to get.
  *
- * @return {Promise}
+ * @return {Promise.<Array>} [commit]
  */
 export function getCommits(github, pullRequest, since, commitsCount) {
 
@@ -54,7 +54,7 @@ export function getCommits(github, pullRequest, since, commitsCount) {
     const options = {
       user: pullRequest.owner,
       repo: pullRequest.repository.name,
-      per_page: commitsCount
+      per_page: commitsCount || 10
     };
 
     if (since) {
@@ -66,23 +66,23 @@ export function getCommits(github, pullRequest, since, commitsCount) {
 
       promise.push(new Promise(resolve => {
         github.repos.getCommits(req, (error, commits) => {
+          // TODO error log
           error ? resolve([]) : resolve(commits);
         });
       }));
     });
 
-    return Promise.all(promise)
-      .then(result => _.flatten(result));
+    return Promise.all(promise).then(result => _.flatten(result));
   };
 
 }
 
 /**
- * Process commits and find most commiters for changed files.
+ * Process commits and find the most commiters for changed files.
  *
  * @param {Array} commits
  *
- * @return {Promise} { author: number_of_commits }
+ * @return {Promise.<Array>} [{ author: number_of_commits }]
  */
 export function getCommiters(commits) {
   const members = {};
@@ -90,16 +90,16 @@ export function getCommiters(commits) {
   _.forEach(commits, (commit) => {
     const author = commit.author;
 
-    if (!author) return;
-
-    members[author.login] = (members[author.login] + 1) || 1;
+    if (author) {
+      members[author.login] = (members[author.login] || 0) + 1;
+    }
   });
 
   return Promise.resolve(members);
 }
 
 /**
- * Add rank to most commiters.
+ * Add rank to the most commiters.
  *
  * @param {Number} maxRank
  * @param {Array}  team
@@ -107,6 +107,7 @@ export function getCommiters(commits) {
  * @return {Array} team
  */
 export function addRank(maxRank, team) {
+
   return function (members) {
     let max = 0;
 
@@ -124,6 +125,7 @@ export function addRank(maxRank, team) {
 
     return team;
   };
+
 }
 
 /**
@@ -151,17 +153,19 @@ export function getSinceDate(date) {
  */
 export default function setup(options, imports) {
 
+  const github = imports.github;
+
   /**
    * Add rank for commiters in same files as current pull request.
    *
    * @param {Review} review
    * @param {Object} options
-   * @param {Array}  options.since - how old commits need to retrieve
-   * @param {Array}  options.ignore - list of patterns to ignore.
-   * @param {Number} options.commitsCount - number of commits to inspect.
-   * @param {Number} options.filesToCheck - number files to get commits in.
+   * @param {Array}  [options.since] - how old commits need to retrieve
+   * @param {Array}  [options.ignore] - list of patterns to ignore.
+   * @param {Number} [options.commitsCount] - number of commits to inspect.
+   * @param {Number} [options.filesToCheck] - number files to get commits in.
    *
-   * @return {Promise}
+   * @return {Promise.<Review>}
    */
   function commiters(review, options) {
     const max = options.max;
@@ -170,8 +174,8 @@ export default function setup(options, imports) {
       return Promise.resolve(review);
     }
 
-    const github = imports.github;
     const sinceDate = getSinceDate(options.since);
+
     const pullRequest = review.pullRequest;
 
     return getFiles(pullRequest, options.ignore, options.filesToCheck)

@@ -1,7 +1,6 @@
-import util from 'util';
-import { get, forEach, map, isEmpty } from 'lodash';
+import { get, map, forEach, isEmpty } from 'lodash';
 
-export default class ChooseReviewer {
+export default class ReviewerAssignment {
 
   /**
    * @constructor
@@ -15,7 +14,6 @@ export default class ChooseReviewer {
 
     this.logger = imports.logger;
     this.teamDispatcher = imports['team-dispatcher'];
-    this.PullRequestModel = imports['pull-request-model'];
   }
 
   /**
@@ -23,7 +21,7 @@ export default class ChooseReviewer {
    *
    * @param {Review} review
    *
-   * @return {Promise}
+   * @return {Promise.<Review>}
    */
   setTeam(review) {
     return this.teamDispatcher
@@ -40,7 +38,7 @@ export default class ChooseReviewer {
    *
    * @param {Review} review
    *
-   * @return {Promise}
+   * @return {Promise.<Review>}
    */
   setSteps(review) {
     return this.getSteps(review)
@@ -55,22 +53,22 @@ export default class ChooseReviewer {
    *
    * @param {Review} review
    *
-   * @return {Promise} { steps, stepOptions }
+   * @return {Promise.<Array.<Function>>}
    */
   getSteps(review) {
     const teamName = this.teamDispatcher.findTeamNameByPullRequest(review.pullRequest);
 
     if (!teamName) {
-      return Promise.reject(new Error(util.format(
-        'Team not found for pull request %s', review.pullRequest.toString()
-      )));
+      return Promise.reject(new Error(
+        `Team is not found for pull request ${review.pullRequest}`
+      ));
     }
 
-    const steps =
+    const stepNames =
       get(this.options, ['teamOverrides', teamName, 'steps']) ||
-      get(this.options, ['default', 'steps']);
+      get(this.options, ['steps']);
 
-    if (isEmpty(steps)) {
+    if (isEmpty(stepNames)) {
       return Promise.reject(new Error(
         `There are no any steps for given team "${teamName}"`
       ));
@@ -78,18 +76,19 @@ export default class ChooseReviewer {
 
     review.teamName = teamName;
 
-    return new Promise((resolve, reject) => {
-      resolve(steps.map(name => {
-        const ranker = this.imports['choose-reviewer-step-' + name];
+    let notFound = false;
 
-        if (!ranker) {
-          reject(new Error(`There is no step with name "${name}"`));
-        }
+    const steps = stepNames.map(name => {
+      const ranker = this.imports['reviewer-assignment-step-' + name];
 
-        return { ranker, name };
-      }));
+      if (!ranker && !notFound) {
+        notFound = new Error(`There is no step with name "${name}"`);
+      }
 
-    });
+      return { ranker, name };
+    })
+
+    return notFound ? Promise.reject(notFound) : Promise.resolve(steps);
   }
 
   /**
@@ -97,7 +96,7 @@ export default class ChooseReviewer {
    *
    * @param {Review} review
    *
-   * @return {Promise}
+   * @return {Promise.<Review>}
    */
   addZeroRank(review) {
     forEach(review.team, (member) => { member.rank = 0; });
@@ -108,22 +107,12 @@ export default class ChooseReviewer {
   /**
    * Start ranking queue.
    *
-   * @param {Number} pullId - pull request id
+   * @param {PullRequest} pullRequest
    *
-   * @return {Promise}
+   * @return {Promise.<Review>}
    */
-  start(pullId) {
-    return new Promise((resolve, reject) => {
-      this.PullRequestModel
-        .findById(pullId)
-        .then(pullRequest => {
-          if (!pullRequest) {
-            return reject(new Error(`Pull request #${pullId} not found`));
-          }
-
-          resolve({ pullRequest, team: [] });
-        });
-    });
+  start(pullRequest) {
+    return Promise.resolve({ pullRequest, team: [] });
   }
 
   /**
@@ -135,8 +124,10 @@ export default class ChooseReviewer {
    */
   stepsQueue(review) {
     return review.steps.reduce((queue, { ranker, name }) => {
+
       return queue.then(review => {
-        this.logger.info('Choose reviewer phase is `%s`', name);
+        this.logger.info('Phase is `%s`', name);
+
         this.logger.info(
           'Temporary ranks are: %s',
           map(review.team, (x) => x.login + '#' + x.rank).join(' ')
@@ -148,28 +139,29 @@ export default class ChooseReviewer {
 
         return ranker(review, rankerOptions);
       });
+
     }, Promise.resolve(review));
   }
 
   /**
-   * Main review suggestion method.
+   * Review suggestion method.
    * Create queue of promises from processor and retrun suggested reviewers.
    *
-   * @param {Number} pullId
+   * @param {PullRequest} pullRequest
    *
-   * @return {Promise}
+   * @return {Promise.<Review>}
    */
-  review(pullId) {
-    this.logger.info('Review started for #%s', pullId);
+  choose(pullRequest) {
+    this.logger.info('Review started for #s', pullRequest.id);
 
     return this
-      .start(pullId)
+      .start(pullRequest)
       .then(::this.setTeam)
       .then(::this.setSteps)
       .then(::this.addZeroRank)
       .then(::this.stepsQueue)
       .then(review => {
-        this.logger.info('Choose reviewers complete %s', review.pullRequest.toString());
+        this.logger.info('Complete %s', review.pullRequest);
 
         this.logger.info('Reviewers are: %s',
           isEmpty(review.team) ?
