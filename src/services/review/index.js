@@ -1,7 +1,7 @@
-import ReviewerAssignment from './class';
+import Review from './class';
 
 export default function setup(options, imports) {
   imports.logger = imports.logger.getLogger('review');
 
-  return new ReviewerAssignment(options, imports);
+  return new Review(options, imports);
 }

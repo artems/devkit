@@ -152,8 +152,8 @@
       "path": "./src/services/pull-request-review/addon"
     },
 
-    "reviewer-assignment": {
-      "path": "./src/services/reviewer-assignment",
+    "review": {
+      "path": "./src/services/review",
       "options": {
         "steps": [
           "remove-author",

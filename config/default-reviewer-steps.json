@@ -1,43 +1,43 @@
 {
   "reviewer-assignment-step-remove-author": {
-    "path": "./src/services/reviewer-assignment/steps/remove_author"
+    "path": "./src/services/review/steps/remove_author"
   },
 
   "reviewer-assignment-step-remove-already-reviewers": {
-    "path": "./src/services/reviewer-assignment/steps/remove_already_reviewers"
+    "path": "./src/services/review/steps/remove_already_reviewers"
   },
 
   "reviewer-assignment-step-ignore": {
-    "path": "./src/services/reviewer-assignment/steps/ignore"
+    "path": "./src/services/review/steps/ignore"
   },
 
   "reviewer-assignment-step-commiters": {
-    "path": "./src/services/reviewer-assignment/steps/commiters",
+    "path": "./src/services/review/steps/commiters",
     "dependencies": [
       "github"
     ]
   },
 
   "reviewer-assignment-step-path-related": {
-    "path": "./src/services/reviewer-assignment/steps/path_related"
+    "path": "./src/services/review/steps/path_related"
   },
 
   "reviewer-assignment-step-random": {
-    "path": "./src/services/reviewer-assignment/steps/random"
+    "path": "./src/services/review/steps/random"
   },
 
   "reviewer-assignment-step-load": {
-    "path": "./src/services/reviewer-assignment/steps/load",
+    "path": "./src/services/review/steps/load",
     "dependencies": [
       "pull-request-model"
     ]
   },
 
   "reviewer-assignment-step-sort": {
-    "path": "./src/services/reviewer-assignment/steps/sort"
+    "path": "./src/services/review/steps/sort"
   },
 
   "reviewer-assignment-step-total-number": {
-    "path": "./src/services/reviewer-assignment/steps/total_number"
+    "path": "./src/services/review/steps/total_number"
   }
 }
