@@ -25,7 +25,7 @@ export function isMatchAny(files, patterns) {
  */
 export function isMatchAll(files, patterns) {
   return _.every(_.map(patterns, (pattern) => {
-     return !_.isEmpty(minimatch.match(files, pattern));
+    return !_.isEmpty(minimatch.match(files, pattern));
   }));
 }
 
@@ -71,7 +71,7 @@ export function incRank(options, review) {
         const selectedMembers = _.sample(members, membersCount);
 
         reviewers = _.filter(review.team, (reviewer) => {
-          return selectedMembers.indexOf(reviewer.login) !== -1
+          return selectedMembers.indexOf(reviewer.login) !== -1;
         });
       }
 
@@ -98,7 +98,6 @@ export function decRank(options, review) {
   return function (files) {
     const { max, pattern, members } = options;
     const rank = Math.floor(Math.random() * max) + 1;
-    const pullRequest = review.pullRequest;
     const isApplicable = isMatchAll(files, pattern);
 
     if (isApplicable) {
@@ -118,6 +117,9 @@ export function decRank(options, review) {
  * Adds rank for members who are defined in `incPattern`.
  * Subtracts rank for members who are defined in `decPattern`.
  *
+ * @param {Review} review
+ * @param {Object} options
+ *
  * @return {Promise.<Review>}
  */
 export function pathRelated(review, options) {
@@ -128,7 +130,7 @@ export function pathRelated(review, options) {
     .then(incRank(_.assign({}, options, { pattern: options.incPattern }), review))
     .then(decRank(_.assign({}, options, { pattern: options.decPattern }), review))
     .then(next, next);
-};
+}
 
 /**
  * Create review `path_related` processor.

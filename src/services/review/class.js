@@ -86,7 +86,7 @@ export default class ReviewerAssignment {
       }
 
       return { ranker, name };
-    })
+    });
 
     return notFound ? Promise.reject(notFound) : Promise.resolve(steps);
   }
@@ -164,9 +164,9 @@ export default class ReviewerAssignment {
         this.logger.info('Complete %s', review.pullRequest);
 
         this.logger.info('Reviewers are: %s',
-          isEmpty(review.team) ?
-            'ooops, no reviewers were selected...' :
-            review.team.map(x => x.login + '#' + x.rank).join(' ')
+          isEmpty(review.team)
+            ? 'ooops, no reviewers were selected...'
+            : review.team.map(x => x.login + '#' + x.rank).join(' ')
         );
 
         return review;

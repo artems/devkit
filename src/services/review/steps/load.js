@@ -15,8 +15,11 @@ export default function setup(options, imports) {
   /**
    * Subtract rank from reviewers which aleady has active review.
    *
+   * @param {Review} review
    * @param {Object} options
    * @param {Number} options.max - max rank which will be subtract for amount of active reviews.
+   *
+   * @return {Promise.<Review>}
    */
   function load(review, options) {
 

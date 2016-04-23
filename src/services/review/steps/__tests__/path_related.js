@@ -164,9 +164,8 @@ describe('services/reviewer-assignment/steps/path_related', function () {
     });
   });
 
-  describe('service', function() {
-    let step, team, members, pullRequest, options;
-    let reviewers, membersMap;
+  describe('service', function () {
+    let step, team, pullRequest, options;
 
     beforeEach(() => {
       step = service();
@@ -187,7 +186,7 @@ describe('services/reviewer-assignment/steps/path_related', function () {
     it('should inc rank if any pattern match', function (done) {
       const review = { team: team, pullRequest };
 
-      pullRequest.files = [{ filename: 'a.js' }]
+      pullRequest.files = [{ filename: 'a.js' }];
       pullRequest.review.reviewers = membersMock();
 
       const oldRank = _.find(review.team, { login: 'Hulk' }).rank;
@@ -203,7 +202,7 @@ describe('services/reviewer-assignment/steps/path_related', function () {
     it('should dec rank if all patterns match', function (done) {
       const review = { team: team, pullRequest };
 
-      pullRequest.files = [{ filename: 'a.json' }]
+      pullRequest.files = [{ filename: 'a.json' }];
       pullRequest.review.reviewers = membersMock();
 
       const oldRank = _.find(review.team, { login: 'Hulk' }).rank;

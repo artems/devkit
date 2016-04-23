@@ -1,6 +1,5 @@
 import ReviewerAssignment from '../class';
 
-import modelMock from '../../model/__mocks__/index';
 import loggerMock from '../../logger/__mocks__/index';
 
 import teamMock from '../../team-dispatcher/__mocks__/team';
@@ -11,12 +10,11 @@ import { pullRequestMock } from
 
 describe('services/reviewer-assignment/ReviewerAssignment', function () {
 
-  let model, logger, team, teamDispatcher, pullRequest;
+  let logger, team, teamDispatcher, pullRequest;
   let imports, options;
 
   beforeEach(function () {
 
-    model = modelMock();
     logger = loggerMock();
 
     team = teamMock();
@@ -79,7 +77,7 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
       review.getSteps({ pullRequest })
         .then(() => new Error('should reject promise'))
         .catch(error => assert.match(error.message, /no step/))
-        .then(done, done)
+        .then(done, done);
     });
 
     it('should return resolved promise with steps array', function (done) {
@@ -88,7 +86,7 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
           assert.sameDeepMembers(resolved, [
             { name: 'step1', ranker: '1' },
             { name: 'step2', ranker: '2' }
-          ])
+          ]);
         })
         .then(done, done);
     });
@@ -203,10 +201,10 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
       };
 
       imports['reviewer-assignment-step-step1'] = function (review) {
-        return Promise.resolve(review)
+        return Promise.resolve(review);
       };
       imports['reviewer-assignment-step-step2'] = function (review) {
-        return Promise.resolve(review)
+        return Promise.resolve(review);
       };
 
       review = new ReviewerAssignment(options, imports);

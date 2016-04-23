@@ -1,8 +1,7 @@
-import service  from '../index';
+import service from '../index';
 
 import modelMock from '../../model/__mocks__/index';
 import loggerMock from '../../logger/__mocks__/index';
-import teamDispatcherMock from '../../team-dispatcher/__mocks__/dispatcher';
 import reviewAssignmentMock from '../__mocks__/index';
 
 describe('services/reviewer-assignment', function () {
@@ -10,12 +9,11 @@ describe('services/reviewer-assignment', function () {
   it('should be resolved to ReviewerAssignment', function () {
     const model = modelMock();
     const logger = loggerMock();
-    const teamDispatcher = teamDispatcherMock();
 
     const options = { steps: ['step1', 'step2'] };
     const imports = { model, logger };
 
-    const distributor = service(options, imports)
+    const distributor = service(options, imports);
 
     assert.property(distributor, 'choose');
   });

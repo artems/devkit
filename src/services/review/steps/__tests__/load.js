@@ -9,7 +9,7 @@ import {
 describe('services/reviewer-assignment/steps/load', function () {
 
   let members, pullRequest, PullRequestModel;
-  let options, imports
+  let options, imports;
 
   beforeEach(() => {
     members = reviewMembersMock();
