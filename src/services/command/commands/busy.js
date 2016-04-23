@@ -1,10 +1,15 @@
 import util from 'util';
-import { find, reject } from 'lodash';
+import { find, reject, cloneDeep } from 'lodash';
 
 const EVENT_NAME = 'review:command:busy';
 
-export default function commandService(options, imports) {
-  const { action, review, logger, events } = imports;
+export default function setup(options, imports) {
+  const {
+    events,
+    logger,
+    review,
+    'pull-request-review': pullRequestReview
+  } = imports;
 
   /**
    * Handle '/busy' command.
@@ -16,41 +21,48 @@ export default function commandService(options, imports) {
    */
   const busyCommand = function busyCommand(command, payload) {
 
-    const pullRequest = payload.pullRequest;
+    let newReviewer;
 
-    logger.info('"/busy" %s', pullRequest.toString());
+    const pullRequest = payload.pullRequest;
+    const commentUser = payload.comment.user.login;
+
+    const pullRequestReviewers = pullRequest.get('review.reviewers');
+
+    logger.info('"/busy" %s', pullRequest);
 
     if (pullRequest.state !== 'open') {
+      return Promise.reject(new Error(
+        `Cannot change reviewer for closed pull request ${pullRequest}`
+      ));
+    }
+
+    if (!find(pullRequestReviewers, { login: commentUser })) {
       return Promise.reject(new Error(util.format(
-        'Cannot change reviewer for closed pull request %s',
-        pullRequest.toString()
+        '%s tried to change himself, but he is not a reviewer %s',
+        commentUser, pullRequest
       )));
     }
 
-    const login = payload.comment.user.login;
-    const reviewer = find(pullRequest.review.reviewers, { login });
+    return review.choose(pullRequest)
+      .then(({ team }) => {
+        // TODO handle an empty team.
 
-    if (!reviewer) {
-      return Promise.reject(new Error(util.format(
-        '%s tried to change reviewer, but he is not in reviewers list %s',
-        login, pullRequest.toString()
-      )));
-    }
+        newReviewer = cloneDeep(team.shift());
 
-    return review.review(pullRequest)
-      .then(result => {
-        const candidate = result.team[0];
-        const reviewers = reject(
-          pullRequest.review.reviewers,
-          { login: payload.comment.user.login }
+        pullRequestReviewers = reject(
+          pullRequestReviewers, { login: commentUser }
         );
 
-        reviewers.push(candidate);
+        pullRequestReviewers.push(newReviewer);
 
-        return action.updateReviewers(reviewers, pullRequest.id);
+        return pullRequestReview.updateReviewers(
+          pullRequest, pullRequestReviewers
+        );
       })
       .then(pullRequest => {
-        events.emit(EVENT_NAME, { pullRequest });
+        events.emit(EVENT_NAME, { pullRequest, newReviewer });
+
+        return pullRequest;
       });
   };
 

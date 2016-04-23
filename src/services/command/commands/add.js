@@ -3,61 +3,72 @@ import { find, cloneDeep } from 'lodash';
 
 const EVENT_NAME = 'review:command:add';
 
-export function getParticipant(command, parseLogins) {
-  const participant = parseLogins(command, ['/add', '+']);
-
-  return participant[0];
-}
-
 export default function setup(options, imports) {
-  const { team, action, logger, events, parseLogins } = imports;
+  const {
+    events,
+    logger,
+    'team-dispatcher': teamDispatcher,
+    'pull-request-review': pullRequestReview
+  } = imports;
 
   /**
    * Handle '/add' command.
    *
-   * @param {String} command - line with user command
+   * @param {String} command - line with user command.
    * @param {Object} payload - github webhook payload.
+   * @param {Array}  arglist - parsed arguments for command
    *
    * @return {Promise}
    */
-  const addCommand = function addCommand(command, payload) {
+  const addCommand = function addCommand(command, payload, arglist) {
 
     let newReviewer;
 
     const pullRequest = payload.pullRequest;
-    const reviewers = pullRequest.get('review.reviewers');
+    const commentUser = payload.comment.user.login;
 
-    logger.info('"/add" %s', pullRequest.toString());
+    const newReviewerLogin = arglist.shift();
 
-    const newReviewerLogin = getParticipant(command, parseLogins);
+    const pullRequestReviewers = pullRequest.get('review.reviewers');
 
-    if (find(reviewers, { login: newReviewerLogin })) {
+    logger.info('"/add" %s', pullRequest);
+
+    if (pullRequest.state !== 'open') {
+      return Promise.reject(new Error(
+        `Cannot add reviewer for closed pull request ${pullRequest}`
+      ));
+    }
+
+    if (find(pullRequestReviewers, { login: newReviewerLogin })) {
       return Promise.reject(new Error(util.format(
-        '%s tried to add reviewer %s but he is already in reviewers list',
-        payload.comment.user.login,
-        newReviewerLogin
+        '%s tried to add reviewer %s, but he is already a reviewer %s',
+        commentUser, newReviewerLogin, pullRequest
       )));
     }
 
-    return team
+    return teamDispatcher
       .findTeamByPullRequest(pullRequest)
       .then(team => team.findTeamMember(pullRequest, newReviewerLogin))
       .then(user => {
         if (!user) {
           return Promise.reject(new Error(util.format(
-            '%s tried to set %s, but there are no user with the same login in team',
-            payload.comment.user.login,
-            newReviewerLogin
+            '%s tried to add %s, but there is no user with the same login %s',
+            commentUser, newReviewerLogin, pullRequest
           )));
         }
 
         newReviewer = cloneDeep(user);
-        reviewers.push(newReviewer);
 
-        return action.updateReviewers(reviewers, pullRequest.id);
+        pullRequestReviewers.push(newReviewer);
+
+        return pullRequestReview.updateReviewers(
+          pullRequest, pullRequestReviewers
+        );
       })
       .then(pullRequest => {
         events.emit(EVENT_NAME, { pullRequest, newReviewer });
+
+        return pullRequest;
       });
 
   };

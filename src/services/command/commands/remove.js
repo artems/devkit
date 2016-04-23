@@ -3,14 +3,15 @@ import { find, reject } from 'lodash';
 
 const EVENT_NAME = 'review:command:remove';
 
-export function getParticipant(command, parseLogins) {
-  const participant = parseLogins(command, ['/remove', '-']);
+export default function setup(options, imports) {
 
-  return participant[0];
-}
+  const {
+    events,
+    logger,
+    'pull-request-review': pullRequestReview
+  } = imports;
 
-export default function commandService(options, imports) {
-  const { action, logger, events, parseLogins } = imports;
+  // TODO must be team config
   const minReviewersCount = options.min;
 
   /**
@@ -18,41 +19,49 @@ export default function commandService(options, imports) {
    *
    * @param {String} command - line with user command
    * @param {Object} payload - github webhook payload.
+   * @param {Array}  arglist - parsed arguments for command
    *
    * @return {Promise}
    */
-  const removeCommand = function removeCommand(command, payload) {
+  const removeCommand = function removeCommand(command, payload, arglist) {
 
     const pullRequest = payload.pullRequest;
-    const reviewers = pullRequest.get('review.reviewers');
+    const commentUser = payload.comment.user.login;
 
-    logger.info('"/remove" %s', pullRequest.toString());
+    const oldReviewerLogin = arglist.shift();
 
-    const reviewerLogin = getParticipant(command, parseLogins);
+    const pullRequestReviewers = pullRequest.get('review.reviewers');
 
-    if (!find(reviewers, { login: reviewerLogin })) {
+    logger.info('"/remove" %s', pullRequest);
+
+    // TODO config this
+    if (!find(pullRequestReviewers, { login: oldReviewerLogin })) {
       return Promise.reject(new Error(util.format(
-        '%s tried to remove reviewer %s but he is not in reviewers list',
-        payload.comment.user.login,
-        reviewerLogin
+        '%s tried to remove %s, but he is not a reviewer %s',
+        commentUser, oldReviewerLogin, pullRequest
       )));
     }
 
-    if (reviewers.length - 1 < minReviewersCount) {
+    if (pullRequestReviewers.length - 1 < minReviewersCount) {
       return Promise.reject(new Error(util.format(
-        '%s tried to remove reviewer %s but there should be at least %s reviewers in pull request',
-        payload.comment.user.login,
-        reviewerLogin,
-        minReviewersCount
+        '%s tried to remove %s, but there is should be at least %s reviewers %s',
+        commentUser,
+        oldReviewerLogin,
+        minReviewersCount,
+        pullRequest
       )));
     }
 
-    const newReviewers = reject(reviewers, { login: reviewerLogin });
+    pullRequestReviewers = reject(
+      pullRequestReviewers, { login: oldReviewerLogin }
+    );
 
-    return action
-      .updateReviewers(pullRequest, newReviewers)
+    return pullRequestReview
+      .updateReviewers(pullRequest, pullRequestReviewers)
       .then(pullRequest => {
         events.emit(EVENT_NAME, { pullRequest });
+
+        return pullRequest;
       });
 
   };

@@ -15,27 +15,28 @@ export default function commandService(options, imports) {
    * @return {Promise}
    */
   const pingCommand = function pingCommand(command, payload) {
-    const pullRequest = payload.pullRequest;
 
-    logger.info('"/ping" %s', pullRequest.toString());
+    const pullRequest = payload.pullRequest;
+    const commentUser = payload.comment.user.login;
+
+    logger.info('"/ping" %s', pullRequest);
 
     if (pullRequest.state !== 'open') {
       return Promise.reject(new Error(util.format(
-        'Cannot ping for closed pull request %s', pullRequest.toString()
+        `Cannot ping for closed pull request ${pullRequest}`
       )));
     }
 
-    if (pullRequest.user.login !== payload.comment.user.login) {
+    if (commentUser !== pullRequest.user.login) {
       return Promise.reject(new Error(util.format(
-        '%s tried to ping a review, but author is %s',
-        payload.comment.user.login,
-        pullRequest.user.login
+        '%s tried to ping to review, but author is %s %s',
+        commentUser, pullRequest.user.login, pullRequest
       )));
     }
 
     events.emit(EVENT_NAME, { pullRequest });
 
-    return Promise.resolve();
+    return Promise.resolve(pullRequest);
   };
 
   return pingCommand;

@@ -2,11 +2,15 @@ import util from 'util';
 import { find, cloneDeep } from 'lodash';
 
 const EVENT_NAME = 'review:command:ok';
-const EVENT_NAME_NEW_REVIEWER = EVENT_NAME + ':new_reviewer';
 
 export default function setup(options, imports) {
 
-  const { action, logger, team, events } = imports;
+  const {
+    events,
+    logger,
+    'team-dispatcher': teamDispatcher,
+    'pull-request-review': pullRequestReview
+  } = imports;
 
   /**
    * Handle '/ok' command.
@@ -18,54 +22,60 @@ export default function setup(options, imports) {
    */
   const okCommand = function okCommand(command, payload) {
 
-    const login = payload.comment.user.login;
     const pullRequest = payload.pullRequest;
-    const reviewer = find(pullRequest.get('review.reviewers'), { login });
+    const commentUser = payload.comment.user.login;
 
-    logger.info('"/ok" %s', pullRequest.toString());
+    const pullRequestReviewers = pullRequest.get('review.reviewers');
+
+    const commenter = find(pullRequestReviewers, { login: commentUser });
+
+    logger.info('"/ok" %s', pullRequest);
 
     if (pullRequest.state !== 'open') {
-      return Promise.reject(new Error(util.format(
-        '%s cannot approve review for closed pull request %s',
-        login, pullRequest.toString()
-      )));
+      return Promise.reject(new Error(
+        `Cannot approve review for closed pull request ${pullRequest}`
+      ));
     }
 
-    if (login === pullRequest.user.login) {
-      return Promise.reject(new Error(util.format(
-        '%s cannot ok to his pull request',
-        login
-      )));
+    if (commentUser === pullRequest.user.login) {
+      return Promise.reject(new Error(
+        `%s tried approve review to himself ${pullRequest}`
+      ));
     }
 
-    if (reviewer) {
-      return action
-        .approveReview(pullRequest, login)
+    if (commenter) {
+      return pullRequestReview
+        .approveReview(pullRequest, commentUser)
         .then(pullRequest => {
           events.emit(EVENT_NAME, { pullRequest });
+
+          return pullRequest;
         });
     } else {
-      return team
+      return teamDispatcher
         .findTeamByPullRequest(pullRequest)
-        .then(team => team.findTeamMember(pullRequest, login))
+        .then(team => team.findTeamMember(pullRequest, commentUser))
         .then(user => {
           if (!user) {
             return Promise.reject(new Error(util.format(
-              '%s tried to approve review, but there isn`t a user with the same login in team %s',
-              login, pullRequest.toString()
+              '%s tried to approve, but there is no user with the same login %s',
+              commentUser, pullRequest
             )));
           }
 
-          const reviewers = pullRequest.get('review.reviewers');
           const newReviewer = cloneDeep(user);
 
-          reviewers.push(newReviewer);
+          pullRequestReviewers.push(newReviewer);
 
-          return action.updateReviewers(reviewers, pullRequest.id);
+          return pullRequestReview.updateReviewers(
+            pullRequest, pullRequestReviewers
+          );
         })
-        .then(pullRequest => action.approveReview(pullRequest, login))
         .then(pullRequest => {
-          events.emit(EVENT_NAME_NEW_REVIEWER, { pullRequest });
+          return pullRequestReview.approveReview(pullRequest, commentUser);
+        })
+        .then(pullRequest => {
+          events.emit(EVENT_NAME, { pullRequest });
 
           return pullRequest;
         });

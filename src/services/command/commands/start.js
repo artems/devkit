@@ -2,9 +2,13 @@ import util from 'util';
 
 const EVENT_NAME = 'review:command:start';
 
-export default function commandService(options, imports) {
+export default function setup(options, imports) {
 
-  const { action, logger, events } = imports;
+  const {
+    events,
+    logger,
+    'pull-request-review': pullRequestReview
+  } = imports;
 
   /**
    * Handle '/start' command.
@@ -15,33 +19,32 @@ export default function commandService(options, imports) {
    * @return {Promise}
    */
   const startCommand = function startCommand(command, payload) {
-    const pullRequest = payload.pullRequest;
 
-    logger.info('"/start" %s', pullRequest.toString());
+    const pullRequest = payload.pullRequest;
+    const commentUser = payload.comment.user.login;
+
+    logger.info('"/start" %s', pullRequest);
 
     if (pullRequest.state !== 'open') {
+      return Promise.reject(new Error(
+        `Cannot start review for closed pull request ${pullRequest}`
+      ));
+    }
+
+    if (commentUser !== pullRequest.user.login) {
       return Promise.reject(new Error(util.format(
-        'Cannot start review for closed pull request [%s – %s]',
-        pullRequest.id,
-        pullRequest.title
+        '%s tried to start a review, but author is %s %s',
+        commentUser, pullRequest.user.login, pullRequest
       )));
     }
 
-    if (pullRequest.user.login !== payload.comment.user.login) {
-      return Promise.reject(new Error(util.format(
-        '%s tried to start a review, but author is %s',
-        payload.comment.user.login,
-        pullRequest.user.login
-      )));
-    }
-
-    return action
-      .startReview(payload.pullRequest)
+    return pullRequestReview.startReview(pullRequest)
       .then(pullRequest => {
         events.emit(EVENT_NAME, { pullRequest });
 
         return pullRequest;
       });
+
   };
 
   return startCommand;
