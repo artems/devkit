@@ -1,7 +1,7 @@
 export default function mock() {
 
   return {
-    choose: sinon.stub()
+    choose: sinon.stub().returns(Promise.resolve())
   };
 
 }

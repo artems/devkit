@@ -1,122 +1,129 @@
-import { clone } from 'lodash';
-
-import parseLogins from '../../../parse-logins/parse-logins';
-
 import service from '../change';
-import { getParticipant } from '../change';
-import { mockReviewers } from '../../__mocks__/index';
+
+import teamMock from '../../../team-dispatcher/__mocks__/team';
+import teamDispatcherMock from '../../../team-dispatcher/__mocks__/dispatcher';
+import eventsMock from '../../../events/__mocks__/index';
+import loggerMock from '../../../logger/__mocks__/index';
+import { reviewersMock } from '../../__mocks__/index';
+import { pullRequestMock } from
+  '../../../model/collections/__mocks__/pull-request';
 import pullRequestReviewMock from '../../../pull-request-review/__mocks__/index';
 
-describe.skip('services/command/change', () => {
+describe('services/command/change', function () {
 
-  describe('#getParticipant', () => {
+  let team, events, logger, teamDispatcher, pullRequest, pullRequestReview;
+  let options, imports, command, comment, payload;
 
-    it('should get participant from command like /change Hulk to Hawkeye', () => {
-      const expected = { oldReviewerLogin: 'Hulk', newReviewerLogin: 'Hawkeye' };
+  beforeEach(function () {
 
-      assert.deepEqual(getParticipant('/change Hulk to Hawkeye', parseLogins), expected);
-      assert.deepEqual(getParticipant('Text \n/change Hulk to Hawkeye\nOther text', parseLogins), expected);
-      assert.deepEqual(getParticipant(' /change Hulk to Hawkeye and more text\nOther text', parseLogins), expected);
+    team = teamMock();
+    team.findTeamMember.returns(Promise.resolve({ login: 'Hawkeye' }));
 
-      assert.deepEqual(getParticipant('/change @Hulk to @Hawkeye', parseLogins), expected);
-      assert.deepEqual(getParticipant('Text \n/change @Hulk to @Hawkeye\nOther text', parseLogins), expected);
-      assert.deepEqual(getParticipant(' /change @Hulk to @Hawkeye and more text\nOther text', parseLogins), expected);
-    });
+    events = eventsMock();
+    logger = loggerMock();
 
-    it('should get participant from command like /change Hulk Hawkeye', () => {
-      const expected = { oldReviewerLogin: 'Hulk', newReviewerLogin: 'Hawkeye' };
+    teamDispatcher = teamDispatcherMock();
+    teamDispatcher.findTeamByPullRequest.returns(Promise.resolve(team));
 
-      assert.deepEqual(getParticipant('/change Hulk Hawkeye', parseLogins), expected);
-      assert.deepEqual(getParticipant('Text \n/change Hulk Hawkeye\nOther text', parseLogins), expected);
-      assert.deepEqual(getParticipant(' /change Hulk Hawkeye and some more text\nOther text', parseLogins), expected);
+    pullRequest = pullRequestMock();
+    pullRequest.user.login = 'Black Widow';
+    pullRequest.review.reviewers = reviewersMock();
 
-      assert.deepEqual(getParticipant('/change @Hulk @Hawkeye', parseLogins), expected);
-      assert.deepEqual(getParticipant('Text \n/change @Hulk @Hawkeye\nOther text', parseLogins), expected);
-      assert.deepEqual(getParticipant(' /change @Hulk @Hawkeye and some more text\nOther text', parseLogins), expected);
-    });
+    pullRequestReview = pullRequestReviewMock(pullRequest);
+
+    comment = { user: { login: 'Black Widow' } };
+
+    payload = { pullRequest, comment };
+
+    options = {};
+
+    imports = {
+      events,
+      logger,
+      'team-dispatcher': teamDispatcher,
+      'pull-request-review': pullRequestReview
+    };
+
+    command = service(options, imports);
 
   });
 
-  describe('#changeCommand', () => {
-    let pullRequest, payload, action, events, logger, team, comment, command; // eslint-disable-line
+  it('should return rejected promise if pull request is closed', done => {
+    pullRequest.state = 'closed';
 
-    beforeEach(() => {
-      pullRequest = {
-        id: 1,
-        get: sinon.stub().returns(clone(mockReviewers)),
-        user: { login: 'd4rkr00t' },
-        state: 'open'
-      };
-      team = {
-        findTeamMemberByPullRequest: sinon.stub().returns(
-          Promise.resolve({ login: 'Spider-Man' })
-        )
-      };
-      action = pullRequestReviewMock(pullRequest);
-      events = { emit: sinon.stub() };
-      logger = { info: sinon.stub() };
-      comment = {
-        user: {
-          login: 'd4rkr00t'
-        }
-      };
+    command('/change Hulk to Hawkeye', payload, ['Hulk', 'Hawkeye'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /closed/))
+      .then(done, done);
+  });
 
-      command = service({}, { team, action, logger, events, parseLogins });
-      payload = { pullRequest, comment };
+  it('should return rejected promise if participants could not be parsed', function (done) {
+    command('/change Hulk', payload, ['Hulk'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /cannot parse/i))
+      .then(done, done);
+  });
 
-    });
+  it('should return rejected promise if commenter is not an author', function (done) {
+    pullRequest.user.login = 'Spider-Man';
 
-    it('should be rejected if pull request is closed', done => {
-      pullRequest.state = 'closed';
+    command('/change Hulk to Hawkeye', payload, ['Hulk', 'Hawkeye'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /author/i))
+      .then(done, done);
+  });
 
-      command('/change Hulk to Hawkeye', payload).catch(() => done());
-    });
+  it('should rejected promise if old reviewer not in reviewers list', function (done) {
+    command('/change Spider-Man to Hawkeye', payload, ['Spider-Man', 'Hawkeye'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /is not a reviewer/i))
+      .then(done, done);
+  });
 
-    it('should be rejected if we can`t parse participants from command', done => {
-      command('/change Hawkeye', payload).catch(() => done());
-    });
+  it('should return rejected promise if new reviewer is already in reviewers list', function (done) {
+    command('/change Thor to Hulk', payload, ['Thor', 'Hulk'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /already a reviewer/i))
+      .then(done, done);
+  });
 
-    it('should be rejected if called from not an author of pull request', done => {
-      pullRequest.user.login = 'Hawkeye';
+  it('should return rejected promise if author tries to set himself as reviewer', function (done) {
+    command('/change Thor to Black Widow', payload, ['Thor', 'Black Widow'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /author/i))
+      .then(done, done);
+  });
 
-      command('/change Hawkeye to Hulk', payload).catch(() => done());
-    });
+  it('should return rejected promise if a new reviewer is not in team', function (done) {
+    team.findTeamMember.returns(Promise.resolve(null));
 
-    it('should be rejected if old reviewer not in reviewers list', done => {
-      command('/change Hawkeye to Spider-Man', payload).catch(() => done());
-    });
+    command('/change Thor to Batman', payload, ['Thor', 'Batman'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /no user/i))
+      .then(done, done);
 
-    it('should be rejected if new reviewer already in reviewers list', done => {
-      command('/change Thor to Hulk', payload).catch(() => done());
-    });
+  });
 
-    it('should be rejected if author tries to set himself as reviewer', done => {
-      command('/change Thor to d4rkr00t', payload).catch(() => done());
-    });
+  it('should save pullRequest with a new reviewer', function (done) {
+    team.findTeamMember
+      .withArgs(pullRequest, 'Spider-Man')
+      .returns(Promise.resolve({ login: 'Spider-Man' }));
 
-    it('should be rejected if new reviewer is not in team', done => {
-      team.findTeamMemberByPullRequest = sinon.stub().returns(Promise.resolve(null));
+    command('/change Thor to Spider-Man', payload, ['Thor', 'Spider-Man'])
+      .then(() => {
+        assert.calledWith(
+          pullRequestReview.updateReviewers,
+          sinon.match.object,
+          sinon.match(reviewers => {
+            assert.sameDeepMembers(
+              reviewers, [{ login: 'Hulk' }, { login: 'Spider-Man' }]
+            );
 
-      command('/change Thor to blablabla', payload).catch(() => done());
-    });
-
-    it('should save pullRequest with new reviewer', done => {
-      command('/change Thor to Spider-Man', payload).then(() => {
-        const resultReviewers = [
-          { login: 'Hulk' },
-          { login: 'Spider-Man' }
-        ];
-
-        assert.calledWithMatch(action.updateReviewers, sinon.match(function (value) {
-          assert.deepEqual(value, resultReviewers);
-          return true;
-        }));
-
-        done();
+            return true;
+          })
+        );
       })
-      .catch(done);
-    });
-
+      .then(done, done);
   });
 
 });

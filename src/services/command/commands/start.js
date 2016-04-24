@@ -31,6 +31,12 @@ export default function setup(options, imports) {
       ));
     }
 
+    if (pullRequest.get('review.status') !== 'open') {
+      return Promise.reject(new Error(
+        `Cannot start is not open review ${pullRequest}`
+      ));
+    }
+
     if (commentUser !== pullRequest.user.login) {
       return Promise.reject(new Error(util.format(
         '%s tried to start a review, but author is %s %s',

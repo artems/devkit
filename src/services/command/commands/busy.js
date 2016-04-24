@@ -26,7 +26,7 @@ export default function setup(options, imports) {
     const pullRequest = payload.pullRequest;
     const commentUser = payload.comment.user.login;
 
-    const pullRequestReviewers = pullRequest.get('review.reviewers');
+    let pullRequestReviewers = pullRequest.get('review.reviewers');
 
     logger.info('"/busy" %s', pullRequest);
 

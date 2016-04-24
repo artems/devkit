@@ -1,75 +1,116 @@
-import { clone } from 'lodash';
-
 import service from '../ok';
-import { mockReviewers } from '../../__mocks__/index';
+
+import teamMock from '../../../team-dispatcher/__mocks__/team';
+import teamDispatcherMock from '../../../team-dispatcher/__mocks__/dispatcher';
+import eventsMock from '../../../events/__mocks__/index';
+import loggerMock from '../../../logger/__mocks__/index';
+import { reviewersMock } from '../../__mocks__/index';
+import { pullRequestMock } from
+  '../../../model/collections/__mocks__/pull-request';
 import pullRequestReviewMock from '../../../pull-request-review/__mocks__/index';
 
-describe.skip('services/command/ok', () => {
-  let action, pullRequest, team, events, payload, logger, comment, command; // eslint-disable-line
+describe('services/command/ok', function () {
 
-  beforeEach(() => {
-    pullRequest = {
-      id: 1,
-      state: 'open',
-      user: { login: 'Hulk' },
-      get: sinon.stub().returns(clone(mockReviewers))
-    };
-    team = {
-      findTeamMemberByPullRequest: sinon.stub().returns(
-        Promise.resolve({ login: 'Hawkeye' })
-      )
-    };
-    events = { emit: sinon.stub() };
-    logger = { info: sinon.stub() };
-    comment = {
-      user: {
-        login: 'Hawkeye'
-      }
-    };
+  let team, events, logger, teamDispatcher, pullRequest, pullRequestReview;
+  let options, imports, command, comment, payload;
 
-    action = pullRequestReviewMock(pullRequest);
+  beforeEach(function () {
 
-    command = service({}, { action, team, events, logger });
+    team = teamMock();
+    team.findTeamMember.returns(Promise.resolve({ login: 'Hawkeye' }));
+
+    events = eventsMock();
+    logger = loggerMock();
+
+    teamDispatcher = teamDispatcherMock();
+    teamDispatcher.findTeamByPullRequest.returns(Promise.resolve(team));
+
+    pullRequest = pullRequestMock();
+    pullRequest.user.login = 'Black Widow';
+    pullRequest.review.reviewers = reviewersMock();
+
+    pullRequestReview = pullRequestReviewMock(pullRequest);
+
+    comment = { user: { login: 'Hulk' } };
 
     payload = { pullRequest, comment };
+
+    options = {};
+
+    imports = {
+      events,
+      logger,
+      'team-dispatcher': teamDispatcher,
+      'pull-request-review': pullRequestReview
+    };
+
+    command = service(options, imports);
+
   });
 
-  it('should be rejected if pull request is not open', done => {
+  it('should return rejected promise if pull request is closed', function (done) {
     pullRequest.state = 'closed';
 
-    command('/ok', payload).catch(() => done());
+    command('/ok', payload)
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /closed/))
+      .then(done, done);
   });
 
-  it('should be rejected if author of pull tried to /ok his own pull request', done => {
-    pullRequest.user = { login: 'Hawkeye' };
+  it('should return rejected promise if author tried to `ok` to himself', function (done) {
+    comment.user.login = 'Black Widow';
 
-    command('/ok', payload).catch(() => done());
+    command('/ok', payload)
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /himself/))
+      .then(done, done);
   });
 
-  it('should be rejected if there is no user with given login in team', done => {
-    team.findTeamMemberByPullRequest = sinon.stub().returns(Promise.resolve(null));
+  it('should return rejected promise if there is no such user in team', function (done) {
+    comment.user.login = 'Spider-Man';
 
-    command('/ok', payload).catch(() => done());
+    team.findTeamMember
+      .withArgs(pullRequest, 'Spider-Man')
+      .returns(Promise.resolve(null));
+
+    command('/ok', payload)
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /no user/i))
+      .then(done, done);
   });
 
-  it('should add new reviewer to pull request', done => {
+  it('should add a new reviewer to pull request', function (done) {
+    comment.user.login = 'Spider-Man';
+
+    team.findTeamMember
+      .withArgs(pullRequest, 'Spider-Man')
+      .returns(Promise.resolve({ login: 'Spider-Man' }));
+
     command('/ok', payload)
       .then(pullRequest => {
-        assert.calledWithMatch(action.updateReviewers, sinon.match(function (value) {
-          assert.deepEqual(value, [{ login: 'Hulk' }, { login: 'Thor' }, { login: 'Hawkeye' }]);
-          return true;
-        }));
-        done();
+        assert.calledWith(
+          pullRequestReview.updateReviewers,
+          sinon.match.object,
+          sinon.match(reviewers => {
+            assert.sameDeepMembers(
+              reviewers,
+              [
+                { login: 'Hulk' },
+                { login: 'Thor' },
+                { login: 'Spider-Man' }
+              ]
+            );
+
+            return true;
+          })
+        );
       })
-      .catch(done);
+      .then(done, done);
   });
 
-  it('should emit review:command:ok:new_reviewer event', done => {
+  it('should emit review:command:ok event', function (done) {
     command('/ok', payload)
-      .then(pullRequest => {
-        assert.calledWith(events.emit, 'review:command:ok:new_reviewer');
-        done();
-      })
-      .catch(done);
+      .then(pullRequest => assert.calledWith(events.emit, 'review:command:ok'))
+      .then(done, done);
   });
 });

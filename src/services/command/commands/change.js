@@ -31,7 +31,7 @@ export default function commandService(options, imports) {
     const oldReviewerLogin = arglist.shift();
     const newReviewerLogin = arglist.shift();
 
-    const pullRequestReviewers = pullRequest.get('review.reviewers');
+    let pullRequestReviewers = pullRequest.get('review.reviewers');
 
     logger.info('"/change" %s', pullRequest);
 

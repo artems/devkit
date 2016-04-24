@@ -1,50 +1,85 @@
+import service from '../stop';
+
+import teamMock from '../../../team-dispatcher/__mocks__/team';
+import teamDispatcherMock from '../../../team-dispatcher/__mocks__/dispatcher';
+import eventsMock from '../../../events/__mocks__/index';
+import loggerMock from '../../../logger/__mocks__/index';
+import { reviewersMock } from '../../__mocks__/index';
+import { pullRequestMock } from
+  '../../../model/collections/__mocks__/pull-request';
 import pullRequestReviewMock from '../../../pull-request-review/__mocks__/index';
 
-import service from '../../commands/stop';
+describe('services/command/stop', function () {
 
-describe.skip('services/command/stop', () => {
-  let action, pullRequest, team, events, payload, logger, comment, command; // eslint-disable-line
+  let team, events, logger, teamDispatcher, pullRequest, pullRequestReview;
+  let options, imports, command, comment, payload;
 
-  beforeEach(() => {
-    events = { emit: sinon.stub() };
-    logger = { info: sinon.stub() };
+  beforeEach(function () {
 
-    pullRequest = {
-      state: 'open',
-      user: { login: 'd4rkr00t' },
-      review: { status: 'inprogress' }
-    };
+    team = teamMock();
+    team.findTeamMember.returns(Promise.resolve({ login: 'Hawkeye' }));
 
-    comment = { user: { login: 'd4rkr00t' } };
+    events = eventsMock();
+    logger = loggerMock();
 
-    action = pullRequestReviewMock(pullRequest);
+    teamDispatcher = teamDispatcherMock();
+    teamDispatcher.findTeamByPullRequest.returns(Promise.resolve(team));
 
-    command = service({}, { action, team, events, logger });
+    pullRequest = pullRequestMock();
+    pullRequest.user.login = 'Black Widow';
+    pullRequest.review.status = 'inprogress';
+    pullRequest.review.reviewers = reviewersMock();
+
+    pullRequestReview = pullRequestReviewMock(pullRequest);
+
+    comment = { user: { login: 'Black Widow' } };
 
     payload = { pullRequest, comment };
+
+    options = {};
+
+    imports = {
+      events,
+      logger,
+      'team-dispatcher': teamDispatcher,
+      'pull-request-review': pullRequestReview
+    };
+
+    command = service(options, imports);
+
   });
 
-  it('should be rejected if pr is closed', done => {
-    payload.pullRequest.state = 'closed';
-    command('/stop', payload).catch(() => done());
-  });
+  it('should return rejected promise if pull request is closed', function (done) {
+    pullRequest.state = 'closed';
 
-  it('should be rejected if triggered by not an author', done => {
-    payload.comment.user.login = 'blablabla';
-    command('/stop', payload).catch(() => done());
-  });
-
-  it('should be rejected if pull request review not in progress', done => {
-    payload.pullRequest.review.status = 'complete';
-    command('/stop', payload).catch(() => done());
-  });
-
-  it('should trigger review:command:stop event', done => {
     command('/stop', payload)
-      .then(() => {
-        assert.calledWith(events.emit, 'review:command:stop');
-        done();
-      })
-      .catch(done);
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /closed/))
+      .then(done, done);
   });
+
+  it('should return rejected promise if triggered by not an author', function (done) {
+    comment.user.login = 'Spider-Man';
+
+    command('/stop', payload)
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /author/))
+      .then(done, done);
+  });
+
+  it('should return rejected if pull request review not in progress', function (done) {
+    pullRequest.review.status = 'open';
+
+    command('/stop', payload)
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /in progress/))
+      .then(done, done);
+  });
+
+  it('should emit review:command:stop event', function (done) {
+    command('/stop', payload)
+      .then(() => assert.calledWith(events.emit, 'review:command:stop'))
+      .then(done, done);
+  });
+
 });

@@ -1,100 +1,98 @@
-import { clone } from 'lodash';
+import service from '../remove';
 
-import parseLogins from '../../../parse-logins/parse-logins';
-
-import service from '../../commands/remove';
-import { getParticipant } from '../../commands/remove';
-import { mockReviewers } from '../../__mocks__/index';
+import teamMock from '../../../team-dispatcher/__mocks__/team';
+import teamDispatcherMock from '../../../team-dispatcher/__mocks__/dispatcher';
+import eventsMock from '../../../events/__mocks__/index';
+import loggerMock from '../../../logger/__mocks__/index';
+import { reviewersMock } from '../../__mocks__/index';
+import { pullRequestMock } from
+  '../../../model/collections/__mocks__/pull-request';
 import pullRequestReviewMock from '../../../pull-request-review/__mocks__/index';
 
-describe.skip('services/command/remove', () => {
+describe('services/command/remove', function () {
 
-  describe('#getParticipant', () => {
+  let team, events, logger, teamDispatcher, pullRequest, pullRequestReview;
+  let options, imports, command, comment, payload;
 
-    it('should get participant from command like /remove @username', () => {
-      assert.equal(getParticipant('/remove @username', parseLogins), 'username');
-      assert.equal(getParticipant('Text \n/remove @username\nOther text', parseLogins), 'username');
-      assert.equal(getParticipant(' /remove @username and some more text\nOther text', parseLogins), 'username');
-    });
+  beforeEach(function () {
 
-    it('should get participant from command like /remove username', () => {
-      assert.equal(getParticipant('/remove username', parseLogins), 'username');
-      assert.equal(getParticipant('Text \n/remove username\nOther text', parseLogins), 'username');
-      assert.equal(getParticipant(' /remove username and some more text\nOther text', parseLogins), 'username');
-    });
+    team = teamMock();
+    team.findTeamMember.returns(Promise.resolve({ login: 'Hawkeye' }));
 
-    it('should get participant from command like -@username', () => {
-      assert.equal(getParticipant('-@username', parseLogins), 'username');
-      assert.equal(getParticipant('Text \n-@username\nOther text', parseLogins), 'username');
-      assert.equal(getParticipant(' -@username and some more text\nOther text', parseLogins), 'username');
-    });
+    events = eventsMock();
+    logger = loggerMock();
 
-    it('should get participant from command like -username', () => {
-      assert.equal(getParticipant('-username', parseLogins), 'username');
-      assert.equal(getParticipant('Text \n-username\nOther text', parseLogins), 'username');
-      assert.equal(getParticipant(' -username and some more text\nOther text', parseLogins), 'username');
-    });
+    teamDispatcher = teamDispatcherMock();
+    teamDispatcher.findTeamByPullRequest.returns(Promise.resolve(team));
 
-    it('should get participant from command like -user-name', () => {
-      assert.equal(getParticipant('-user-name', parseLogins), 'user-name');
-      assert.equal(getParticipant('Text \n-user-name\nOther text', parseLogins), 'user-name');
-      assert.equal(getParticipant(' -user-name and some more text\nOther text', parseLogins), 'user-name');
-    });
+    pullRequest = pullRequestMock();
+    pullRequest.user.login = 'Black Widow';
+    pullRequest.review.reviewers = reviewersMock();
 
-    it('should get participant from command like /remove user-name', () => {
-      assert.equal(getParticipant('/remove user-name', parseLogins), 'user-name');
-      assert.equal(getParticipant('Text \n/remove user-name\nOther text', parseLogins), 'user-name');
-      assert.equal(getParticipant(' /remove user-name and some more text\nOther text', parseLogins), 'user-name');
-    });
+    pullRequestReview = pullRequestReviewMock(pullRequest);
+
+    comment = { user: { login: 'Black Widow' } };
+
+    payload = { pullRequest, comment };
+
+    options = {};
+
+    imports = {
+      events,
+      logger,
+      'team-dispatcher': teamDispatcher,
+      'pull-request-review': pullRequestReview
+    };
+
+    command = service(options, imports);
+
   });
 
-  describe('#removeCommand', () => {
-    let command, pullRequest, payload, action, events, logger, comment; // eslint-disable-line
+  it('should return rejected promise if pull request is closed', function (done) {
+    pullRequest.state = 'closed';
 
-    beforeEach(() => {
-      action = pullRequestReviewMock(pullRequest);
-      events = { emit: sinon.stub() };
-      logger = { info: sinon.stub() };
-      comment = {
-        user: {
-          login: 'd4rkr00t'
-        }
-      };
-      pullRequest = {
-        id: 1,
-        get: sinon.stub().returns(clone(mockReviewers))
-      };
+    command('/remove Hulk', payload, ['Hulk'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /closed/))
+      .then(done, done);
+  });
 
-      payload = { pullRequest, comment };
+  it('should return rejected promise if user is not a reviewer', function (done) {
+    command('/remove Spider-Man', payload, ['Spider-Man'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /reviewer/))
+      .then(done, done);
+  });
 
-      command = service({ min: 1 }, { action, logger, events, parseLogins });
-    });
+  it('should return rejected promise if there is only 1 reviewer', function (done) {
+    pullRequest.review.reviewers.splice(1, 1);
 
-    it('should be rejected if user is not in reviewers list', done => {
-      command('/remove Hawkeye', payload).catch(() => done());
-    });
+    command('/remove Hulk', payload, ['Hulk'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /at least/))
+      .then(done, done);
+  });
 
-    it('should be rejected if there only 1 reviewer in reviewers list', done => {
-      pullRequest.get = sinon.stub().returns(['']);
+  it('should save pullRequest without reviewer', function (done) {
+    command('/remove Hulk', payload, ['Hulk'])
+      .then(() => {
+        assert.calledWith(
+          pullRequestReview.updateReviewers,
+          sinon.match.object,
+          sinon.match(reviewers => {
+            assert.sameDeepMembers(reviewers, [{ login: 'Thor' }]);
 
-      command('/remove Hulk', payload).catch(() => done());
-    });
+            return true;
+          })
+        );
+      })
+      .then(done, done);
+  });
 
-    it('should save pullRequest with new reviewers list', done => {
-      command('/remove Hulk', payload).then(() => {
-        assert.called(action.updateReviewers);
-        done();
-      }, done);
-    });
-
-    it('should emit `review:command:remove` event', done => {
-      command('/remove Hulk', payload).then(() => {
-        assert.calledWith(events.emit, 'review:command:remove');
-
-        done();
-      }, done);
-    });
-
+  it('should emit `review:command:remove` event', function (done) {
+    command('/remove Hulk', payload, ['Hulk'])
+      .then(() => assert.calledWith(events.emit, 'review:command:remove'))
+      .then(done, done);
   });
 
 });

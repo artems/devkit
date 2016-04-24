@@ -1,106 +1,90 @@
 import service from '../busy';
+
 import eventsMock from '../../../events/__mocks__/index';
 import loggerMock from '../../../logger/__mocks__/index';
-import { pullRequestMock } from '../../../model/collections/__mocks__/pull-request';
+import reviewMock from '../../../review/__mocks__/index';
+import { reviewersMock } from '../../__mocks__/index';
+import { pullRequestMock } from
+  '../../../model/collections/__mocks__/pull-request';
 import pullRequestReviewMock from '../../../pull-request-review/__mocks__/index';
-import teamMock from '../../../team-dispatcher/__mocks__/team';
-import teamDispatcherMock from '../../../team-dispatcher/__mocks__/dispatcher';
 
-describe.skip('services/command/busy', () => {
+describe('services/command/busy', function () {
 
-  describe('#command', () => {
-    let command;
-    let action, events, logger, team, _team, review;
-    let options, imports, comment, payload, pullRequest, reviewResult;
+  let events, logger, review, pullRequest, pullRequestReview;
+  let options, imports, command, comment, payload;
 
-    const promise = (x) => Promise.resolve(x);
+  beforeEach(function () {
 
-    beforeEach(() => {
+    events = eventsMock();
+    logger = loggerMock();
+    review = reviewMock();
 
-      team = teamDispatcherMock();
-      _team = teamMock();
-      team.findTeamByPullRequest.returns(_team);
-      _team.findTeamMember.returns(promise({ login: 'Hawkeye' }));
+    review.choose.returns(Promise.resolve({
+      team: [{ login: 'Black Widow' }], pullRequest
+    }));
 
-      events = eventsMock();
-      logger = loggerMock();
+    pullRequest = pullRequestMock();
+    pullRequest.review.reviewers = reviewersMock();
 
-      reviewResult = {
-        team: [{ login: 'Thor' }]
-      };
+    pullRequestReview = pullRequestReviewMock(pullRequest);
 
-      review = {
-        review: sinon.stub().returns(promise(reviewResult))
-      };
+    comment = { user: { login: 'Thor' } };
 
-      action = pullRequestReviewMock(pullRequest);
+    payload = { pullRequest, comment };
 
-      comment = {
-        user: {
-          login: 'Hulk'
-        }
-      };
+    options = {};
 
-      pullRequest = pullRequestMock();
-      pullRequest.id = 42;
-      pullRequest.state = 'open';
-      pullRequest.review = {};
-      pullRequest.review.reviewers = [{ login: 'Hulk' }, { login: 'Spider-Man' }];
+    imports = {
+      events,
+      logger,
+      review,
+      'pull-request-review': pullRequestReview
+    };
 
-      options = {};
-      imports = { team, action, logger, events, review };
+    command = service(options, imports);
 
-      payload = { pullRequest, comment };
-      command = service(options, imports);
+  });
 
-    });
+  it('should return rejected promise if pull request is closed', done => {
+    pullRequest.state = 'closed';
 
-    it('should emit `review:command:busy` event', function (done) {
-      command('/busy', payload).then(() => {
-        assert.calledWith(events.emit, 'review:command:busy');
+    command('/busy', payload)
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /closed/))
+      .then(done, done);
+  });
 
-        done();
-      }, done);
-    });
+  it('should return rejected promise if author is not a reviewer', function (done) {
+    payload.comment.user.login = 'Black Widow';
 
-    it('should save pullRequest with new reviewer', function (done) {
-      command('/busy', payload)
-        .then(() => {
-          assert.calledWithMatch(action.updateReviewers, sinon.match(function (reviewers) {
+    command('/busy', payload)
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /reviewer/))
+      .then(done, done);
+  });
 
+  it('should save pull request with a new reviewer', function (done) {
+    command('/busy', payload)
+      .then(() => {
+        assert.calledWith(
+          pullRequestReview.updateReviewers,
+          sinon.match.object,
+          sinon.match(reviewers => {
             assert.sameDeepMembers(
-              reviewers,
-              [{ login: 'Thor' }, { login: 'Spider-Man' }]
+              reviewers, [{ login: 'Black Widow' }, { login: 'Hulk' }]
             );
 
             return true;
+          })
+        );
+      })
+      .then(done, done);
+  });
 
-          }));
-
-          done();
-        })
-        .catch(done);
-    });
-
-    it('should be rejected if author not in reviewers list', function (done) {
-      payload.comment.user.login = 'Thor';
-
-      pullRequest.review.reviewers = [
-        { login: 'Hulk' },
-        { login: 'Spider-Man' }
-      ];
-
-      command('/busy', payload)
-        .catch(() => done());
-    });
-
-    it('should be rejected if pull is closed', function (done) {
-      pullRequest.state = 'closed';
-
-      command('/busy', payload)
-        .catch(() => done());
-    });
-
+  it('should emit `review:command:busy` event', function (done) {
+    command('/busy', payload)
+      .then(() => assert.calledWith(events.emit, 'review:command:busy'))
+      .then(done, done);
   });
 
 });

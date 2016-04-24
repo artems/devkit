@@ -1,130 +1,106 @@
-import service from '../';
-import { constructRegexp } from '../';
 import { forEach } from 'lodash';
 
-function makeCommonCases(command) {
+import service, { constructRegexp } from '../index';
+import queueMock from '../../queue/__mocks__/index';
+import eventsMock from '../../events/__mocks__/index';
+import loggerMock from '../../logger/__mocks__/index';
+import { pullRequestModelMock } from
+  '../../model/collections/__mocks__/pull-request';
+
+function makePositiveCases(command) {
   return [
     `${command}`,
-    ` ${command}`,
     `Lorem ipsum dolor sit amet ${command}`,
-    `Lorem ipsum dolor sit amet, ${command} consectetur adipisicing elit.`,
-    `Lorem ipsum dolor sit amet,\n ${command} consectetur adipisicing elit.`,
-    `Lorem ipsum dolor sit amet,\n ${command}\n consectetur adipisicing elit.`
+    `${command} lorem ipsum dolor sit amet`,
+    `Lorem ipsum dolor sit amet, ${command} consectetur adipisicing elit`,
+    `Lorem ipsum dolor sit amet,\n${command} consectetur adipisicing elit`
   ];
 }
 
 function makeNegativeCases(command) {
   return [
-    `Lorem ipsum dolor sit amet${command}`
+    `Lorem ipsum dolor sit amet${command}`,
+    `${command}lorem ipsum dolor sit amet`,
+    `lorem ipsum dolor${command} sit amet`
   ];
 }
 
-describe.skip('service/command#constructRegexp', () => {
-  const testCases = [
-    {
-      test: '/start',
-      positive: makeCommonCases('/start')
-    },
-    {
-      test: '/ok|/ок|^ok|^ок',
-      positive: [].concat(
-        makeCommonCases('/ok'), makeCommonCases('/ок'),
-        'ok Lorem ipsum dolor sit amet',
-        'ок Lorem ipsum dolor sit amet'
-      ),
-      negative: [].concat(
-        makeCommonCases('/!ok'),
-        makeCommonCases('!ok'),
-        makeNegativeCases('ok'),
-        makeNegativeCases('ок'),
-        'Lorem ipsum dolor sit amet ok',
-        'Lorem ipsum dolor sit amet, ok consectetur adipisicing elit.',
-        'Lorem ipsum dolor sit amet,\n ok consectetur adipisicing elit.',
-        'Lorem ipsum dolor sit amet,\n ok\n consectetur adipisicing elit.',
-        'Lorem ipsum dolor sit amet ок',
-        'Lorem ipsum dolor sit amet, ок consectetur adipisicing elit.',
-        'Lorem ipsum dolor sit amet,\n ок consectetur adipisicing elit.',
-        'Lorem ipsum dolor sit amet,\n ок\n consectetur adipisicing elit.'
-      )
-    },
-    {
-      test: '/?!ok|/?!ок$$',
-      positive: [].concat(makeCommonCases('/!ok'), makeCommonCases('!ok')),
-      negative: [].concat(makeCommonCases('/ok'), makeCommonCases('ok'))
-    },
-    {
-      test: '/busy',
-      positive: makeCommonCases('/busy')
-    },
-    {
-      test: '/change',
-      positive: makeCommonCases('/change')
-    },
-    {
-      test: '/add|\\+@?[\\w]+',
-      positive: [].concat(
-        makeCommonCases('/add user'), makeCommonCases('/add @user'),
-        makeCommonCases('+user'), makeCommonCases('+@user')
-      )
-    },
-    {
-      test: '/remove|\\-@?[\\w]+',
-      positive: [].concat(
-        makeCommonCases('/remove user'), makeCommonCases('/remove @user'),
-        makeCommonCases('-user'), makeCommonCases('-@user')
-      )
-    },
-    {
-      test: '/?ping',
-      positive: [].concat(
-        makeCommonCases('/ping'),
-        makeCommonCases('ping')
-      ),
-      negative: makeNegativeCases('ping')
-    }
-  ];
+describe('service/command', function () {
 
-  testCases.forEach(command => {
-    const regexp = constructRegexp(command.test);
+  let queue, events, logger, PullRequestModel, commandHandlerStart;
+  let options, imports;
 
-    forEach(command.positive, c => {
-      it('should find command in text for regexp — ' + command.test, () => {
-        assert.match(c, regexp);
-      });
-    });
+  beforeEach(function () {
 
-    forEach(command.negative, c => {
-      it('should not find command in text for regexp — ' + command.test, () => {
-        assert.notMatch(c, regexp);
-      });
-    });
-  });
-});
-
-describe('service/command#command', () => {
-  let command, queue, model, events, logger, pullRequestModel; // eslint-disable-line
-
-  beforeEach(() => {
-    const options = {
+    options = {
       events: ['github:issue_comment'],
-      commands: [
-        {
-          test: '/start',
-          handlers: ['command-start']
-        }
-      ]
+      commands: [{ test: '/start', handlers: ['command-handler-start'] }]
     };
 
-    events = { on: sinon.stub() };
-    logger = { info: sinon.stub() };
-    model = { get: sinon.stub().returns(pullRequestModel) };
-    pullRequestModel = {};
-    queue = { dispatch: sinon.stub() };
+    queue = queueMock();
+    events = eventsMock();
+    logger = loggerMock();
+    PullRequestModel = pullRequestModelMock();
 
-    command = service(options, { queue, model, logger, events, 'command-start': sinon.stub() });
+    commandHandlerStart = sinon.stub();
+
+    imports = {
+      queue,
+      events,
+      logger,
+      'pull-request-model': PullRequestModel,
+      'command-handler-start': commandHandlerStart
+    };
+
   });
 
   it('should subscribe on events', function () {
+    service(options, imports);
+
     assert.calledWith(events.on, 'github:issue_comment');
   });
+
+  describe('#constructRegexp', function () {
+
+    const testCases = [
+      {
+        test: '/command',
+        positive: makePositiveCases('/command')
+      },
+      {
+        test: '/command|/команда|ok',
+        positive: [].concat(
+          makePositiveCases('/command'),
+          makePositiveCases('/команда'),
+          'ok Lorem ipsum dolor sit amet'
+        ),
+        negative: [].concat(
+          makeNegativeCases('ok'),
+          makePositiveCases('!ok'),
+          makeNegativeCases('command'),
+          makeNegativeCases('команда')
+        )
+      }
+    ];
+
+    testCases.forEach(command => {
+
+      const regexp = constructRegexp(command.test);
+
+      forEach(command.positive, (comment) => {
+        it('should find command using regexp — ' + command.test, function () {
+          assert.match(comment, regexp);
+        });
+      });
+
+      forEach(command.negative, (comment) => {
+        it('should not find command using regexp — ' + command.test, function () {
+          assert.notMatch(comment, regexp);
+        });
+      });
+
+    });
+
+  });
+
 });

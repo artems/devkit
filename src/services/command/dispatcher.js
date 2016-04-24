@@ -22,16 +22,23 @@ export default class CommandDispatcher {
   dispatch(comment, payload) {
     const promise = [];
 
-    forEach(this.store, command => {
-      forEach(comment.split('\n'), line => {
-        if (command.test.test(line)) {
-          forEach(command.handlers, handler => {
+    forEach(this.store, (command) => {
+
+      forEach(comment.split('\n'), (line) => {
+        const matches = line.match(command.test);
+
+        if (matches && matches.length > 0) {
+          const arglist = matches.slice(1);
+
+          forEach(command.handlers, (handler) => {
             const commentCommand = line.trim();
 
-            promise.push(handler(commentCommand, payload, command.test));
+            promise.push(handler(commentCommand, payload, arglist));
           });
         }
+
       });
+
     });
 
     return Promise.all(promise);
@@ -41,12 +48,14 @@ export default class CommandDispatcher {
 
 /**
  * @typedef {Object} Command
+ *
  * @property {RegExp} test - check that the command is present
- * @property {Array<CommandHandler>} handlers - array of handlers.
+ * @property {Array.<CommandHandler>} handlers - array of handlers.
  */
 
 /**
  * @callback CommandHandler
  * @param {String} comment - comment line with command.
  * @param {Object} payload - issue payload from github.
+ * @param {Array}  arglist - parsed arguments for command.
  */

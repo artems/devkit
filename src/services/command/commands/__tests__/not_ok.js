@@ -1,96 +1,83 @@
-import { cloneDeep } from 'lodash';
-
 import service from '../not_ok';
-import teamMock from '../../../team-dispatcher/__mocks__/dispatcher';
+
+import teamMock from '../../../team-dispatcher/__mocks__/team';
+import teamDispatcherMock from '../../../team-dispatcher/__mocks__/dispatcher';
 import eventsMock from '../../../events/__mocks__/index';
 import loggerMock from '../../../logger/__mocks__/index';
-import { mockReviewers } from '../../__mocks__/index';
-import { pullRequestMock } from '../../../model/collections/__mocks__/pull-request';
+import { reviewersMock } from '../../__mocks__/index';
+import { pullRequestMock } from
+  '../../../model/collections/__mocks__/pull-request';
 import pullRequestReviewMock from '../../../pull-request-review/__mocks__/index';
 
+describe('services/command/not_ok', function () {
 
-describe.skip('services/command/not_ok', () => {
+  let team, events, logger, teamDispatcher, pullRequest, pullRequestReview;
+  let options, imports, command, comment, payload;
 
-  describe('#command', () => {
-    let command;
-    let action, events, logger, team, review;
-    let options, imports, comment, payload, pullRequest, reviewResult;
+  beforeEach(function () {
 
-    const promise = (x) => Promise.resolve(x);
+    team = teamMock();
+    team.findTeamMember.returns(Promise.resolve({ login: 'Hawkeye' }));
 
-    beforeEach(() => {
+    events = eventsMock();
+    logger = loggerMock();
 
-      team = teamMock();
-      team.findTeamMemberByPullRequest.returns(promise({ login: 'Hawkeye' }));
+    teamDispatcher = teamDispatcherMock();
+    teamDispatcher.findTeamByPullRequest.returns(Promise.resolve(team));
 
-      events = eventsMock();
-      logger = loggerMock();
+    pullRequest = pullRequestMock();
+    pullRequest.user.login = 'Black Widow';
+    pullRequest.review.reviewers = reviewersMock();
 
-      reviewResult = {
-        team: [{ login: 'Thor' }]
-      };
+    pullRequestReview = pullRequestReviewMock(pullRequest);
 
-      review = {
-        review: sinon.stub().returns(promise(reviewResult))
-      };
+    comment = { user: { login: 'Hulk' } };
 
-      comment = {
-        user: {
-          login: 'Hulk'
-        }
-      };
+    payload = { pullRequest, comment };
 
-      pullRequest = pullRequestMock();
-      pullRequest.id = 42;
-      pullRequest.state = 'open';
-      pullRequest.review = {
-        status: 'notstarted',
-        reviewers: cloneDeep(mockReviewers)
-      };
-      pullRequest.get.withArgs('review.reviewers').returns(cloneDeep(mockReviewers));
+    options = {};
 
-      action = pullRequestReviewMock(pullRequest);
+    imports = {
+      events,
+      logger,
+      'team-dispatcher': teamDispatcher,
+      'pull-request-review': pullRequestReview
+    };
 
-      options = {};
-      imports = { team, action, logger, events, review };
+    command = service(options, imports);
 
-      payload = { pullRequest, comment };
-      command = service(options, imports);
+  });
 
-    });
+  it('should return rejected promise if pull request is closed', done => {
+    pullRequest.state = 'closed';
 
-    it('should emit `review:command:not_ok` event', function (done) {
-      command('/not_ok', payload).then(() => {
-        assert.calledWith(events.emit, 'review:command:not_ok');
+    command('/!ok', payload)
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /closed/))
+      .then(done, done);
+  });
 
-        done();
-      }, done);
-    });
+  it('should return rejected promise if author is not in reviewer', function (done) {
+    payload.comment.user.login = 'Spider-Man';
 
-    it('should change status from `complete` to `notstarted`', function (done) {
-      pullRequest.review.status = 'complete';
+    command('/!ok', payload)
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /reviewer/))
+      .then(done, done);
+  });
 
-      command('/not_ok', payload)
-        .then(() => {
-          assert.called(action.stopReview);
+  it('should emit `review:command:not_ok` event', function (done) {
+    command('/!ok', payload)
+      .then(() => assert.calledWith(events.emit, 'review:command:not_ok'))
+      .then(done, done);
+  });
 
-          done();
-        })
-        .catch(done);
-    });
+  it('should change status from `complete` to `notstarted`', function (done) {
+    pullRequest.review.status = 'complete';
 
-    it('should be rejected if author not in reviewers list', function (done) {
-      payload.comment.user.login = 'Spider-Man';
-
-      pullRequest.review.reviewers = [
-        { login: 'Hulk' },
-        { login: 'Thor' }
-      ];
-
-      command('/not_ok', payload)
-        .catch(() => done());
-    });
-
+    command('/!ok', payload)
+      .then(() => assert.called(pullRequestReview.stopReview))
+      .then(done, done);
   });
 
 });

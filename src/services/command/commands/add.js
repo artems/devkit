@@ -16,7 +16,7 @@ export default function setup(options, imports) {
    *
    * @param {String} command - line with user command.
    * @param {Object} payload - github webhook payload.
-   * @param {Array}  arglist - parsed arguments for command
+   * @param {Array}  arglist - parsed arguments for command.
    *
    * @return {Promise}
    */

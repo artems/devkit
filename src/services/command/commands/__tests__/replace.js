@@ -1,103 +1,98 @@
-import { clone } from 'lodash';
-
-import parseLogins from '../../../parse-logins/parse-logins';
-
 import service from '../../commands/replace';
-import teamMock from '../../../team-dispatcher/__mocks__/dispatcher';
+
+import teamMock from '../../../team-dispatcher/__mocks__/team';
+import teamDispatcherMock from '../../../team-dispatcher/__mocks__/dispatcher';
 import eventsMock from '../../../events/__mocks__/index';
 import loggerMock from '../../../logger/__mocks__/index';
-import { mockReviewers } from '../../__mocks__/index';
-import { pullRequestMock } from '../../../model/collections/__mocks__/pull-request';
+import reviewMock from '../../../review/__mocks__/index';
+import { reviewersMock } from '../../__mocks__/index';
+import { pullRequestMock } from
+  '../../../model/collections/__mocks__/pull-request';
 import pullRequestReviewMock from '../../../pull-request-review/__mocks__/index';
 
+describe('services/command/replace', function () {
 
-describe.skip('services/command/replace', () => {
+  let team, events, logger, review, teamDispatcher, pullRequest, pullRequestReview;
+  let options, imports, command, comment, payload;
 
-  describe('#replaceCommand', () => {
-    let command;
-    let action, events, logger, team, review;
-    let options, imports, comment, payload, pullRequest, reviewResult;
+  beforeEach(function () {
 
-    const promise = (x) => Promise.resolve(x);
+    team = teamMock();
+    team.findTeamMember.returns(Promise.resolve({ login: 'Hawkeye' }));
 
-    beforeEach(() => {
+    events = eventsMock();
+    logger = loggerMock();
+    review = reviewMock();
 
-      team = teamMock();
-      team.findTeamMemberByPullRequest.returns(promise({ login: 'Hawkeye' }));
+    review.choose.returns(Promise.resolve({
+      team: [{ login: 'Spider-Man' }], pullRequest
+    }));
 
-      events = eventsMock();
-      logger = loggerMock();
+    teamDispatcher = teamDispatcherMock();
+    teamDispatcher.findTeamByPullRequest.returns(Promise.resolve(team));
 
-      reviewResult = {
-        team: [{ login: 'Thor' }]
-      };
+    pullRequest = pullRequestMock();
+    pullRequest.user.login = 'Black Widow';
+    pullRequest.review.reviewers = reviewersMock();
 
-      review = {
-        review: sinon.stub().returns(promise(reviewResult))
-      };
+    pullRequestReview = pullRequestReviewMock(pullRequest);
 
-      action = pullRequestReviewMock(pullRequest);
+    comment = { user: { login: 'Black Widow' } };
 
-      comment = {
-        user: {
-          login: 'Hulk'
-        }
-      };
+    payload = { pullRequest, comment };
 
-      pullRequest = pullRequestMock();
-      pullRequest.id = 42;
-      pullRequest.state = 'open';
-      pullRequest.review = {
-        reviewers: [{ login: 'Hulk' }, { login: 'Spider-Man' }]
-      };
-      pullRequest.get.withArgs('review.reviewers').returns(clone(mockReviewers));
+    options = {};
 
-      options = {};
-      imports = { team, action, logger, events, review, parseLogins };
+    imports = {
+      events,
+      logger,
+      review,
+      'team-dispatcher': teamDispatcher,
+      'pull-request-review': pullRequestReview
+    };
 
-      payload = { pullRequest, comment };
-      command = service(options, imports);
+    command = service(options, imports);
 
-    });
+  });
 
-    it('should emit `review:command:replace` event', function (done) {
-      command('/replace Hulk', payload).then(() => {
-        assert.calledWith(events.emit, 'review:command:replace');
+  it('should return rejected promise if pull request is closed', function (done) {
+    pullRequest.state = 'closed';
 
-        done();
-      }, done);
-    });
+    command('/replace Hulk', payload, ['Hulk'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /closed/))
+      .then(done, done);
+  });
 
-    it('should save pullRequest with new reviewer', function (done) {
-      command('/replace Hulk', payload)
-        .then(() => {
-          assert.calledWithMatch(action.updateReviewers, sinon.match(function (reviewers) {
+  it('should return rejected promise if user is not a reviewer', function (done) {
+    command('/replace Spider-Man', payload, ['Spider-Man'])
+      .then(() => { throw new Error('should reject promise'); })
+      .catch(error => assert.match(error.message, /reviewer/))
+      .then(done, done);
+  });
 
+  it('should save pull request with a new reviewer', function (done) {
+    command('/replace Hulk', payload, ['Hulk'])
+      .then(() => {
+        assert.calledWith(
+          pullRequestReview.updateReviewers,
+          sinon.match.object,
+          sinon.match(reviewers => {
             assert.sameDeepMembers(
-              reviewers,
-              [{ login: 'Thor' }, { login: 'Spider-Man' }]
+              reviewers, [{ login: 'Spider-Man' }, { login: 'Thor' }]
             );
 
             return true;
+          })
+        );
+      })
+      .then(done, done);
+  });
 
-          }));
-
-          done();
-        })
-        .catch(done);
-    });
-
-    it('should be rejected if pull is closed', function (done) {
-      pullRequest.state = 'closed';
-
-      command('/replace Hulk', payload)
-        .catch(() => done());
-    });
-
-    it('should be rejected if old reviewer not in reviewers list', done => {
-      command('/replace Hawkeye', payload).catch(() => done());
-    });
-
+  it('should emit `review:command:replace` event', function (done) {
+    command('/replace Hulk', payload, ['Hulk'])
+      .then(() => assert.calledWith(events.emit, 'review:command:replace'))
+      .then(done, done);
   });
 
 });

@@ -12,7 +12,7 @@ export default function setup(options, imports) {
   } = imports;
 
   // TODO must be team config
-  const minReviewersCount = options.min;
+  const minReviewersCount = options.min || 1;
 
   /**
    * Handle '/remove' command.
@@ -30,9 +30,15 @@ export default function setup(options, imports) {
 
     const oldReviewerLogin = arglist.shift();
 
-    const pullRequestReviewers = pullRequest.get('review.reviewers');
+    let pullRequestReviewers = pullRequest.get('review.reviewers');
 
     logger.info('"/remove" %s', pullRequest);
+
+    if (pullRequest.state !== 'open') {
+      return Promise.reject(new Error(util.format(
+        `Cannot ping for closed pull request ${pullRequest}`
+      )));
+    }
 
     // TODO config this
     if (!find(pullRequestReviewers, { login: oldReviewerLogin })) {
