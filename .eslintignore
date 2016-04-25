@@ -1,3 +1,4 @@
 dist
 jsdoc
 coverage
+node_modules

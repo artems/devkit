@@ -1,4 +1,4 @@
-import { get, map, forEach, isEmpty } from 'lodash';
+import { map, forEach, isEmpty } from 'lodash';
 
 export default class ReviewerAssignment {
 
@@ -24,9 +24,17 @@ export default class ReviewerAssignment {
    * @return {Promise.<Review>}
    */
   setTeam(review) {
-    return this.teamDispatcher
-      .findTeamByPullRequest(review.pullRequest)
-      .then(team => team.getMembersForReview(review.pullRequest))
+    const team = this.teamDispatcher.findTeamByPullRequest(review.pullRequest);
+
+    if (!team) {
+      return Promise.reject(new Error(
+        `Team is not found for pull request ${review.pullRequest}`
+      ));
+    }
+
+    review._team = team;
+
+    return team.getMembersForReview(review.pullRequest)
       .then(team => {
         review.team = team;
         return review;
@@ -56,25 +64,11 @@ export default class ReviewerAssignment {
    * @return {Promise.<Array.<Function>>}
    */
   getSteps(review) {
-    const teamName = this.teamDispatcher.findTeamNameByPullRequest(review.pullRequest);
-
-    if (!teamName) {
-      return Promise.reject(new Error(
-        `Team is not found for pull request ${review.pullRequest}`
-      ));
-    }
-
-    const stepNames =
-      get(this.options, ['teamOverrides', teamName, 'steps']) ||
-      get(this.options, ['steps']);
+    const stepNames = review._team.getOption('steps', this.options.steps);
 
     if (isEmpty(stepNames)) {
-      return Promise.reject(new Error(
-        `There are no any steps for given team "${teamName}"`
-      ));
+      return Promise.reject(new Error('There are no any steps for given team'));
     }
-
-    review.teamName = teamName;
 
     let notFound = false;
 
@@ -123,6 +117,10 @@ export default class ReviewerAssignment {
    * @return {Promise}
    */
   stepsQueue(review) {
+    const stepsOptions = review._team.getOption(
+      'stepsOptions', this.options.stepsOptions || {}
+    );
+
     return review.steps.reduce((queue, { ranker, name }) => {
 
       return queue.then(review => {
@@ -133,9 +131,7 @@ export default class ReviewerAssignment {
           map(review.team, (x) => x.login + '#' + x.rank).join(' ')
         );
 
-        const rankerOptions =
-          get(this.options, ['teamOverrides', review.teamName, 'stepsOptions', name]) ||
-          get(this.options, ['stepsOptions', name]);
+        const rankerOptions = stepsOptions[name];
 
         return ranker(review, rankerOptions);
       });

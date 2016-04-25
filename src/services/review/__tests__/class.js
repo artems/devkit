@@ -21,12 +21,14 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
     team.getMembersForReview.returns(Promise.resolve(members()));
 
     teamDispatcher = teamDispatcherMock();
-    teamDispatcher.findTeamByPullRequest.returns(Promise.resolve(team));
+    teamDispatcher.findTeamByPullRequest.returns(team);
     teamDispatcher.findTeamNameByPullRequest.returns('Avengers');
 
     pullRequest = pullRequestMock();
 
-    options = {};
+    options = {
+      steps: ['step1', 'step2']
+    };
 
     imports = { logger, 'team-dispatcher': teamDispatcher };
 
@@ -37,35 +39,16 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
     let review;
 
     beforeEach(function () {
-
-      options = {
-        teamOverrides: {
-          Avengers: {
-            steps: ['step1', 'step2']
-          }
-        }
-      };
-
       imports['reviewer-assignment-step-step1'] = '1';
       imports['reviewer-assignment-step-step2'] = '2';
 
       review = new ReviewerAssignment(options, imports);
-
-    });
-
-    it('should return rejected promise if team is not found', function (done) {
-      teamDispatcher.findTeamNameByPullRequest.returns(null);
-
-      review.getSteps({ pullRequest })
-        .then(() => new Error('should reject promise'))
-        .catch(error => assert.match(error.message, /not found/))
-        .then(done, done);
     });
 
     it('should return rejected promise if there are no steps for team', function (done) {
-      teamDispatcher.findTeamNameByPullRequest.returns('team');
+      delete options.steps;
 
-      review.getSteps({ pullRequest })
+      review.getSteps({ _team: team, pullRequest })
         .then(() => new Error('should reject promise'))
         .catch(error => assert.match(error.message, /steps/))
         .then(done, done);
@@ -74,14 +57,14 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
     it('should return rejected promise if there is no step with given name', function (done) {
       delete imports['reviewer-assignment-step-step2'];
 
-      review.getSteps({ pullRequest })
+      review.getSteps({ _team: team, pullRequest })
         .then(() => new Error('should reject promise'))
         .catch(error => assert.match(error.message, /no step/))
         .then(done, done);
     });
 
     it('should return resolved promise with steps array', function (done) {
-      review.getSteps({ pullRequest })
+      review.getSteps({ _team: team, pullRequest })
         .then(resolved => {
           assert.sameDeepMembers(resolved, [
             { name: 'step1', ranker: '1' },
@@ -121,7 +104,7 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
         createStep('4')
       ];
 
-      review.stepsQueue({ steps: _steps, team: [] })
+      review.stepsQueue({ _team: team, steps: _steps, team: [] })
         .then(() => assert.deepEqual(order, ['1', '2', '3', '4']))
         .then(done, done);
     });
@@ -146,7 +129,7 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
           }
         ];
 
-        review.stepsQueue({ steps, pullRequest, team: members() })
+        review.stepsQueue({ _team: team, steps, pullRequest, team: members() })
           .then(() => assert.called(stub))
           .then(done, done);
       });
@@ -174,7 +157,7 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
           }
         ];
 
-        review.stepsQueue({ steps, pullRequest, team: members() })
+        review.stepsQueue({ _team: team, steps, pullRequest, team: members() })
           .then(() => {
             assert.called(stub1);
             assert.called(stub2);
@@ -191,14 +174,6 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
     let review;
 
     beforeEach(function () {
-
-      options = {
-        teamOverrides: {
-          Avengers: {
-            steps: ['step1', 'step2']
-          }
-        }
-      };
 
       imports['reviewer-assignment-step-step1'] = function (review) {
         return Promise.resolve(review);

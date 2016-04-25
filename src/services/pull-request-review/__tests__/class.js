@@ -2,6 +2,7 @@ import PullRequestReview from '../class';
 
 import loggerMock from '../../logger/__mocks__/index';
 import eventsMock from '../../events/__mocks__/index';
+import teamMock from '../../team-dispatcher/__mocks__/team';
 import teamDispatcherMock from '../../team-dispatcher/__mocks__/dispatcher';
 import { pullRequestMock } from '../../model/collections/__mocks__/pull-request';
 
@@ -9,15 +10,20 @@ describe('services/pull-request-review', function () {
 
   describe('PullRequestReview', function () {
     let pullRequest, pullRequestReview, review;
-    let logger, events, teamDispatcher;
+    let logger, events, team, teamDispatcher;
     let options, imports;
 
     beforeEach(function () {
       logger = loggerMock();
       events = eventsMock();
-      teamDispatcher = teamDispatcherMock();
+
+      team = teamMock();
 
       pullRequest = pullRequestMock();
+
+      teamDispatcher = teamDispatcherMock();
+      teamDispatcher.findTeamByPullRequest
+        .withArgs(pullRequest).returns(team);
 
       options = { approveCount: 2 };
       imports = { events, logger, teamDispatcher };

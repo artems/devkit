@@ -1,6 +1,10 @@
-import { find } from 'lodash';
+import { get, find } from 'lodash';
 
 export default class AbstractTeam {
+
+  constructor(options) {
+    this._options = options;
+  }
 
   /**
    * Find team member by login.
@@ -25,6 +29,10 @@ export default class AbstractTeam {
    */
   getMembersForReview(pullRequest) {
     return Promise.resolve([]);
+  }
+
+  getOption(option, defaultValue) {
+    return get(this._options, option, defaultValue);
   }
 
 }

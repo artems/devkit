@@ -134,12 +134,7 @@
     "pull-request-review": {
       "path": "./src/services/pull-request-review",
       "options": {
-        "approveCount": 2,
-        "teamOverrides": {
-          "team-github": {
-            "approveCount": 1
-          }
-        }
+        "approveCount": 2
       },
       "dependencies": [
         "events",
@@ -180,8 +175,8 @@
             "incPattern": ["*.js"],
             "decPattern": ["*.json"]
           },
-          "random": { "max": 5 },
           "load": { "max": 1 },
+          "random": { "max": 5 },
           "total-number": { "max": 2 }
         }
       },

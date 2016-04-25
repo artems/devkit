@@ -44,4 +44,3 @@ describe('services/pull-request-review', function () {
   });
 
 });
-

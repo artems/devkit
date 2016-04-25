@@ -1,5 +1,5 @@
 import util from 'util';
-import { get, forEach, isEmpty } from 'lodash';
+import { forEach, isEmpty } from 'lodash';
 
 export default class PullRequestReview {
 
@@ -189,13 +189,13 @@ export default class PullRequestReview {
    * @return {Number}
    */
   getRequiredApproveCount(pullRequest) {
-    const teamName = this.teamDispatcher.findTeamNameByPullRequest(pullRequest);
+    const team = this.teamDispatcher.findTeamByPullRequest(pullRequest);
 
-    return get(
-      this.options,
-      ['teamOverrides', teamName, 'approveCount'],
-      this.options.approveCount
-    );
+    if (!team) {
+      throw new Error(`Team is not found for pull request ${pullRequest}`);
+    }
+
+    return team.getOption('approveCount', this.options.approveCount);
   }
 
 }

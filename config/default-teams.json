@@ -4,7 +4,13 @@
     "path": "./src/services/team-dispatcher/github",
     "options": {
       "orgName": "devexp-org",
-      "slugName": "owners"
+      "slugName": "owners",
+      "overrides": {
+        "approveCount": 1,
+        "stepsOptions": {
+          "total-number": { "max": 1 }
+        }
+      }
     },
     "dependencies": [
       "github"

@@ -1,8 +1,8 @@
 instrumentation:
-    excludes:
-      - "app.js"
-      - "start.js"
-      - "jsdoc/**"
-      - "**/__tests__/**"
-      - "**/__mocks__/**"
-    include-all-sources: true
+  root: "src"
+  excludes:
+    - "app.js"
+    - "**/__tests__/**"
+    - "**/__mocks__/**"
+  es-modules: true
+  include-all-sources: true
