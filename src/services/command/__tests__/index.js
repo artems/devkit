@@ -4,7 +4,7 @@ import service, { constructRegexp } from '../index';
 import queueMock from '../../queue/__mocks__/index';
 import eventsMock from '../../events/__mocks__/index';
 import loggerMock from '../../logger/__mocks__/index';
-import { pullRequestModelMock } from
+import { pullRequestMock, pullRequestModelMock } from
   '../../model/collections/__mocks__/pull-request';
 
 function makePositiveCases(command) {
@@ -27,8 +27,8 @@ function makeNegativeCases(command) {
 
 describe('service/command', function () {
 
-  let queue, events, logger, PullRequestModel, commandHandlerStart;
-  let options, imports;
+  let queue, events, logger, pullRequest, PullRequestModel, commandHandlerStart;
+  let options, imports, payload;
 
   beforeEach(function () {
 
@@ -40,9 +40,20 @@ describe('service/command', function () {
     queue = queueMock();
     events = eventsMock();
     logger = loggerMock();
+
+    pullRequest = pullRequestMock();
+
     PullRequestModel = pullRequestModelMock();
 
-    commandHandlerStart = sinon.stub();
+    payload = {
+      comment: {
+        user: 'Spider-Man',
+        body: '/start'
+      },
+      pullRequest: pullRequest
+    };
+
+    commandHandlerStart = sinon.stub().returns(Promise.resolve());
 
     imports = {
       queue,
@@ -58,6 +69,31 @@ describe('service/command', function () {
     service(options, imports);
 
     assert.calledWith(events.on, 'github:issue_comment');
+  });
+
+  it('should dispatch event to handlers', function (done) {
+    queue.dispatch
+      .withArgs('pull-request#1')
+      .callsArg(1);
+
+    events.on
+      .withArgs('github:issue_comment')
+      .callsArgWith(1, payload);
+
+    imports['command-handler-start'] = function (command, payload) {
+      assert.equal(payload, payload);
+      assert.equal(command, payload.comment.body);
+      done();
+    };
+
+    service(options, imports);
+
+  });
+
+  it('should throw an error of handler is not given', function () {
+    delete imports['command-handler-start'];
+
+    assert.throws(() => service(options, imports), /not found/);
   });
 
   describe('#constructRegexp', function () {

@@ -16,21 +16,21 @@ export function withPullRequestReview(test, config, done) {
         },
         dependencies: ['mongoose', 'pull-request-review-addon']
       },
-      team: {
-        path: './src/services/team',
+      'team-dispatcher': {
+        path: './src/services/team-dispatcher',
         options: {
           routes: [{ 'team-static': ['*/*'] }]
         },
         dependencies: ['team-static']
       },
       'team-static': {
-        path: './src/services/team/static',
+        path: './src/services/team-dispatcher/static',
         options: { members: ['foo', 'bar'] }
       },
       'pull-request-review': {
         path: './src/services/pull-request-review',
         options: { approveCount: 1 },
-        dependencies: ['team', 'events', 'logger']
+        dependencies: ['team-dispatcher', 'events', 'logger']
       },
       'pull-request-review-addon': {
         path: './src/services/pull-request-review/addon'
