@@ -4,7 +4,7 @@ import { pullRequestMock } from
   '../../../model/collections/__mocks__/pull-request';
 import { reviewMembersMock } from '../../__mocks__/index';
 
-describe('services/reviewer-assignment/steps/total_number', function () {
+describe('services/review/steps/total_number', function () {
 
   let step, options, members, pullRequest;
 
@@ -19,7 +19,7 @@ describe('services/reviewer-assignment/steps/total_number', function () {
   });
 
   it('should keep only `option.max` members', function (done) {
-    const review = { team: members, pullRequest };
+    const review = { members, pullRequest };
 
     const reviewers = [
       { login: 'Black Widow', rank: 10 },
@@ -27,15 +27,15 @@ describe('services/reviewer-assignment/steps/total_number', function () {
     ];
 
     step(review, options)
-      .then(review => assert.sameDeepMembers(review.team, reviewers))
+      .then(review => assert.sameDeepMembers(review.members, reviewers))
       .then(done, done);
   });
 
   it('should do nothing if there are no team', function (done) {
-    const review = { team: [], pullRequest };
+    const review = { members: [], pullRequest };
 
     step(review, options)
-      .then(review => assert.sameDeepMembers(review.team, []))
+      .then(review => assert.sameDeepMembers(review.members, []))
       .then(done, done);
   });
 

@@ -10,7 +10,7 @@ import { filter } from 'lodash';
 function removeAuthor(review) {
   const author = review.pullRequest.get('user.login');
 
-  review.team = filter(review.team, (member) => {
+  review.members = filter(review.members, (member) => {
     return member.login !== author;
   });
 

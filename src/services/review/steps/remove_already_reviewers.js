@@ -14,7 +14,7 @@ function removeAlreadyReviewers(review) {
     return Promise.resolve(review);
   }
 
-  review.team = filter(review.team, (member) => {
+  review.members = filter(review.members, (member) => {
     let keep = true;
 
     forEach(reviewers, (reviewer) => {

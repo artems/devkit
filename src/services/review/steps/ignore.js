@@ -12,11 +12,11 @@ import { reject, isEmpty, includes } from 'lodash';
 function ignore(review, options) {
   const list = options && options.list || [];
 
-  if (isEmpty(list) || isEmpty(review.team)) {
+  if (isEmpty(list) || isEmpty(review.members)) {
     return Promise.resolve(review);
   }
 
-  review.team = reject(review.team, (member) => {
+  review.members = reject(review.members, (member) => {
     return includes(list, member.login);
   });
 

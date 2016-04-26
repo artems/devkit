@@ -4,7 +4,7 @@ import { pullRequestMock } from
   '../../../model/collections/__mocks__/pull-request';
 import { reviewMembersMock } from '../../__mocks__/index';
 
-describe('services/reviewer-assignment/steps/sort', () => {
+describe('services/review/steps/sort', () => {
 
   let step, members, pullRequest;
   beforeEach(() => {
@@ -16,7 +16,7 @@ describe('services/reviewer-assignment/steps/sort', () => {
   });
 
   it('should sort members by rank descending', done => {
-    const review = { team: members, pullRequest };
+    const review = { members, pullRequest };
 
     const membersSorted = [
       { login: 'Black Widow', rank: 10 },
@@ -29,15 +29,15 @@ describe('services/reviewer-assignment/steps/sort', () => {
     ];
 
     step(review)
-      .then(review => assert.deepEqual(review.team, membersSorted))
+      .then(review => assert.deepEqual(review.members, membersSorted))
       .then(done, done);
   });
 
   it('should do nothing if there are no team', done => {
-    const review = { team: [], pullRequest };
+    const review = { members: [], pullRequest };
 
     step(review)
-      .then(review => assert.sameDeepMembers(review.team, []))
+      .then(review => assert.sameDeepMembers(review.members, []))
       .then(done, done);
   });
 

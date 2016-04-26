@@ -3,7 +3,7 @@ import service from '../ignore';
 import { pullRequestMock } from '../../../model/collections/__mocks__/pull-request';
 import { reviewMembersMock } from '../../__mocks__/index';
 
-describe('services/reviewer-assignment/steps/ignore', function () {
+describe('services/review/steps/ignore', function () {
 
   let step, members, pullRequest, options;
 
@@ -20,7 +20,7 @@ describe('services/reviewer-assignment/steps/ignore', function () {
   });
 
   it('should remove members from team which logins are in ignore list', function (done) {
-    const review = { team: members, pullRequest };
+    const review = { members, pullRequest };
 
     const membersAltered = [
       { login: 'Hawkeye', rank: 3 },
@@ -30,23 +30,23 @@ describe('services/reviewer-assignment/steps/ignore', function () {
     ];
 
     step(review, options)
-      .then(review => assert.sameDeepMembers(review.team, membersAltered))
+      .then(review => assert.sameDeepMembers(review.members, membersAltered))
       .then(done, done);
   });
 
   it('should do nothing if there are no team', done => {
-    const review = { team: [], pullRequest };
+    const review = { members: [], pullRequest };
 
     step(review, options)
-      .then(review => assert.sameDeepMembers(review.team, []))
+      .then(review => assert.sameDeepMembers(review.members, []))
       .then(done, done);
   });
 
   it('should do nothing if there are no ignore list', done => {
-    const review = { team: members, pullRequest };
+    const review = { members, pullRequest };
 
     step(review, {})
-      .then(review => assert.sameDeepMembers(review.team, members))
+      .then(review => assert.sameDeepMembers(review.members, members))
       .then(done, done);
   });
 

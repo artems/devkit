@@ -4,7 +4,7 @@ import modelMock from '../../model/__mocks__/index';
 import loggerMock from '../../logger/__mocks__/index';
 import reviewAssignmentMock from '../__mocks__/index';
 
-describe('services/reviewer-assignment', function () {
+describe('services/review', function () {
 
   it('should be resolved to ReviewerAssignment', function () {
     const model = modelMock();

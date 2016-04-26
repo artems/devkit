@@ -51,7 +51,7 @@ export default function commandService(options, imports) {
           pullRequestReviewers, { login: oldReviewerLogin }
         );
 
-        pullRequestReviewers.push(cloneDeep(result.team[0]));
+        pullRequestReviewers.push(cloneDeep(result.members[0]));
 
         return pullRequestReview.updateReviewers(
           pullRequest, pullRequestReviewers

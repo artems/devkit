@@ -6,7 +6,7 @@ import {
   pullRequestModelMock
 } from '../../../model/collections/__mocks__/pull-request';
 
-describe('services/reviewer-assignment/steps/load', function () {
+describe('services/review/steps/load', function () {
 
   let members, pullRequest, PullRequestModel;
   let options, imports;
@@ -26,7 +26,7 @@ describe('services/reviewer-assignment/steps/load', function () {
   });
 
   it('should decrease rank if member has active reviews', function (done) {
-    const review = { team: members, pullRequest };
+    const review = { members, pullRequest };
 
     const activePull1 = {
       id: 1,
@@ -63,17 +63,17 @@ describe('services/reviewer-assignment/steps/load', function () {
     const step = service({}, imports);
 
     step(review, options)
-      .then(review => assert.sameDeepMembers(review.team, membersAltered))
+      .then(review => assert.sameDeepMembers(review.members, membersAltered))
       .then(done, done);
   });
 
   it('should do nothing if there are no reviewers', function (done) {
-    const review = { team: [], pullRequest };
+    const review = { members: [], pullRequest };
 
     const step = service({}, imports);
 
     step(review, options)
-      .then(review => assert.sameDeepMembers(review.team, []))
+      .then(review => assert.sameDeepMembers(review.members, []))
       .then(done, done);
   });
 

@@ -4,7 +4,7 @@ import { pullRequestMock } from
   '../../../model/collections/__mocks__/pull-request';
 import { reviewMembersMock } from '../../__mocks__/index';
 
-describe('services/reviewer-assignment/steps/remove_author', () => {
+describe('services/review/steps/remove_author', () => {
 
   let step, members, pullRequest;
 
@@ -19,7 +19,7 @@ describe('services/reviewer-assignment/steps/remove_author', () => {
   });
 
   it('should remove author from team', done => {
-    const review = { team: members, pullRequest };
+    const review = { members, pullRequest };
 
     const membersAltered = [
       { login: 'Hulk', rank: 8 },
@@ -31,15 +31,15 @@ describe('services/reviewer-assignment/steps/remove_author', () => {
     ];
 
     step(review)
-      .then(review => assert.sameDeepMembers(review.team, membersAltered))
+      .then(review => assert.sameDeepMembers(review.members, membersAltered))
       .then(done, done);
   });
 
   it('should do nothing if there are no team', done => {
-    const review = { team: [], pullRequest };
+    const review = { members: [], pullRequest };
 
     step(review)
-      .then(review => assert.sameDeepMembers(review.team, []))
+      .then(review => assert.sameDeepMembers(review.members, []))
       .then(done, done);
   });
 

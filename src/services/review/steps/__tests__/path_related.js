@@ -9,7 +9,7 @@ import { reviewMembersMock } from '../../__mocks__/index';
 import { members as membersMock } from '../../../team-dispatcher/__mocks__/index';
 
 
-describe('services/reviewer-assignment/steps/path_related', function () {
+describe('services/review/steps/path_related', function () {
 
   describe('#isMatch', function () {
 
@@ -71,7 +71,7 @@ describe('services/reviewer-assignment/steps/path_related', function () {
     });
 
     it('should increment rank for one random member of team', function (done) {
-      const step = incRank(options, { team });
+      const step = incRank(options, { members: team });
 
       step(['test.js'])
         .then(() => {
@@ -95,7 +95,7 @@ describe('services/reviewer-assignment/steps/path_related', function () {
     });
 
     it('should not change rank if there are no matched pathes', function (done) {
-      const step = incRank(options, { team });
+      const step = incRank(options, { members: team });
 
       step(['test.css'])
         .then(() => {
@@ -123,7 +123,7 @@ describe('services/reviewer-assignment/steps/path_related', function () {
     });
 
     it('should decrement rank for all members specified in options', function (done) {
-      const step = decRank(options, { team });
+      const step = decRank(options, { members: team });
 
       step(['test.js'])
         .then(() => {
@@ -147,7 +147,7 @@ describe('services/reviewer-assignment/steps/path_related', function () {
     });
 
     it('should not change rank if there is no matched pathes', function (done) {
-      const step = decRank(options, { team });
+      const step = decRank(options, { members: team });
 
       step(['test.css'])
         .then(() => {
@@ -184,32 +184,32 @@ describe('services/reviewer-assignment/steps/path_related', function () {
     });
 
     it('should inc rank if any pattern match', function (done) {
-      const review = { team: team, pullRequest };
+      const review = { members: team, pullRequest };
 
       pullRequest.files = [{ filename: 'a.js' }];
       pullRequest.review.reviewers = membersMock();
 
-      const oldRank = _.find(review.team, { login: 'Hulk' }).rank;
+      const oldRank = _.find(review.members, { login: 'Hulk' }).rank;
 
       step(review, options)
         .then(() => {
-          const newRank = _.find(review.team, { login: 'Hulk' }).rank;
+          const newRank = _.find(review.members, { login: 'Hulk' }).rank;
           assert.isAbove(newRank, oldRank);
         })
         .then(done, done);
     });
 
     it('should dec rank if all patterns match', function (done) {
-      const review = { team: team, pullRequest };
+      const review = { members: team, pullRequest };
 
       pullRequest.files = [{ filename: 'a.json' }];
       pullRequest.review.reviewers = membersMock();
 
-      const oldRank = _.find(review.team, { login: 'Hulk' }).rank;
+      const oldRank = _.find(review.members, { login: 'Hulk' }).rank;
 
       step(review, options)
         .then(() => {
-          const newRank = _.find(review.team, { login: 'Hulk' }).rank;
+          const newRank = _.find(review.members, { login: 'Hulk' }).rank;
           assert.isBelow(newRank, oldRank);
         })
         .then(done, done);

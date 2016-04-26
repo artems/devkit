@@ -4,7 +4,7 @@ import { pullRequestMock } from
   '../../../model/collections/__mocks__/pull-request';
 import { reviewMembersMock } from '../../__mocks__/index';
 
-describe('services/reviewer-assignment/steps/remove_already_reviewers', function () {
+describe('services/review/steps/remove_already_reviewers', function () {
 
   let step, members, pullRequest;
 
@@ -24,7 +24,7 @@ describe('services/reviewer-assignment/steps/remove_already_reviewers', function
   });
 
   it('should remove already reviewers', function (done) {
-    const review = { team: members, pullRequest };
+    const review = { members, pullRequest };
 
     const membersAltered = [
       { login: 'Thor', rank: 3 },
@@ -35,26 +35,26 @@ describe('services/reviewer-assignment/steps/remove_already_reviewers', function
     ];
 
     step(review)
-      .then(review => assert.sameDeepMembers(review.team, membersAltered))
+      .then(review => assert.sameDeepMembers(review.members, membersAltered))
       .then(done, done);
   });
 
   it('should do nothing if there are no team', function (done) {
-    const review = { team: [], pullRequest };
+    const review = { members: [], pullRequest };
 
     step(review)
-      .then(review => assert.sameDeepMembers(review.team, []))
+      .then(review => assert.sameDeepMembers(review.members, []))
       .then(done, done);
   });
 
   it('should do nothing if there are no reviewers', function (done) {
     pullRequest.review.reviewers = [];
 
-    const review = { team: members, pullRequest };
+    const review = { members, pullRequest };
     const oldMembers = reviewMembersMock();
 
     step(review)
-      .then(review => assert.sameDeepMembers(review.team, oldMembers))
+      .then(review => assert.sameDeepMembers(review.members, oldMembers))
       .then(done, done);
   });
 

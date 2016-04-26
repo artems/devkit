@@ -12,7 +12,7 @@ import { forEach } from 'lodash';
 function random(review, options) {
   const max = options.max;
 
-  forEach(review.team, (member) => {
+  forEach(review.members, (member) => {
     member.rank += Math.floor(Math.random() * (max + 1));
   });
 

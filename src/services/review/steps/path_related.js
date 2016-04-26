@@ -61,7 +61,7 @@ export function incRank(options, review) {
     const membersCount = Math.floor(Math.random() * members.length) + 1;
     const isApplicable =
       !_.isEmpty(pattern) &&
-      !_.isEmpty(review.team) &&
+      !_.isEmpty(review.members) &&
       isMatchAny(files, pattern);
 
     if (isApplicable) {
@@ -70,7 +70,7 @@ export function incRank(options, review) {
       while (_.isEmpty(reviewers)) {
         const selectedMembers = _.sample(members, membersCount);
 
-        reviewers = _.filter(review.team, (reviewer) => {
+        reviewers = _.filter(review.members, (reviewer) => {
           return selectedMembers.indexOf(reviewer.login) !== -1;
         });
       }
@@ -101,7 +101,7 @@ export function decRank(options, review) {
     const isApplicable = isMatchAll(files, pattern);
 
     if (isApplicable) {
-      _.forEach(review.team, (reviewer) => {
+      _.forEach(review.members, (reviewer) => {
         if (members.indexOf(reviewer.login) !== -1) {
           reviewer.rank -= rank;
         }

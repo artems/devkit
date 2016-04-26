@@ -12,7 +12,7 @@ import { take } from 'lodash';
 function totalNumber(review, options) {
   const max = options.max;
 
-  review.team = take(review.team, max);
+  review.members = take(review.members, max);
 
   return Promise.resolve(review);
 }

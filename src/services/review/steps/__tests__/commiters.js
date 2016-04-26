@@ -7,7 +7,7 @@ import { pullRequestMock } from
   '../../../model/collections/__mocks__/pull-request';
 import { reviewMembersMock } from '../../__mocks__/index';
 
-describe('services/reviewer-assignment/steps/commiters', function () {
+describe('services/review/steps/commiters', function () {
   let members, github, commit, files, pullRequest;
   let ignorePatterns = [];
 
@@ -149,7 +149,7 @@ describe('services/reviewer-assignment/steps/commiters', function () {
   });
 
   it('should increase rank if member is an author of the last commits', function (done) {
-    const review = { team: members, pullRequest };
+    const review = { members: members, pullRequest };
     const commit = sinon.stub();
     const options = {
       max: 4,
@@ -182,12 +182,12 @@ describe('services/reviewer-assignment/steps/commiters', function () {
     const commiters = service({}, { github });
 
     commiters(review, options)
-      .then(review => assert.deepEqual(review.team, membersAltered))
+      .then(review => assert.deepEqual(review.members, membersAltered))
       .then(done, done);
   });
 
   it('should do nothing if there is no team in a review object', function (done) {
-    const review = { team: [] };
+    const review = { members: [] };
 
     const commiters = service({}, {});
 

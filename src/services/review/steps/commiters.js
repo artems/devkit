@@ -170,7 +170,7 @@ export default function setup(options, imports) {
   function commiters(review, options) {
     const max = options.max;
 
-    if (_.isEmpty(review.team)) {
+    if (_.isEmpty(review.members)) {
       return Promise.resolve(review);
     }
 
@@ -181,9 +181,9 @@ export default function setup(options, imports) {
     return getFiles(pullRequest, options.ignore, options.filesToCheck)
       .then(getCommits(github, pullRequest, sinceDate, options.commitsCount))
       .then(getCommiters)
-      .then(addRank(max, review.team))
-      .then(team => {
-        review.team = team;
+      .then(addRank(max, review.members))
+      .then(members => {
+        review.members = members;
 
         return review;
       });

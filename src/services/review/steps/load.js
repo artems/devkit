@@ -27,11 +27,11 @@ export default function setup(options, imports) {
 
     const promise = [];
 
-    if (isEmpty(review.team)) {
+    if (isEmpty(review.members)) {
       return Promise.resolve(review);
     }
 
-    forEach(review.team, (member) => {
+    forEach(review.members, (member) => {
       promise.push(PullRequestModel.findInReviewByReviewer(member.login));
     });
 
@@ -42,7 +42,7 @@ export default function setup(options, imports) {
           .uniq('id')
           .forEach(activeReview => {
             forEach(activeReview.review.reviewers, (reviewer) => {
-              reviewer = find(review.team, { login: reviewer.login });
+              reviewer = find(review.members, { login: reviewer.login });
 
               if (reviewer) {
                 reviewer.rank -= max;

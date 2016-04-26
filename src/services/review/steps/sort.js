@@ -8,7 +8,7 @@ import { sortBy, reverse } from 'lodash';
  * @return {Promise.<Review>} review
  */
 export function sort(review) {
-  review.team = reverse(sortBy(review.team, 'rank'));
+  review.members = reverse(sortBy(review.members, 'rank'));
 
   return Promise.resolve(review);
 }

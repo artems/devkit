@@ -32,11 +32,11 @@ export default class ReviewerAssignment {
       ));
     }
 
-    review._team = team;
+    review.team = team;
 
     return team.getMembersForReview(review.pullRequest)
-      .then(team => {
-        review.team = team;
+      .then(members => {
+        review.members = members;
         return review;
       });
   }
@@ -64,7 +64,7 @@ export default class ReviewerAssignment {
    * @return {Promise.<Array.<Function>>}
    */
   getSteps(review) {
-    const stepNames = review._team.getOption('steps', this.options.steps);
+    const stepNames = review.team.getOption('steps', this.options.steps);
 
     if (isEmpty(stepNames)) {
       return Promise.reject(new Error('There are no any steps for given team'));
@@ -93,7 +93,7 @@ export default class ReviewerAssignment {
    * @return {Promise.<Review>}
    */
   addZeroRank(review) {
-    forEach(review.team, (member) => { member.rank = 0; });
+    forEach(review.members, (member) => { member.rank = 0; });
 
     return Promise.resolve(review);
   }
@@ -106,7 +106,7 @@ export default class ReviewerAssignment {
    * @return {Promise.<Review>}
    */
   start(pullRequest) {
-    return Promise.resolve({ pullRequest, team: [] });
+    return Promise.resolve({ pullRequest, members: [] });
   }
 
   /**
@@ -117,7 +117,7 @@ export default class ReviewerAssignment {
    * @return {Promise}
    */
   stepsQueue(review) {
-    const stepsOptions = review._team.getOption(
+    const stepsOptions = review.team.getOption(
       'stepsOptions', this.options.stepsOptions || {}
     );
 
@@ -128,7 +128,7 @@ export default class ReviewerAssignment {
 
         this.logger.info(
           'Temporary ranks are: %s',
-          map(review.team, (x) => x.login + '#' + x.rank).join(' ')
+          map(review.members, (x) => x.login + '#' + x.rank).join(' ')
         );
 
         const rankerOptions = stepsOptions[name];
@@ -160,9 +160,9 @@ export default class ReviewerAssignment {
         this.logger.info('Complete %s', review.pullRequest);
 
         this.logger.info('Reviewers are: %s',
-          isEmpty(review.team)
+          isEmpty(review.members)
             ? 'ooops, no reviewers were selected...'
-            : review.team.map(x => x.login + '#' + x.rank).join(' ')
+            : review.members.map(x => x.login + '#' + x.rank).join(' ')
         );
 
         return review;

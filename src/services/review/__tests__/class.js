@@ -8,7 +8,7 @@ import teamDispatcherMock from '../../team-dispatcher/__mocks__/dispatcher';
 import { pullRequestMock } from
   '../../model/collections/__mocks__/pull-request';
 
-describe('services/reviewer-assignment/ReviewerAssignment', function () {
+describe('services/review/ReviewerAssignment', function () {
 
   let logger, team, teamDispatcher, pullRequest;
   let imports, options;
@@ -48,7 +48,7 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
     it('should return rejected promise if there are no steps for team', function (done) {
       delete options.steps;
 
-      review.getSteps({ _team: team, pullRequest })
+      review.getSteps({ team, pullRequest })
         .then(() => new Error('should reject promise'))
         .catch(error => assert.match(error.message, /steps/))
         .then(done, done);
@@ -57,14 +57,14 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
     it('should return rejected promise if there is no step with given name', function (done) {
       delete imports['reviewer-assignment-step-step2'];
 
-      review.getSteps({ _team: team, pullRequest })
+      review.getSteps({ team, pullRequest })
         .then(() => new Error('should reject promise'))
         .catch(error => assert.match(error.message, /no step/))
         .then(done, done);
     });
 
     it('should return resolved promise with steps array', function (done) {
-      review.getSteps({ _team: team, pullRequest })
+      review.getSteps({ team, pullRequest })
         .then(resolved => {
           assert.sameDeepMembers(resolved, [
             { name: 'step1', ranker: '1' },
@@ -104,7 +104,7 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
         createStep('4')
       ];
 
-      review.stepsQueue({ _team: team, steps: _steps, team: [] })
+      review.stepsQueue({ team, steps: _steps, members: [] })
         .then(() => assert.deepEqual(order, ['1', '2', '3', '4']))
         .then(done, done);
     });
@@ -122,14 +122,14 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
 
               assert.equal(review.pullRequest, pullRequest);
 
-              assert.sameDeepMembers(review.team, members());
+              assert.sameDeepMembers(review.members, members());
 
               return Promise.resolve(review);
             }
           }
         ];
 
-        review.stepsQueue({ _team: team, steps, pullRequest, team: members() })
+        review.stepsQueue({ team, steps, pullRequest, members: members() })
           .then(() => assert.called(stub))
           .then(done, done);
       });
@@ -143,7 +143,7 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
             name: 'step1',
             ranker: function (review) {
               stub1();
-              review.team.splice(0, 5);
+              review.members.splice(0, 5);
               return Promise.resolve(review);
             }
           },
@@ -151,13 +151,13 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
             name: 'step2',
             ranker: function (review) {
               stub2();
-              assert.lengthOf(review.team, 12);
+              assert.lengthOf(review.members, 12);
               return Promise.resolve(review);
             }
           }
         ];
 
-        review.stepsQueue({ _team: team, steps, pullRequest, team: members() })
+        review.stepsQueue({ team, steps, pullRequest, members: members() })
           .then(() => {
             assert.called(stub1);
             assert.called(stub2);
@@ -189,8 +189,8 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
     it('should return resolved pormise with chosen reviewers', function (done) {
       review.choose(pullRequest)
         .then(review => {
-          assert.isArray(review.team);
-          assert.isAbove(review.team.length, 0);
+          assert.isArray(review.members);
+          assert.isAbove(review.members.length, 0);
         })
         .then(done, done);
     });
@@ -200,8 +200,8 @@ describe('services/reviewer-assignment/ReviewerAssignment', function () {
 
       review.choose(pullRequest)
         .then(review => {
-          assert.isArray(review.team);
-          assert.lengthOf(review.team, 0);
+          assert.isArray(review.members);
+          assert.lengthOf(review.members, 0);
         })
         .then(done, done);
     });
