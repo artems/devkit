@@ -85,45 +85,43 @@ export function getCommits(github, pullRequest, since, commitsCount) {
  * @return {Promise.<Array>} [{ author: number_of_commits }]
  */
 export function getCommiters(commits) {
-  const members = {};
+  const commiters = {};
 
   _.forEach(commits, (commit) => {
     const author = commit.author;
 
     if (author) {
-      members[author.login] = (members[author.login] || 0) + 1;
+      commiters[author.login] = (commiters[author.login] || 0) + 1;
     }
   });
 
-  return Promise.resolve(members);
+  return Promise.resolve(commiters);
 }
 
 /**
  * Add rank to the most commiters.
  *
  * @param {Number} maxRank
- * @param {Array}  team
+ * @param {Array}  members
  *
  * @return {Array} team
  */
-export function addRank(maxRank, team) {
+export function addRank(maxRank, members) {
 
-  return function (members) {
-    let max = 0;
+  return function (commiters) {
+    const maxCommits = _.max(_.values(commiters));
 
-    _.forIn(members, (rank) => {
-      if (rank > max) {
-        max = rank;
-      }
-    });
-
-    _.forEach(team, (member) => {
-      member.rank += members[member.login]
-        ? maxRank / (max / members[member.login])
-        : 0;
-    });
-
-    return team;
+    return _(members)
+      .map(reviewer => {
+        return {
+          login: reviewer.login,
+          value: commiters[reviewer.login]
+            ? maxRank / (maxCommits / commiters[reviewer.login])
+            : 0
+        };
+      })
+      .filter(reviewer => reviewer.value > 0)
+      .value();
   };
 
 }
@@ -176,18 +174,13 @@ export default function setup(options, imports) {
 
     const sinceDate = getSinceDate(options.since);
 
+    const members = review.members;
     const pullRequest = review.pullRequest;
 
     return getFiles(pullRequest, options.ignore, options.filesToCheck)
       .then(getCommits(github, pullRequest, sinceDate, options.commitsCount))
       .then(getCommiters)
-      .then(addRank(max, review.members))
-      .then(members => {
-        review.members = members;
-
-        return review;
-      });
-
+      .then(addRank(max, members));
   }
 
   return commiters;

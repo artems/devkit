@@ -42,14 +42,9 @@ describe('services/review/steps/load', function () {
       }
     };
 
-    const membersAltered = [
-      { login: 'Hulk', rank: 6 },
-      { login: 'Thor', rank: 3 },
-      { login: 'Hawkeye', rank: 3 },
-      { login: 'Iron Man', rank: 7 },
-      { login: 'Spider-Man', rank: 6 },
-      { login: 'Black Widow', rank: 9 },
-      { login: 'Captain America', rank: 5 }
+    const expected = [
+      { login: 'Hulk', value: -2 },
+      { login: 'Black Widow', value: -1 }
     ];
 
     PullRequestModel.findInReviewByReviewer
@@ -63,7 +58,7 @@ describe('services/review/steps/load', function () {
     const step = service({}, imports);
 
     step(review, options)
-      .then(review => assert.sameDeepMembers(review.members, membersAltered))
+      .then(actual => assert.sameDeepMembers(actual, expected))
       .then(done, done);
   });
 

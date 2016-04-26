@@ -22,15 +22,14 @@ describe('services/review/steps/ignore', function () {
   it('should remove members from team which logins are in ignore list', function (done) {
     const review = { members, pullRequest };
 
-    const membersAltered = [
-      { login: 'Hawkeye', rank: 3 },
-      { login: 'Iron Man', rank: 7 },
-      { login: 'Spider-Man', rank: 6 },
-      { login: 'Black Widow', rank: 10 }
+    const expected = [
+      { login: 'Hulk', value: -Infinity },
+      { login: 'Thor', value: -Infinity },
+      { login: 'Captain America', value: -Infinity }
     ];
 
     step(review, options)
-      .then(review => assert.sameDeepMembers(review.members, membersAltered))
+      .then(actual => assert.sameDeepMembers(actual, expected))
       .then(done, done);
   });
 

@@ -148,8 +148,8 @@ describe('services/review/steps/commiters', function () {
 
   });
 
-  it('should increase rank if member is an author of the last commits', function (done) {
-    const review = { members: members, pullRequest };
+  it('should return high rank for member if member is an author of the last commits', function (done) {
+    const review = { members, pullRequest };
     const commit = sinon.stub();
     const options = {
       max: 4,
@@ -167,22 +167,23 @@ describe('services/review/steps/commiters', function () {
         { author: { login: 'Iron Man' } }
       ]);
 
+    commit
+      .withArgs(sinon.match({ path: 'b.txt' }))
+      .callsArgWith(1, null, [
+        { author: { login: 'Iron Man' } }
+      ]);
+
     github.repos.getCommits = commit;
 
-    const membersAltered = [
-      { login: 'Black Widow', rank: 10 },
-      { login: 'Captain America', rank: 9 },
-      { login: 'Hawkeye', rank: 3 },
-      { login: 'Hulk', rank: 8 },
-      { login: 'Iron Man', rank: 11 },
-      { login: 'Spider-Man', rank: 6 },
-      { login: 'Thor', rank: 3 }
+    const expected = [
+      { login: 'Iron Man', value: 4 },
+      { login: 'Captain America', value: 2 }
     ];
 
     const commiters = service({}, { github });
 
     commiters(review, options)
-      .then(review => assert.deepEqual(review.members, membersAltered))
+      .then(actual => assert.sameDeepMembers(actual, expected))
       .then(done, done);
   });
 

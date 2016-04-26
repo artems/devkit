@@ -1,4 +1,4 @@
-import { reject, isEmpty, includes } from 'lodash';
+import { chain, isEmpty, includes } from 'lodash';
 
 /**
  * Removes reviewers which login is match to one in the list.
@@ -16,12 +16,14 @@ function ignore(review, options) {
     return Promise.resolve(review);
   }
 
-  review.members = reject(review.members, (member) => {
-    return includes(list, member.login);
-  });
+  const ignored = chain(review.members)
+      .filter(member => includes(list, member.login))
+      .map(member => {
+        return { login: member.login, value: -Infinity };
+      })
+      .value();
 
-  return Promise.resolve(review);
-
+  return Promise.resolve(ignored);
 }
 
 /**

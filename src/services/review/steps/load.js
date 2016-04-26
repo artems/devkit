@@ -1,4 +1,4 @@
-import { chain, find, forEach, isEmpty } from 'lodash';
+import { map, chain, find, forEach, isEmpty } from 'lodash';
 
 /**
  * Create review `load` processor.
@@ -37,21 +37,24 @@ export default function setup(options, imports) {
 
     return Promise.all(promise)
       .then(openReviews => {
-        chain(openReviews)
-          .flatten()
-          .uniq('id')
-          .forEach(activeReview => {
-            forEach(activeReview.review.reviewers, (reviewer) => {
-              reviewer = find(review.members, { login: reviewer.login });
+        const members = {};
+        const reviews = chain(openReviews).flatten().uniq('id').value();
 
-              if (reviewer) {
-                reviewer.rank -= max;
+        forEach(reviews, activeReview => {
+          forEach(activeReview.review.reviewers, (reviewer) => {
+            reviewer = find(review.members, { login: reviewer.login });
+
+            if (reviewer) {
+              if (!members[reviewer.login]) {
+                members[reviewer.login] = 0;
               }
-            });
-          })
-          .value();
 
-        return review;
+              members[reviewer.login] -= max;
+            }
+          });
+        });
+
+        return map(members, (value, login) => { return { login, value }; });
       });
 
   }
