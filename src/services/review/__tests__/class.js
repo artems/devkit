@@ -22,7 +22,6 @@ describe('services/review/ReviewerAssignment', function () {
 
     teamDispatcher = teamDispatcherMock();
     teamDispatcher.findTeamByPullRequest.returns(team);
-    teamDispatcher.findTeamNameByPullRequest.returns('Avengers');
 
     pullRequest = pullRequestMock();
 
@@ -184,6 +183,15 @@ describe('services/review/ReviewerAssignment', function () {
 
       review = new ReviewerAssignment(options, imports);
 
+    });
+
+    it('should return rejected pormise if team is not found', function (done) {
+      teamDispatcher.findTeamByPullRequest.returns(null);
+
+      review.choose(pullRequest)
+        .then(() => { throw new Error('should reject promise'); })
+        .catch(e => assert.match(e.message, /not found/))
+        .then(done, done);
     });
 
     it('should return resolved pormise with chosen reviewers', function (done) {

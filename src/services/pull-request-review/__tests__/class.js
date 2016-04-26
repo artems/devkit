@@ -99,7 +99,15 @@ describe('services/pull-request-review', function () {
           .catch(done);
       });
 
-      it('should reject a promise if pull request status is not "notstarted"', function (done) {
+      it('should not reject a promise if pull request status is "changesneeded"', function (done) {
+        review.status = 'changesneeded';
+
+        pullRequestReview.startReview(pullRequest)
+          .then(() => done())
+          .catch(done);
+      });
+
+      it('should reject a promise if pull request status is "notstarted"', function (done) {
         review.status = 'inprogress';
 
         pullRequestReview.startReview(pullRequest)
@@ -152,8 +160,16 @@ describe('services/pull-request-review', function () {
           .catch(done);
       });
 
-      it('should not reject promise when pull request status is not "inprogress"', function (done) {
+      it('should not reject promise when pull request status is "notstarted"', function (done) {
         review.status = 'notstarted';
+
+        pullRequestReview.stopReview(pullRequest)
+          .then(() => done())
+          .catch(done);
+      });
+
+      it('should not reject promise when pull request status is "changesneeded"', function (done) {
+        review.status = 'changesneeded';
 
         pullRequestReview.stopReview(pullRequest)
           .then(() => done())
@@ -210,6 +226,25 @@ describe('services/pull-request-review', function () {
           .catch(done);
       });
 
+      it('should not reject promise if reviewer approve pull request twice', function (done) {
+        review.reviewers = [{ login: 'foo', approved: true }, { login: 'bar' }];
+
+        pullRequestReview.approveReview(pullRequest, 'foo')
+          .then(() => done())
+          .catch(done);
+      });
+
+      it('should reject promise if team is not found', function (done) {
+        teamDispatcher.findTeamByPullRequest
+          .withArgs(pullRequest)
+          .returns(null);
+
+        pullRequestReview.approveReview(pullRequest, 'foo')
+          .then(() => { throw new Error('should reject promise'); })
+          .catch(e => { assert.match(e.message, /not found/i); done(); })
+          .catch(done);
+      });
+
       describe('when review is complete', function () {
 
         beforeEach(function () {
@@ -244,6 +279,41 @@ describe('services/pull-request-review', function () {
             })
             .catch(done);
         });
+      });
+
+    });
+
+    describe('#changesNeeded', function () {
+
+      it('should emit event `review:changesneeded`', function (done) {
+        pullRequestReview.changesNeeded(pullRequest, 'foo')
+          .then(() => {
+            assert.calledWith(events.emit, 'review:changesneeded');
+            done();
+          })
+          .catch(done);
+      });
+
+      it('should change reviewer status to "not approved"', function (done) {
+        review.reviewers = [{ login: 'foo', approved: true }, { login: 'bar' }];
+
+        pullRequestReview.changesNeeded(pullRequest, 'foo')
+          .then(() => {
+            assert.calledWith(pullRequest.set, 'review', sinon.match({
+              reviewers: [{ login: 'foo' }, { login: 'bar' }]
+            }));
+            done();
+          })
+          .catch(done);
+      });
+
+      it('should update property "updated_at"', function (done) {
+        pullRequestReview.changesNeeded(pullRequest, 'foo')
+          .then(() => {
+            assert.calledWith(pullRequest.set, 'review', sinon.match.has('updated_at'));
+            done();
+          })
+          .catch(done);
       });
 
     });

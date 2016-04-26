@@ -15,6 +15,17 @@ describe('services/team/static', function () {
 
   });
 
+  it('should set options for team', function () {
+    const options = {
+      members: members(),
+      overrides: { approveCount: 10 }
+    };
+
+    const team = service(options);
+
+    assert.equal(team.getOption('approveCount'), 10);
+  });
+
   describe('StaticTeam', function () {
 
     it('should return team members', function (done) {

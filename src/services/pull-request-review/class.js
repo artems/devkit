@@ -27,39 +27,34 @@ export default class PullRequestReview {
   startReview(pullRequest) {
     const review = pullRequest.get('review');
 
-    return new Promise(resolve => {
-      if (review.status !== 'notstarted') {
-        throw new Error(util.format(
-          'Try to start is not opened review. status=%s %s',
-          review.status, pullRequest.toString()
-        ));
-      }
+    if (review.status !== 'notstarted' && review.status !== 'changesneeded') {
+      return Promise.reject(new Error(util.format(
+        'Try to start is not opened review. Status is %s %s',
+        review.status, pullRequest
+      )));
+    }
 
-      if (isEmpty(review.reviewers)) {
-        throw new Error(util.format(
-          'Try to start review where reviewers were not selected %s',
-          pullRequest.toString()
-        ));
-      }
+    if (isEmpty(review.reviewers)) {
+      return Promise.reject(new Error(util.format(
+        'Try to start review where reviewers were not selected %s',
+        pullRequest
+      )));
+    }
 
-      review.status = 'inprogress';
+    review.status = 'inprogress';
 
-      if (!review.started_at) {
-        review.started_at = new Date();
-      }
+    if (!review.started_at) {
+      review.started_at = new Date();
+    }
 
-      review.updated_at = new Date();
+    review.updated_at = new Date();
 
-      pullRequest.set('review', review);
+    pullRequest.set('review', review);
 
-      resolve(pullRequest);
-    })
-    .then(pullRequest => {
-      this.logger.info('Review started %s', pullRequest.toString());
-      this.events.emit('review:started', { pullRequest });
+    this.logger.info('Review started %s', pullRequest);
+    this.events.emit('review:started', { pullRequest });
 
-      return pullRequest;
-    });
+    return Promise.resolve(pullRequest);
   }
 
   /**
@@ -72,28 +67,22 @@ export default class PullRequestReview {
   stopReview(pullRequest) {
     const review = pullRequest.get('review');
 
-    return new Promise(resolve => {
-      if (review.status !== 'inprogress') {
-        this.logger.info(
-          'Try to stop is not in progress review %s',
-          pullRequest.toString()
-        );
-      }
+    if (review.status !== 'inprogress' && review.status !== 'changesneeded') {
+      this.logger.info(
+        'Try to stop is not in progress review. Status is %s %s',
+        review.status, pullRequest
+      );
+    }
 
-      review.status = 'notstarted';
-      review.updated_at = new Date();
+    review.status = 'notstarted';
+    review.updated_at = new Date();
 
-      pullRequest.set('review', review);
+    pullRequest.set('review', review);
 
-      resolve(pullRequest);
-    })
-    .then(pullRequest => {
-      this.logger.info('Review stopped %s', pullRequest.toString());
-      this.events.emit('review:updated', { pullRequest });
+    this.logger.info('Review stopped %s', pullRequest);
+    this.events.emit('review:updated', { pullRequest });
 
-      return pullRequest;
-    });
-
+    return Promise.resolve(pullRequest);
   }
 
   /**
@@ -107,47 +96,87 @@ export default class PullRequestReview {
   approveReview(pullRequest, login) {
 
     let approvedCount = 0;
+    let requiredApprovedCount;
+
     const review = pullRequest.get('review');
 
-    return new Promise(resolve => {
-      const requiredApprovedCount = this.getRequiredApproveCount(pullRequest);
+    try {
+      requiredApprovedCount = this.getRequiredApproveCount(pullRequest);
+    } catch (error) {
+      return Promise.reject(error);
+    }
 
-      forEach(review.reviewers, (reviewer) => {
-        if (reviewer.login === login) {
-          reviewer.approved = true;
-        }
-
+    forEach(review.reviewers, (reviewer) => {
+      if (reviewer.login === login) {
         if (reviewer.approved) {
-          approvedCount += 1;
+          this.logger.info(
+            '%s was approved pull request before %s',
+            reviewer.login, pullRequest
+          );
         }
 
-        if (approvedCount >= requiredApprovedCount) {
-          review.status = 'complete';
-        }
-      });
-
-      review.updated_at = new Date();
-
-      if (review.status === 'complete') {
-        review.completed_at = new Date();
+        reviewer.approved = true;
       }
 
-      pullRequest.set('review', review);
-
-      resolve(pullRequest);
-    })
-    .then(pullRequest => {
-      this.logger.info('Review approved by %s %s', login, pullRequest.toString());
-      this.events.emit('review:approved', { pullRequest, login });
-
-      if (pullRequest.get('review.status') === 'complete') {
-        this.logger.info('Review complete %s', pullRequest.toString());
-        this.events.emit('review:complete', { pullRequest });
+      if (reviewer.approved) {
+        approvedCount += 1;
       }
 
-      return pullRequest;
+      if (approvedCount >= requiredApprovedCount) {
+        review.status = 'complete';
+      }
     });
 
+    review.updated_at = new Date();
+
+    if (review.status === 'complete') {
+      review.completed_at = new Date();
+    }
+
+    pullRequest.set('review', review);
+
+    this.logger.info('Review approved by %s %s', login, pullRequest);
+
+    this.events.emit('review:approved', { pullRequest, login });
+
+    if (pullRequest.get('review.status') === 'complete') {
+      this.logger.info('Review complete %s', pullRequest);
+      this.events.emit('review:complete', { pullRequest });
+    }
+
+    return Promise.resolve(pullRequest);
+
+  }
+
+  /**
+   * Mark pull request as `changes needed`.
+   *
+   * @param {PullRequest} pullRequest
+   * @param {String} login - user which approves pull.
+   *
+   * @return {Promise}
+   */
+  changesNeeded(pullRequest, login) {
+    const review = pullRequest.get('review');
+
+    forEach(review.reviewers, (reviewer) => {
+      if (reviewer.login === login) {
+        delete reviewer.approved;
+      }
+    });
+
+    review.status = 'changesneeded';
+    review.updated_at = new Date();
+
+    pullRequest.set('review', review);
+
+    this.logger.info(
+      'Pull request marked as `changes needed` by %s %s', login, pullRequest
+    );
+
+    this.events.emit('review:changesneeded', { pullRequest, login });
+
+    return Promise.resolve(pullRequest);
   }
 
   /**
@@ -159,26 +188,20 @@ export default class PullRequestReview {
    * @return {Promise}
    */
   updateReviewers(pullRequest, reviewers) {
-    return new Promise(resolve => {
-      if (isEmpty(reviewers)) {
-        throw new Error(util.format(
-          'Cannot drop all reviewers from pull request %s',
-          pullRequest.toString()
-        ));
-      }
+    if (isEmpty(reviewers)) {
+      return Promise.reject(new Error(util.format(
+        'Cannot drop all reviewers from pull request %s',
+        pullRequest
+      )));
+    }
 
-      pullRequest.set('review.reviewers', reviewers);
-      pullRequest.set('review.updated_at', new Date());
+    pullRequest.set('review.reviewers', reviewers);
+    pullRequest.set('review.updated_at', new Date());
 
-      resolve(pullRequest);
-    })
-    .then(pullRequest => {
-      this.logger.info('Reviewers updated %s', pullRequest.toString());
-      this.events.emit('review:updated', { pullRequest });
+    this.logger.info('Reviewers updated %s', pullRequest);
+    this.events.emit('review:updated', { pullRequest });
 
-      return pullRequest;
-    });
-
+    return Promise.resolve(pullRequest);
   }
 
   /**

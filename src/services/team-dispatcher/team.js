@@ -3,7 +3,7 @@ import { get, find } from 'lodash';
 export default class AbstractTeam {
 
   constructor(options) {
-    this._options = options;
+    this.options = options;
   }
 
   /**
@@ -32,7 +32,7 @@ export default class AbstractTeam {
   }
 
   getOption(option, defaultValue) {
-    return get(this._options, option, defaultValue);
+    return get(this.options, option, defaultValue);
   }
 
 }

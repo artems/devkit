@@ -7,9 +7,10 @@ export default class StaticTeam extends Team {
    * @constructor
    *
    * @param {Array.<Developer>} members - array of team members
+   * @param {Object} options
    */
-  constructor(members) {
-    super();
+  constructor(members, options) {
+    super(options);
 
     if (!Array.isArray(members)) {
       throw new Error('Members should be an array');

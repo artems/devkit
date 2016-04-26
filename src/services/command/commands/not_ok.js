@@ -26,8 +26,6 @@ export default function setup(options, imports) {
 
     const pullRequestReviewers = pullRequest.get('review.reviewers');
 
-    const commenter = find(pullRequestReviewers, { login: commentUser });
-
     logger.info('"/!ok" %s', pullRequest);
 
     if (pullRequest.state !== 'open') {
@@ -36,18 +34,15 @@ export default function setup(options, imports) {
       ));
     }
 
-    if (!commenter) {
+    if (!find(pullRequestReviewers, { login: commentUser })) {
       return Promise.reject(new Error(util.format(
         '%s tried to cancel approve, but he is not a reviewer %s',
         commentUser, pullRequest
       )));
     }
 
-    // TODO do this through pullRequestReview.changesNeeded();
-    commenter.approved = false;
-
     return pullRequestReview
-      .updateReviewers(pullRequest, pullRequestReviewers)
+      .changesNeeded(pullRequest, commentUser)
       .then(pullRequest => pullRequestReview.stopReview(pullRequest))
       .then(pullRequest => {
         events.emit(EVENT_NAME, { pullRequest });

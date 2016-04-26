@@ -76,7 +76,12 @@ export default function setup(options, imports) {
         review: {
           status: {
             type: String,
-            'enum': ['notstarted', 'inprogress', 'changesneeded', 'complete'],
+            'enum': [
+              'notstarted',
+              'inprogress',
+              'changesneeded',
+              'complete'
+            ],
             'default': 'notstarted'
           },
           reviewers: [Reviewer],

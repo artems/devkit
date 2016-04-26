@@ -16,9 +16,23 @@ describe('services/team/github', function () {
 
     const team = service(options, imports);
 
+    assert.property(team, 'getOption');
     assert.property(team, 'findTeamMember');
     assert.property(team, 'getMembersForReview');
 
+  });
+
+  it('should set options for team', function () {
+    const options = {
+      orgName: 'nodejs',
+      overrides: { approveCount: 10 }
+    };
+
+    const imports = { github: githubMock() };
+
+    const team = service(options, imports);
+
+    assert.equal(team.getOption('approveCount'), 10);
   });
 
   describe('GitHubTeam', function () {

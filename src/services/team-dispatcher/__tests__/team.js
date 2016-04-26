@@ -41,6 +41,25 @@ describe('services/team', function () {
       });
 
     });
+
+    describe('#getOption', function () {
+
+      it('should return team option', function () {
+        const options = { foo: 'bar' };
+        const team = new Team(options);
+
+        assert.equal(team.getOption('foo'), 'bar');
+      });
+
+      it('should return default option if team option is undefined', function () {
+        const options = { foo: 'bar' };
+        const team = new Team(options);
+
+        assert.equal(team.getOption('bar', 'baz'), 'baz');
+      });
+
+    });
+
   });
 
 });

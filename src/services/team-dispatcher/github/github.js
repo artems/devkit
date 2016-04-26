@@ -9,9 +9,10 @@ export default class GitHubTeam extends Team {
    * @param {Object} github - GitHub API module
    * @param {String} [orgName] - name of github org
    * @param {String} [slugName] - name of github group
+   * @param {Object} options
    */
-  constructor(github, orgName, slugName) {
-    super();
+  constructor(github, orgName, slugName, options) {
+    super(options);
 
     if (!orgName) {
       throw new Error('Required parameter "orgName" is not given');
