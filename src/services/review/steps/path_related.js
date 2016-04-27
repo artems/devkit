@@ -64,10 +64,10 @@ export function incRank(options, review) {
       !_.isEmpty(review.members) &&
       isMatchAny(files, pattern);
 
-    if (isApplicable) {
-      let reviewers = [];
+    let reviewers = [];
 
-      while (_.isEmpty(reviewers)) {
+    if (isApplicable) {
+      for (let i = 0; _.isEmpty(reviewers) && i < 5; i++) {
         const selectedMembers = _.sample(members, membersCount);
 
         reviewers = _.filter(review.members, (reviewer) => {
@@ -75,12 +75,15 @@ export function incRank(options, review) {
         });
       }
 
-      _.forEach(reviewers, (reviewer) => {
-        reviewer.rank += Math.floor(Math.random() * max) + 1;
+      reviewers = _.map(reviewers, (reviewer) => {
+        return {
+          rank: Math.floor(Math.random() * max) + 1,
+          login: reviewer.login
+        };
       });
     }
 
-    return Promise.resolve(files);
+    return Promise.resolve(reviewers);
   };
 
 }
@@ -100,15 +103,21 @@ export function decRank(options, review) {
     const rank = Math.floor(Math.random() * max) + 1;
     const isApplicable = isMatchAll(files, pattern);
 
+    let reviewers =[];
+
     if (isApplicable) {
-      _.forEach(review.members, (reviewer) => {
-        if (members.indexOf(reviewer.login) !== -1) {
-          reviewer.rank -= rank;
-        }
-      });
+      reviewers = _.chain(review.members)
+        .filter(reviewer => members.indexOf(reviewer.login) !== -1)
+        .map(reviewer => {
+          return {
+            rank: -rank,
+            login: reviewer.login
+          };
+        })
+        .value();
     }
 
-    return Promise.resolve(files);
+    return Promise.resolve(reviewers);
   };
 
 }
@@ -127,8 +136,23 @@ export function pathRelated(review, options) {
   const next = () => review;
 
   return getFiles(review.pullRequest)
-    .then(incRank(_.assign({}, options, { pattern: options.incPattern }), review))
-    .then(decRank(_.assign({}, options, { pattern: options.decPattern }), review))
+    .then(files => {
+      const inc = Promise.resolve(files)
+        .then(incRank(_.assign({}, options, { pattern: options.incPattern }), review))
+      const dec = Promise.resolve(files)
+        .then(decRank(_.assign({}, options, { pattern: options.decPattern }), review))
+
+      return Promise.all([inc, dec])
+        .then(values => {
+          return _.chain(values).groupBy('login').map(values => {
+            return {
+              rank: _.sum(_.map(values, 'rank')),
+              login: values[0].login,
+            };
+          })
+          .value();
+        });
+    })
     .then(next, next);
 }
 

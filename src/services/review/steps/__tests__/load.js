@@ -43,8 +43,8 @@ describe('services/review/steps/load', function () {
     };
 
     const expected = [
-      { login: 'Hulk', value: -2 },
-      { login: 'Black Widow', value: -1 }
+      { login: 'Hulk', rank: -2 },
+      { login: 'Black Widow', rank: -1 }
     ];
 
     PullRequestModel.findInReviewByReviewer

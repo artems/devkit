@@ -183,7 +183,7 @@ describe('services/review/steps/path_related', function () {
 
     });
 
-    it('should inc rank if any pattern match', function (done) {
+    it.only('should inc rank if any pattern match', function (done) {
       const review = { members: team, pullRequest };
 
       pullRequest.files = [{ filename: 'a.js' }];

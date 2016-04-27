@@ -176,8 +176,8 @@ describe('services/review/steps/commiters', function () {
     github.repos.getCommits = commit;
 
     const expected = [
-      { login: 'Iron Man', value: 4 },
-      { login: 'Captain America', value: 2 }
+      { login: 'Iron Man', rank: 4 },
+      { login: 'Captain America', rank: 2 }
     ];
 
     const commiters = service({}, { github });

@@ -23,9 +23,9 @@ describe('services/review/steps/ignore', function () {
     const review = { members, pullRequest };
 
     const expected = [
-      { login: 'Hulk', value: -Infinity },
-      { login: 'Thor', value: -Infinity },
-      { login: 'Captain America', value: -Infinity }
+      { login: 'Hulk', rank: -Infinity },
+      { login: 'Thor', rank: -Infinity },
+      { login: 'Captain America', rank: -Infinity }
     ];
 
     step(review, options)

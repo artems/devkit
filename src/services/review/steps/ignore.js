@@ -19,7 +19,7 @@ function ignore(review, options) {
   const ignored = chain(review.members)
       .filter(member => includes(list, member.login))
       .map(member => {
-        return { login: member.login, value: -Infinity };
+        return { login: member.login, rank: -Infinity };
       })
       .value();
 

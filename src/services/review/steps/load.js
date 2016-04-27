@@ -54,7 +54,7 @@ export default function setup(options, imports) {
           });
         });
 
-        return map(members, (value, login) => { return { login, value }; });
+        return map(members, (rank, login) => { return { login, rank }; });
       });
 
   }

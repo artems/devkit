@@ -115,12 +115,12 @@ export function addRank(maxRank, members) {
       .map(reviewer => {
         return {
           login: reviewer.login,
-          value: commiters[reviewer.login]
+          rank: commiters[reviewer.login]
             ? maxRank / (maxCommits / commiters[reviewer.login])
             : 0
         };
       })
-      .filter(reviewer => reviewer.value > 0)
+      .filter(reviewer => reviewer.rank > 0)
       .value();
   };
 
