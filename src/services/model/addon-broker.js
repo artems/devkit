@@ -1,23 +1,21 @@
 import { cloneDeep, forEach, merge } from 'lodash';
 
 /**
- * Addon broker helps to extend base model schema and setup save hooks.
+ * Addon broker helps to extend base model schema and to add new methods.
  */
 export class AddonBroker {
 
   /**
    * @param {Object[]} mixins - each mixin add methods to model
-   * @param {Object[]} saveHooks - each saveHook setup hook to model
    * @param {Object[]} extenders - each extender return parial schema
    */
-  constructor(mixins, saveHooks, extenders) {
+  constructor(mixins, extenders) {
     this.mixins = mixins || {};
-    this.saveHooks = saveHooks || {};
     this.extenders = extenders || {};
   }
 
   /**
-   * Return pre save hooks and extenders for given model
+   * Return mixins and extenders for given model
    *
    * @param {String} model - model name.
    *
@@ -26,7 +24,6 @@ export class AddonBroker {
   get(model) {
     return {
       mixins: this.mixins[model] || [],
-      saveHooks: this.saveHooks[model] || [],
       extenders: this.extenders[model] || []
     };
   }
@@ -40,26 +37,6 @@ export class AddonBroker {
   setupModel(name, model) {
     forEach(this.get(name).mixins, (mixin) => {
       mixin(model, name);
-    });
-  }
-
-  /**
-   * Setup model pre save hooks.
-   *
-   * @param {String} name - model name.
-   * @param {Object} model - mongoose model.
-   */
-  setupSaveHooks(name, model) {
-    const saveHooks = this.get(name).saveHooks;
-
-    model.pre('save', function (next) {
-      const promise = [];
-
-      forEach(saveHooks, (hook) => {
-        promise.push(hook(this));
-      });
-
-      Promise.all(promise).then(next).catch(next);
     });
   }
 

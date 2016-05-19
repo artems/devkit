@@ -87,7 +87,7 @@ export function withPullRequest(test, config, done) {
 
 describe('services/model', function () {
 
-  it('should apply save hooks and extenderes', function (done) {
+  it('should apply mixins and extenderes', function (done) {
 
     const addon = function (options, imports) {
       return {
@@ -96,10 +96,10 @@ describe('services/model', function () {
             newProperty: { type: Number, 'default': 0 }
           };
         },
-        saveHook: function (model) {
-          return new Promise((resolve) => {
-            model.newProperty = 1;
-            resolve();
+        mixin: function (model) {
+          model.pre('save', function (next) {
+            this.newProperty = 1;
+            next();
           });
         }
       };

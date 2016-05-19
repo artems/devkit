@@ -11,12 +11,6 @@ describe('services/model', function () {
     };
 
     const addon1 = {
-      saveHook: function (model) {
-        model.test = 42;
-
-        return Promise.resolve(model);
-      },
-
       extender: function () {
         return {
           test: {

@@ -8,7 +8,6 @@ import * as PullRequestModel from './collections/pull-request';
 export default function setup(options, imports) {
 
   const mixins = {};
-  const saveHooks = {};
   const extenders = {};
 
   const mongoose = imports.mongoose;
@@ -23,17 +22,15 @@ export default function setup(options, imports) {
 
       if (!mixins[modelName]) {
         mixins[modelName] = [];
-        saveHooks[modelName] = [];
         extenders[modelName] = [];
       }
 
       addon.mixin && mixins[modelName].push(addon.mixin);
-      addon.saveHook && saveHooks[modelName].push(addon.saveHook);
       addon.extender && extenders[modelName].push(addon.extender);
     });
   });
 
-  const broker = new AddonBroker(mixins, saveHooks, extenders);
+  const broker = new AddonBroker(mixins, extenders);
 
   const setup = function setup(modelName, module) {
     // setup schema
@@ -44,9 +41,6 @@ export default function setup(options, imports) {
     // setup methods
     module.setupModel(modelName, mongooseModel);
     broker.setupModel(modelName, mongooseModel);
-
-    // setup save hooks
-    broker.setupSaveHooks(modelName, mongooseModel);
 
     // register model
     mongoose.model(modelName, mongooseModel);
