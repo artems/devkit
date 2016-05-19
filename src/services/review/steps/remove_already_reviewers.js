@@ -1,4 +1,4 @@
-import { filter, forEach, isEmpty } from 'lodash';
+import { chain, filter, forEach, isEmpty } from 'lodash';
 
 /**
  * Remove members which are already reviewers.
@@ -11,22 +11,30 @@ function removeAlreadyReviewers(review) {
   const reviewers = review.pullRequest.get('review.reviewers');
 
   if (isEmpty(reviewers)) {
-    return Promise.resolve(review);
+    return Promise.resolve([]);
   }
 
-  review.members = filter(review.members, (member) => {
-    let keep = true;
+  const result = chain(review.members)
+    .filter(member => {
+      let remove = false;
 
-    forEach(reviewers, (reviewer) => {
-      if (reviewer.login === member.login) {
-        keep = false;
+      forEach(reviewers, (reviewer) => {
+        if (reviewer.login === member.login) {
+          remove = true;
+        }
+      });
+
+      return remove;
+    })
+    .map(member => {
+      return {
+        rank: -Infinity,
+        login: member.login
       }
-    });
+    })
+    .value();
 
-    return keep;
-  });
-
-  return Promise.resolve(review);
+  return Promise.resolve(result);
 }
 
 /**

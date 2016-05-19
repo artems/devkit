@@ -132,9 +132,6 @@ export function decRank(options, review) {
  * @return {Promise.<Review>}
  */
 export function pathRelated(review, options) {
-  // TODO log error
-  const next = () => review;
-
   return getFiles(review.pullRequest)
     .then(files => {
       const inc = Promise.resolve(files)
@@ -142,18 +139,8 @@ export function pathRelated(review, options) {
       const dec = Promise.resolve(files)
         .then(decRank(_.assign({}, options, { pattern: options.decPattern }), review))
 
-      return Promise.all([inc, dec])
-        .then(values => {
-          return _.chain(values).groupBy('login').map(values => {
-            return {
-              rank: _.sum(_.map(values, 'rank')),
-              login: values[0].login,
-            };
-          })
-          .value();
-        });
-    })
-    .then(next, next);
+      return Promise.all([inc, dec]).then(([inc, dec]) => inc.concat(dec));
+    });
 }
 
 /**

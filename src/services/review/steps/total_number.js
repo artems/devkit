@@ -12,9 +12,15 @@ import { take } from 'lodash';
 function totalNumber(review, options) {
   const max = options.max;
 
-  review.members = take(review.members, max);
+  const result = take(review.members, max)
+    .map(member => {
+      return {
+        login: member.login,
+        rank: Infinity
+      };
+    });
 
-  return Promise.resolve(review);
+  return Promise.resolve(result);
 }
 
 /**

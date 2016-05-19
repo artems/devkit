@@ -1,4 +1,4 @@
-import { forEach } from 'lodash';
+import { chain } from 'lodash';
 
 /**
  * Add random rank to every team member.
@@ -12,11 +12,17 @@ import { forEach } from 'lodash';
 function random(review, options) {
   const max = options.max;
 
-  forEach(review.members, (member) => {
-    member.rank += Math.floor(Math.random() * (max + 1));
-  });
+  let reviewers = chain(review.members)
+    .map(member => {
+      return {
+        rank: Math.floor(Math.random() * (max + 1)),
+        login: member.login
+      };
+    })
+    .filter(member => member.rank > 0)
+    .value();
 
-  return Promise.resolve(review);
+  return Promise.resolve(reviewers);
 }
 
 /**

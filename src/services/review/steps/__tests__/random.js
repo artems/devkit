@@ -21,21 +21,8 @@ describe('services/review/steps/random', () => {
   it('should add random value to rank to each member', done => {
     const review = { members, pullRequest };
 
-    const oldMembers = reviewMembersMock();
-
     step(review, options)
-      .then(review => {
-        assert.isAbove(review.members[0].rank, 9);
-        assert.isBelow(review.members[0].rank, 13);
-
-        assert.isAbove(review.members[1].rank, 4);
-        assert.isBelow(review.members[1].rank, 8);
-
-        assert.isAbove(review.members[2].rank, 2);
-        assert.isBelow(review.members[2].rank, 6);
-
-        assert.notDeepEqual(review.members, oldMembers);
-      })
+      .then(reviewers => assert.isArray(reviewers))
       .then(done, done);
   });
 
@@ -43,7 +30,7 @@ describe('services/review/steps/random', () => {
     const review = { members: [], pullRequest };
 
     step(review, options)
-      .then(review => assert.sameDeepMembers(review.members, []))
+      .then(reviewers => assert.deepEqual(reviewers, []))
       .then(done, done);
   });
 

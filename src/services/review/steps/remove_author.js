@@ -1,4 +1,4 @@
-import { filter } from 'lodash';
+import { find } from 'lodash';
 
 /**
  * Remove author from review.
@@ -8,13 +8,15 @@ import { filter } from 'lodash';
  * @return {Promise.<Review>}
  */
 function removeAuthor(review) {
+  let result = [];
   const author = review.pullRequest.get('user.login');
+  const member = find(review.members, { login: author });
 
-  review.members = filter(review.members, (member) => {
-    return member.login !== author;
-  });
+  if (member) {
+    result = [{ login: member.login, rank: -Infinity }];
+  }
 
-  return Promise.resolve(review);
+  return Promise.resolve(result);
 }
 
 /**

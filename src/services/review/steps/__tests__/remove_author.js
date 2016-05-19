@@ -21,17 +21,12 @@ describe('services/review/steps/remove_author', () => {
   it('should remove author from team', done => {
     const review = { members, pullRequest };
 
-    const membersAltered = [
-      { login: 'Hulk', rank: 8 },
-      { login: 'Thor', rank: 3 },
-      { login: 'Hawkeye', rank: 3 },
-      { login: 'Iron Man', rank: 7 },
-      { login: 'Spider-Man', rank: 6 },
-      { login: 'Captain America', rank: 5 }
+    const expected = [
+      { login: 'Black Widow', rank: -Infinity }
     ];
 
     step(review)
-      .then(review => assert.sameDeepMembers(review.members, membersAltered))
+      .then(actual => assert.sameDeepMembers(actual, expected))
       .then(done, done);
   });
 
@@ -39,7 +34,7 @@ describe('services/review/steps/remove_author', () => {
     const review = { members: [], pullRequest };
 
     step(review)
-      .then(review => assert.sameDeepMembers(review.members, []))
+      .then(actual => assert.deepEqual(actual, []))
       .then(done, done);
   });
 

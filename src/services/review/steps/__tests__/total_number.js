@@ -21,13 +21,13 @@ describe('services/review/steps/total_number', function () {
   it('should keep only `option.max` members', function (done) {
     const review = { members, pullRequest };
 
-    const reviewers = [
-      { login: 'Black Widow', rank: 10 },
-      { login: 'Captain America', rank: 5 }
+    const expected = [
+      { login: 'Black Widow', rank: Infinity },
+      { login: 'Captain America', rank: Infinity }
     ];
 
     step(review, options)
-      .then(review => assert.sameDeepMembers(review.members, reviewers))
+      .then(actual => assert.sameDeepMembers(actual, expected))
       .then(done, done);
   });
 
@@ -35,7 +35,7 @@ describe('services/review/steps/total_number', function () {
     const review = { members: [], pullRequest };
 
     step(review, options)
-      .then(review => assert.sameDeepMembers(review.members, []))
+      .then(actual => assert.deepEqual(actual, []))
       .then(done, done);
   });
 

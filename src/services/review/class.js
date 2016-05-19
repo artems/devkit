@@ -121,22 +121,18 @@ export default class ReviewerAssignment {
       'stepsOptions', this.options.stepsOptions || {}
     );
 
-    return review.steps.reduce((queue, { ranker, name }) => {
+    const promise = review.steps.map(({ ranker, name }) => {
+      return ranker(review, stepsOptions[name]);
+    });
 
-      return queue.then(review => {
-        this.logger.info('Phase is `%s`', name);
+    return Promise.all(promise).then(ranks => {
+      review.ranks = ranks;
+      return review;
+    });
+  }
 
-        this.logger.info(
-          'Temporary ranks are: %s',
-          map(review.members, (x) => x.login + '#' + x.rank).join(' ')
-        );
-
-        const rankerOptions = stepsOptions[name];
-
-        return ranker(review, rankerOptions);
-      });
-
-    }, Promise.resolve(review));
+  countRanks(review) {
+    return review;
   }
 
   /**
@@ -156,6 +152,7 @@ export default class ReviewerAssignment {
       .then(::this.setSteps)
       .then(::this.addZeroRank)
       .then(::this.stepsQueue)
+      .then(::this.countRanks)
       .then(review => {
         this.logger.info('Complete %s', review.pullRequest);
 

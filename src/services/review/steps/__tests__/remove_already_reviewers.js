@@ -26,16 +26,13 @@ describe('services/review/steps/remove_already_reviewers', function () {
   it('should remove already reviewers', function (done) {
     const review = { members, pullRequest };
 
-    const membersAltered = [
-      { login: 'Thor', rank: 3 },
-      { login: 'Hawkeye', rank: 3 },
-      { login: 'Iron Man', rank: 7 },
-      { login: 'Black Widow', rank: 10 },
-      { login: 'Captain America', rank: 5 }
+    const expected = [
+      { login: 'Hulk', rank: -Infinity },
+      { login: 'Spider-Man', rank: -Infinity },
     ];
 
     step(review)
-      .then(review => assert.sameDeepMembers(review.members, membersAltered))
+      .then(actual => assert.sameDeepMembers(actual, expected))
       .then(done, done);
   });
 
@@ -43,18 +40,16 @@ describe('services/review/steps/remove_already_reviewers', function () {
     const review = { members: [], pullRequest };
 
     step(review)
-      .then(review => assert.sameDeepMembers(review.members, []))
+      .then(actual => assert.deepEqual(actual, []))
       .then(done, done);
   });
 
   it('should do nothing if there are no reviewers', function (done) {
     pullRequest.review.reviewers = [];
-
     const review = { members, pullRequest };
-    const oldMembers = reviewMembersMock();
 
     step(review)
-      .then(review => assert.sameDeepMembers(review.members, oldMembers))
+      .then(actual => assert.deepEqual(actual, []))
       .then(done, done);
   });
 

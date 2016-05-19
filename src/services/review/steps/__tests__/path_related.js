@@ -74,22 +74,12 @@ describe('services/review/steps/path_related', function () {
       const step = incRank(options, { members: team });
 
       step(['test.js'])
-        .then(() => {
-
-          let counter = 0;
-          const clone = reviewMembersMock();
-
-          _.forEach(members, (member) => {
-            const newRank = _.find(team, { login: member }).rank;
-            const oldRank = _.find(clone, { login: member }).rank;
-
-            if (newRank > oldRank) counter++;
-
-            assert.isAtLeast(newRank, oldRank);
+        .then(reviewers => {
+          _.forEach(reviewers, (member) => {
+            assert.isAtLeast(member.rank, 0);
           });
 
-          assert.isAbove(counter, 0);
-
+          assert.isAbove(reviewers.length, 0);
         })
         .then(done, done);
     });
@@ -98,16 +88,7 @@ describe('services/review/steps/path_related', function () {
       const step = incRank(options, { members: team });
 
       step(['test.css'])
-        .then(() => {
-          const clone = reviewMembersMock();
-
-          _.forEach(members, (member) => {
-            const newRank = _.find(team, { login: member }).rank;
-            const oldRank = _.find(clone, { login: member }).rank;
-
-            assert.equal(newRank, oldRank);
-          });
-        })
+        .then(reviewers => assert.deepEqual(reviewers, []))
         .then(done, done);
     });
   });
@@ -126,22 +107,12 @@ describe('services/review/steps/path_related', function () {
       const step = decRank(options, { members: team });
 
       step(['test.js'])
-        .then(() => {
-
-          let counter = 0;
-          const clone = reviewMembersMock();
-
-          _.forEach(members, (member) => {
-            const newRank = _.find(team, { login: member }).rank;
-            const oldRank = _.find(clone, { login: member }).rank;
-
-            if (newRank < oldRank) counter++;
-
-            assert.isAtMost(newRank, oldRank);
+        .then(reviewers => {
+          _.forEach(reviewers, (member) => {
+            assert.isAtMost(member.rank, 0);
           });
 
-          assert.isAbove(counter, 0);
-
+          assert.isAbove(reviewers.length, 0);
         })
         .then(done, done);
     });
@@ -150,16 +121,7 @@ describe('services/review/steps/path_related', function () {
       const step = decRank(options, { members: team });
 
       step(['test.css'])
-        .then(() => {
-          const clone = reviewMembersMock();
-
-          _.forEach(members, (member) => {
-            const newRank = _.find(team, { login: member }).rank;
-            const oldRank = _.find(clone, { login: member }).rank;
-
-            assert.equal(newRank, oldRank);
-          });
-        })
+        .then(reviewers => assert.deepEqual(reviewers, []))
         .then(done, done);
     });
   });
@@ -189,12 +151,11 @@ describe('services/review/steps/path_related', function () {
       pullRequest.files = [{ filename: 'a.js' }];
       pullRequest.review.reviewers = membersMock();
 
-      const oldRank = _.find(review.members, { login: 'Hulk' }).rank;
-
       step(review, options)
-        .then(() => {
-          const newRank = _.find(review.members, { login: 'Hulk' }).rank;
-          assert.isAbove(newRank, oldRank);
+        .then(members => {
+          const reviewer = _.find(members, { login: 'Hulk' });
+          assert.isAbove(reviewer.rank, 0);
+          assert.isBelow(reviewer.rank, 6);
         })
         .then(done, done);
     });
@@ -205,12 +166,11 @@ describe('services/review/steps/path_related', function () {
       pullRequest.files = [{ filename: 'a.json' }];
       pullRequest.review.reviewers = membersMock();
 
-      const oldRank = _.find(review.members, { login: 'Hulk' }).rank;
-
       step(review, options)
-        .then(() => {
-          const newRank = _.find(review.members, { login: 'Hulk' }).rank;
-          assert.isBelow(newRank, oldRank);
+        .then(members => {
+          const reviewer = _.find(members, { login: 'Hulk' });
+          assert.isAbove(reviewer.rank, -6);
+          assert.isBelow(reviewer.rank, 0);
         })
         .then(done, done);
     });
