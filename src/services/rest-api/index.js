@@ -12,6 +12,12 @@ export default function (options, imports) {
     res.error(error);
   };
 
+  restApiRouter.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+  });
+
   restApiRouter.get('/pull/:id', (req, res) => {
     PullRequestModel
       .findById(req.params.id)
