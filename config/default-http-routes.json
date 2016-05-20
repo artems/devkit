@@ -8,6 +8,16 @@
       "pull-request-model",
       "pull-request-github"
     ]
+  },
+
+  "http-route-rest-api": {
+    "path": "./src/services/rest-api",
+    "dependencies": [
+      "logger",
+      "pull-request-model",
+      "pull-request-review"
+    ]
   }
+
 
 }
