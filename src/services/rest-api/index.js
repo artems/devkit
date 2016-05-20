@@ -1,11 +1,9 @@
-import _ from 'lodash';
 import { Router as router } from 'express';
 
 export default function (options, imports) {
 
   const logger = imports.logger;
   const PullRequestModel = imports['pull-request-model'];
-  const pullRequestReveiew = imports['pull-request-review'];
 
   const restApiRouter = router();
 

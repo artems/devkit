@@ -1,4 +1,4 @@
-import { map, forEach, isEmpty } from 'lodash';
+import { forEach, isEmpty, flatten } from 'lodash';
 
 export default class ReviewerAssignment {
 
@@ -126,12 +126,35 @@ export default class ReviewerAssignment {
     });
 
     return Promise.all(promise).then(ranks => {
-      review.ranks = ranks;
-      return review;
+      return { review, ranks };
     });
   }
 
-  countRanks(review) {
+  countRanks({ review, ranks }) {
+    const members = {};
+
+    flatten(ranks).forEach(member => {
+      if (!members[member.login]) {
+        members[member.login] = 0;
+      }
+      if (Number.isFinite(members[member.login])) {
+        members[member.login] += member.rank;
+      }
+    });
+
+    review.ranks = Object.keys(members)
+      .sort((a, b) => {
+        if (members[a] === Infinity) return -1;
+        if (members[a] === -Infinity) return 1;
+        if (members[b] === Infinity) return 1;
+        if (members[b] === -Infinity) return -1;
+
+        return members[b] - members[a];
+      })
+      .map(login => {
+        return { login, rank: members[login] };
+      });
+
     return review;
   }
 

@@ -25,7 +25,7 @@ describe('services/command/replace', function () {
     review = reviewMock();
 
     review.choose.returns(Promise.resolve({
-      members: [{ login: 'Spider-Man' }], pullRequest
+      ranks: [{ login: 'Spider-Man' }], pullRequest
     }));
 
     teamDispatcher = teamDispatcherMock();

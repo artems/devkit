@@ -20,7 +20,7 @@ describe('services/command/busy', function () {
     review = reviewMock();
 
     review.choose.returns(Promise.resolve({
-      members: [{ login: 'Black Widow' }], pullRequest
+      ranks: [{ login: 'Black Widow' }], pullRequest
     }));
 
     pullRequest = pullRequestMock();

@@ -103,7 +103,7 @@ export function decRank(options, review) {
     const rank = Math.floor(Math.random() * max) + 1;
     const isApplicable = isMatchAll(files, pattern);
 
-    let reviewers =[];
+    let reviewers = [];
 
     if (isApplicable) {
       reviewers = _.chain(review.members)
@@ -135,9 +135,9 @@ export function pathRelated(review, options) {
   return getFiles(review.pullRequest)
     .then(files => {
       const inc = Promise.resolve(files)
-        .then(incRank(_.assign({}, options, { pattern: options.incPattern }), review))
+        .then(incRank(_.assign({}, options, { pattern: options.incPattern }), review));
       const dec = Promise.resolve(files)
-        .then(decRank(_.assign({}, options, { pattern: options.decPattern }), review))
+        .then(decRank(_.assign({}, options, { pattern: options.decPattern }), review));
 
       return Promise.all([inc, dec]).then(([inc, dec]) => inc.concat(dec));
     });

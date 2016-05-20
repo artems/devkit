@@ -175,10 +175,10 @@ describe('services/review/ReviewerAssignment', function () {
     beforeEach(function () {
 
       imports['reviewer-assignment-step-step1'] = function (review) {
-        return Promise.resolve(review);
+        return Promise.resolve({ rank: 1, login: 'Spider-Man' });
       };
       imports['reviewer-assignment-step-step2'] = function (review) {
-        return Promise.resolve(review);
+        return Promise.resolve({ rank: 2, login: 'Black Widow' });
       };
 
       review = new ReviewerAssignment(options, imports);
@@ -199,6 +199,32 @@ describe('services/review/ReviewerAssignment', function () {
         .then(review => {
           assert.isArray(review.members);
           assert.isAbove(review.members.length, 0);
+          assert.isArray(review.ranks);
+          assert.isAbove(review.ranks.length, 0);
+        })
+        .then(done, done);
+    });
+
+    it('should return resolved pormise with chosen reviewers ordered by rank', function (done) {
+      imports['reviewer-assignment-step-step1'] = function (review) {
+        return Promise.resolve([
+          { rank: 1, login: 'Spider-Man' },
+          { rank: Infinity, login: 'Thor' }
+        ]);
+      };
+      imports['reviewer-assignment-step-step2'] = function (review) {
+        return Promise.resolve([
+          { rank: 2, login: 'Black Widow' },
+          { rank: -Infinity, login: 'Hulk' }
+        ]);
+      };
+
+      review.choose(pullRequest)
+        .then(review => {
+          assert.equal(review.ranks[0].login, 'Thor');
+          assert.equal(review.ranks[1].login, 'Black Widow');
+          assert.equal(review.ranks[2].login, 'Spider-Man');
+          assert.equal(review.ranks[3].login, 'Hulk');
         })
         .then(done, done);
     });

@@ -1,4 +1,4 @@
-import { chain, filter, forEach, isEmpty } from 'lodash';
+import { chain, forEach, isEmpty } from 'lodash';
 
 /**
  * Remove members which are already reviewers.
@@ -30,7 +30,7 @@ function removeAlreadyReviewers(review) {
       return {
         rank: -Infinity,
         login: member.login
-      }
+      };
     })
     .value();
 

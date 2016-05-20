@@ -28,7 +28,7 @@ describe('services/review/steps/remove_already_reviewers', function () {
 
     const expected = [
       { login: 'Hulk', rank: -Infinity },
-      { login: 'Spider-Man', rank: -Infinity },
+      { login: 'Spider-Man', rank: -Infinity }
     ];
 
     step(review)

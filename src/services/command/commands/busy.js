@@ -44,10 +44,10 @@ export default function setup(options, imports) {
     }
 
     return review.choose(pullRequest)
-      .then(({ members }) => {
+      .then(({ ranks }) => {
         // TODO handle an empty team.
 
-        newReviewer = cloneDeep(members.shift());
+        newReviewer = cloneDeep(ranks.shift());
 
         pullRequestReviewers = reject(
           pullRequestReviewers, { login: commentUser }
