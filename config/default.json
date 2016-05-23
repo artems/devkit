@@ -57,12 +57,14 @@
       "options": {
         "port": "8080",
         "routes": {
+          "/badges": "http-route-badges",
           "/github": "http-route-github",
           "/api/v1/": "http-route-rest-api"
         }
       },
       "dependencies": [
         "logger",
+        "http-route-badges",
         "http-route-github",
         "http-route-rest-api"
       ]

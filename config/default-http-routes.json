@@ -1,5 +1,9 @@
 {
 
+  "http-route-badges": {
+    "path": "./src/services/badges"
+  },
+
   "http-route-github": {
     "path": "./src/services/pull-request-webhook",
     "dependencies": [
@@ -18,6 +22,5 @@
       "pull-request-review"
     ]
   }
-
 
 }
