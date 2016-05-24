@@ -42,7 +42,7 @@
     "minimatch": "^3.0.0",
     "moment": "^2.10.6",
     "mongoose": "^4.4.7",
-    "node-xmpp-client": "3.0.0",
+    "node-xmpp-client": "^3.0.0",
     "nodemailer": "^2.3.1",
     "response-time": "^2.3.1"
   },

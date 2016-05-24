@@ -1,7 +1,10 @@
 import { Schema } from 'mongoose';
 
 const Contact = new Schema({
-  id: String,
+  id: {
+    type: String,
+    'enum': ['mail', 'jabber']
+  },
   account: String
 });
 
@@ -35,6 +38,10 @@ export function setupModel(modelName, model) {
     return this
       .model(modelName)
       .findById(login);
+  };
+
+  model.methods.getContacts = function () {
+    return this.contacts || [];
   };
 
 }

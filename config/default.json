@@ -86,14 +86,16 @@
         "addons": {
           "pull_request": [
             "pull-request-github-addon",
-            "pull-request-review-addon"
+            "pull-request-review-addon",
+            "pull-request-complexity-addon"
           ]
         }
       },
       "dependencies": [
         "mongoose",
         "pull-request-github-addon",
-        "pull-request-review-addon"
+        "pull-request-review-addon",
+        "pull-request-complexity-addon"
       ]
     },
 
@@ -225,7 +227,18 @@
       ]
     },
 
-    "#include:command": "./default-command.json"
+    "#include:command": "./default-command.json",
+
+    "notification": {
+      "path": "./src/services/notification",
+      "dependencies": [
+        "model"
+      ]
+    },
+
+    "#include:notification": "./default-notification.json",
+
+    "#include:plugins": "./default-plugins.json"
 
   }
 }

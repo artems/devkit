@@ -1,0 +1,7 @@
+{
+
+    "pull-request-complexity-addon": {
+      "path": "./src/services/complexity/addon"
+    }
+
+}
