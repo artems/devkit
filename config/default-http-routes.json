@@ -1,7 +1,12 @@
 {
 
-  "http-route-badges": {
-    "path": "./src/services/badges"
+  "http-route-api": {
+    "path": "./src/services/api",
+    "dependencies": [
+      "logger",
+      "pull-request-model",
+      "pull-request-review"
+    ]
   },
 
   "http-route-github": {
@@ -14,13 +19,8 @@
     ]
   },
 
-  "http-route-rest-api": {
-    "path": "./src/services/rest-api",
-    "dependencies": [
-      "logger",
-      "pull-request-model",
-      "pull-request-review"
-    ]
+  "http-route-badges": {
+    "path": "./src/plugins/badges-http"
   }
 
 }

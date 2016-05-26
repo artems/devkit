@@ -1,6 +1,6 @@
 import { forEach } from 'lodash';
 
-import service, { constructRegexp } from '../index';
+import service, { buildRegExp } from '../index';
 import queueMock from '../../queue/__mocks__/index';
 import eventsMock from '../../events/__mocks__/index';
 import loggerMock from '../../logger/__mocks__/index';
@@ -96,7 +96,7 @@ describe('service/command', function () {
     assert.throws(() => service(options, imports), /not found/);
   });
 
-  describe('#constructRegexp', function () {
+  describe('#buildRegExp', function () {
 
     const testCases = [
       {
@@ -121,7 +121,7 @@ describe('service/command', function () {
 
     testCases.forEach(command => {
 
-      const regexp = constructRegexp(command.test);
+      const regexp = buildRegExp(command.test);
 
       forEach(command.positive, (comment) => {
         it('should find command using regexp — ' + command.test, function () {

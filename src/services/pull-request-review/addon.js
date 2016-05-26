@@ -36,7 +36,7 @@ export default function setup(options, imports) {
 
         return this
           .model(modelName)
-          .find(req, 'review')
+          .find(req)
           .exec();
       };
 

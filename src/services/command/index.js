@@ -1,19 +1,16 @@
 import { get, forEach } from 'lodash';
 import CommandDispatcher from './dispatcher';
 
-export function constructRegexp(commandRegexp) {
-  return new RegExp('(?:^|\\s)(?:' + commandRegexp + ')(?:\\s|$)', 'i');
+export function buildRegExp(commandRE) {
+  return new RegExp('(?:^|\\s)(?:' + commandRE + ')(?:\\s|$)', 'i');
 }
 
 export default function setup(options, imports) {
 
-  const {
-    queue,
-    events,
-    'pull-request-model': PullRequestModel
-  } = imports;
-
+  const queue = imports.queue;
+  const events = imports.events;
   const logger = imports.logger.getLogger('command');
+  const PullRequestModel = imports['pull-request-model'];
 
   const wrapHandler = function (handler) {
 
@@ -39,8 +36,11 @@ export default function setup(options, imports) {
   };
 
   const commands = options.commands.map(command => {
+
     return {
-      test: constructRegexp(command.test),
+
+      test: buildRegExp(command.test),
+
       handlers: command.handlers.map(serviceName => {
         const handler = imports[serviceName];
 
@@ -51,6 +51,7 @@ export default function setup(options, imports) {
         return wrapHandler(handler);
       })
     };
+
   });
 
   const dispatcher = new CommandDispatcher(commands);
@@ -61,9 +62,10 @@ export default function setup(options, imports) {
 
       dispatcher
         .dispatch(comment, payload)
-        .catch(::logger.error);
+        .catch(logger.error.bind(this));
     });
   });
 
   return dispatcher;
+
 }

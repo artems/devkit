@@ -59,14 +59,14 @@
         "routes": {
           "/badges": "http-route-badges",
           "/github": "http-route-github",
-          "/api/v1/": "http-route-rest-api"
+          "/api/v1/": "http-route-api"
         }
       },
       "dependencies": [
         "logger",
+        "http-route-api",
         "http-route-badges",
-        "http-route-github",
-        "http-route-rest-api"
+        "http-route-github"
       ]
     },
 

@@ -5,7 +5,7 @@ export default class CommandDispatcher {
   /**
    * @constructor
    *
-   * @param {Array<Command>} store - list of commands
+   * @param {Array.<Command>} store - list of commands
    */
   constructor(store) {
     this.store = store || [];
@@ -55,6 +55,7 @@ export default class CommandDispatcher {
 
 /**
  * @callback CommandHandler
+ *
  * @param {String} comment - comment line with command.
  * @param {Object} payload - issue payload from github.
  * @param {Array}  arglist - parsed arguments for command.
