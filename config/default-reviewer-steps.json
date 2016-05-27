@@ -8,36 +8,144 @@
   },
 
   "reviewer-assignment-step-ignore": {
-    "path": "./src/services/review/steps/ignore"
+    "path": "./src/services/review/steps/ignore",
+    "options": {
+      "list": []
+    }
+  },
+
+  "reviewer-assignment-step-ignore-serp": {
+    "path": "./src/services/review/steps/ignore",
+    "options": {
+      "list": [
+        "binarycat",
+        "vitaly", "kuznecov", "tadatuta", "gela-d", "einstain",
+        "karamadjong", "persidskiy", "incrop", "qfox", "birhoff",
+        "yeti-or", "borodindk", "anyatyu", "smdenis", "sagitov"
+      ]
+    }
+  },
+
+  "reviewer-assignment-step-ignore-lego": {
+    "path": "./src/services/review/steps/ignore",
+    "options": {
+      "list": ["xoxulin"]
+    }
   },
 
   "reviewer-assignment-step-commiters": {
     "path": "./src/services/review/steps/commiters",
+    "options": {
+      "max": 7,
+      "since": [4, "month"],
+      "filesToCheck": 5,
+      "commitsCount": 10,
+      "ignore": ["-i18n"]
+    },
     "dependencies": [
       "github"
     ]
   },
 
   "reviewer-assignment-step-path-related": {
-    "path": "./src/services/review/steps/path_related"
+    "path": "./src/services/review/steps/path_related",
+    "options": {
+    }
+  },
+
+  "reviewer-assignment-step-path-related-constructor": {
+    "path": "./src/services/review/steps/path_related",
+    "options": {
+      "max": 5,
+      "members": ["lostsoul", "hatroman", "jabs"],
+      "incPattern": ["constructor/**", "adapters/**"]
+    }
+  },
+
+  "reviewer-assignment-step-path-related-infra": {
+    "path": "./src/services/review/steps/path_related",
+    "options": {
+      "max": 9,
+      "members": ["rudeshko", "alex-k", "zumra6a"],
+      "incPattern": [
+        ".enb/**",
+        ".bowerrc",
+        ".borschik",
+        ".githooks/**",
+        ".tanker/**",
+        ".gitignore",
+        ".npmrc",
+        ".yaspeller.dictionary.json",
+        "bower.json",
+        "configs/**",
+        "gemini/**",
+        "GNUmakefile",
+        "i-global/__config/**",
+        "npm-shrinkwrap.json",
+        "package.json",
+        "tools/**"
+      ],
+      "decPattern": [
+        "!.enb/**",
+        "!.bowerrc",
+        "!.borschik",
+        "!.githooks",
+        "!.gitignore",
+        "!.npmrc",
+        "!.yaspeller.dictionary.json",
+        "!.tanker/**",
+        "!bower.json",
+        "!configs/**",
+        "!gemini/**",
+        "!GNUmakefile",
+        "!i-global/__config/**",
+        "!npm-shrinkwrap.json",
+        "!package.json",
+        "!tools/**"
+      ]
+    }
   },
 
   "reviewer-assignment-step-random": {
-    "path": "./src/services/review/steps/random"
+    "path": "./src/services/review/steps/random",
+    "options": { "max": 5 }
   },
 
   "reviewer-assignment-step-load": {
     "path": "./src/services/review/steps/load",
+    "options": { "max": 1 },
     "dependencies": [
       "pull-request-model"
     ]
   },
 
-  "reviewer-assignment-step-sort": {
-    "path": "./src/services/review/steps/sort"
+  "reviewer-assignment-step-prefered-reviewers": {
+    "path": "./src/plugins/review/steps/prefered-reviewers",
+    "dependencies": [
+      "logger",
+      "team-dispatcher"
+    ]
   },
 
-  "reviewer-assignment-step-total-number": {
-    "path": "./src/services/review/steps/total_number"
+  "reviewer-assignment-step-special-reviewers": {
+    "path": "./src/plugins/review/steps/special-reviewers",
+    "dependencies": [
+      "special-checker"
+    ]
+  },
+
+  "reviewer-assignment-step-responsible": {
+    "path": "./src/plugins/review/steps/responsible",
+    "dependencies": [
+      "components-api"
+    ]
+  },
+
+  "reviewer-assignment-step-sakhalin": {
+    "path": "./src/plugins/review/steps/sakhalin",
+    "options": {
+      "upRankCount": 10
+    }
   }
+
 }

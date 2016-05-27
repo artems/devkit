@@ -1,5 +1,6 @@
 import moment from 'moment';
 import schedule from 'node-schedule';
+import { forEach } from 'lodash';
 
 const EVENT_NAME = 'review:schedule:ping';
 
@@ -67,7 +68,7 @@ export default function setup(options, imports) {
   }
 
   function shutdown() {
-    schedule.scheduledJobs.map(x => x).forEach(x => x.cancel());
+    forEach(schedule.scheduledJobs, (x) => x.cancel());
   }
 
   events.on('review:approved', onReviewDone);

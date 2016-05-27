@@ -20,7 +20,44 @@
   },
 
   "http-route-badges": {
-    "path": "./src/plugins/badges-http"
+    "path": "./src/plugins/badges-http",
+    "options": {
+        "template": "flat-square"
+    }
+  },
+
+  "http-routes-jabber": {
+    "path": "./src/services/notification/transports/jabber/routes",
+    "dependencies": [
+      "logger",
+      "jabber"
+    ]
+  },
+
+  "http-routes-yandex-staff": {
+    "path": "./src/plugins/yandex-staff/routes",
+    "dependencies": [
+      "logger",
+      "yandex-staff"
+    ]
+  },
+
+  "http-routes-team-dispatcher": {
+    "path": "./src/services/team-dispatcher/routes",
+    "dependencies": [
+      "logger",
+      "team-dispatcher",
+      "pull-request-model"
+    ]
+  },
+
+  "http-routes-badges-updater": {
+    "path": "./src/plugins/badges/routes",
+    "dependencies": [
+      "events",
+      "logger",
+      "team-dispatcher"
+    ]
   }
 
 }

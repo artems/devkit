@@ -1,8 +1,9 @@
-import got from 'got';
-import YandexStaff from './class';
+import YandexStaffTeam from './class';
 
-export default function (options) {
-  const service = new YandexStaff(got, options);
+export default function setup(options, imports) {
 
-  return service;
+  const staff = imports['yandex-staff'];
+
+  return new YandexStaffTeam(staff, options.groupId, options.overrides);
+
 }

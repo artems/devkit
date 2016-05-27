@@ -1,10 +1,10 @@
-import BadgeBase from '../base-badge';
+import BadgeBase from '../../../services/badges/base-badge';
 
 export const TESTS_NOT_EXISTS = 0;
 export const TESTS_EXISTS = 1;
 export const TESTS_CHANGE = 2;
 
-export class TestBadgeBuilder extends BadgeBase {
+export default class TestBadgeBuilder extends BadgeBase {
 
   /**
    * Create badge content.

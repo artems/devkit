@@ -1,0 +1,55 @@
+{
+  "services": {
+
+    "status-notification": {
+      "path": "./services/status-notification",
+      "options": {
+        "betaUsers": ["sysoev"]
+      },
+      "dependencies": [
+        "events",
+        "logger",
+        "github"
+      ]
+    },
+
+    "review-notification": {
+      "path": "./services/review-notification",
+      "options": {
+        "events": {
+          "review:started": "./services/review-notification/start-serp",
+          "review:command:add": "./services/review-notification/start-serp",
+          "review:command:change": "./services/review-notification/start-serp",
+          "review:command:busy": "./services/review-notification/start-serp",
+          "review:command:ping": "./services/review-notification/ping-serp",
+          "review:command:error": "./services/review-notification/error",
+          "review:command:help": "./services/review-notification/help",
+          "review:scheduler:ping": "./services/review-notification/ping-serp",
+          "review:complete": "./services/review-notification/complete-serp",
+
+          "notification:status:error": "./services/status-notification/error",
+          "notification:status:success": "./services/status-notification/success"
+        },
+        "transport": {
+          "default": ["jabber"],
+          "team-serp-staff": ["jabber"],
+          "team-devexp": ["slack-devexp"],
+          "team-serp-infraspeed": ["slack-devexp"],
+          "team-lego-staff": ["jabber"],
+          "team-news-staff": ["jabber"],
+          "team-mm-staff": ["slack-mm-interfaces"]
+        }
+      },
+      "dependencies": [
+        "events",
+        "logger",
+        "slack-devexp",
+        "slack-mm-interfaces",
+        "jabber",
+        "choose-team"
+      ]
+    }
+
+
+  }
+}

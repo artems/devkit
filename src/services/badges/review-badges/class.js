@@ -1,6 +1,6 @@
 import BadgeBase from '../base-badge';
 
-export class ReviewBadgeBuilder extends BadgeBase {
+export default class ReviewBadgeBuilder extends BadgeBase {
 
   /**
    * Map review status to color.

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import Client from '@slack/client';
+import { RtmClient as Client } from '@slack/client';
 
 export default class Slack {
 

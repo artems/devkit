@@ -17,7 +17,7 @@ export default function setup(options, imports) {
   });
 
   githubRouter.post('/webhook', function (req, res) {
-    const reject = (e) => { logger.error(e); res.error(e); };
+    const reject = (e) => { logger.error(e); res.error(e.message); };
     const resolve = () => res.ok({ status: 'ok' });
 
     const eventName = req.headers[GITHUB_HEADER_EVENT];

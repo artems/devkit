@@ -41,7 +41,7 @@ export default class Jabber {
     const client = new Client({
       jid: this.auth.login,
       password: this.auth.password,
-      reconnect: true,
+      reconnect: false,
       autostart: false
     });
 

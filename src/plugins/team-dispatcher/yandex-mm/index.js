@@ -6,7 +6,7 @@ export default function setup(options, imports) {
   const staff = imports['yandex-staff'];
 
   const teams = {
-    images: imports['team-mm-images-staff'],
+    image: imports['team-mm-image-staff'],
     video: imports['team-mm-video-staff']
   };
 

@@ -9,7 +9,7 @@ export default function (options, imports) {
 
   const catchError = (res) => (error) => {
     logger.error(error);
-    res.error(error);
+    res.error(error.message);
   };
 
   restApiRouter.use((req, res, next) => {

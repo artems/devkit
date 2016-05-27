@@ -93,5 +93,26 @@
       "events",
       "pull-request-review"
     ]
+  },
+
+  "command-help": {
+    "path": "./src/services/command/commands/help",
+    "options": {
+      "link": "https://wiki.yandex-team.ru/search-interfaces/review-faq/"
+    },
+    "dependencies": [
+      "events"
+    ]
+  },
+
+  "command-yandex-start": {
+    "path": "./src/plugins/command/commands/yandex-start",
+    "dependencies": [
+      "logger",
+      "events",
+      "yandex-staff",
+      "pull-request-review"
+    ]
   }
+
 }

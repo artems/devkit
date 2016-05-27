@@ -25,6 +25,34 @@
       "logger",
       "notification"
     ]
+  },
+
+  "jabber": {
+    "path": "./src/services/notification/transports/jabber",
+    "options": {
+      "auth": {
+        "login": "login@example.com",
+        "password": "P@$$W01d"
+      }
+    },
+    "dependencies": [
+      "events",
+      "logger",
+      "notification"
+    ]
+  },
+
+  "slack": {
+    "path": "./src/services/notification/transports/slack",
+    "options": {
+      "token": "0123456789abcdf",
+      "autoMark": true,
+      "autoReconnect": true,
+      "host": "yandex-team.ru"
+    },
+    "dependencies": [
+      "logger"
+    ]
   }
 
 }

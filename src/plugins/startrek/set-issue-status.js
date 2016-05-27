@@ -34,7 +34,7 @@ export default function setup(options, imports) {
   const logger = imports.logger;
   const startrek = imports['yandex-startrek'];
 
-  forEach(options.events.review, event => {
+  forEach(options.events, event => {
     events.on(event, payload => {
       setIssueStatus(startrek, options, payload, 'review')
         .catch(logger.error.bind(logger));

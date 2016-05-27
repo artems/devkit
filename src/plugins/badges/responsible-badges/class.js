@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
-import BadgeBase from '../base-badge';
+import BadgeBase from '../../../services/badges/base-badge';
 
-export class ResponsibleBadgeBuilder extends BadgeBase {
+export default class ResponsibleBadgeBuilder extends BadgeBase {
 
   /**
    * @constructor

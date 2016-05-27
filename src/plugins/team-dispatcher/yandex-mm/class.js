@@ -16,7 +16,7 @@ export default class YandexMMStaffTeam extends YandexStaffTeam {
     let prj;
 
     if (IMAGE_RE.test(pr.title)) {
-      prj = 'images';
+      prj = 'image';
     }
 
     if (VIDEO_RE.test(pr.title)) {
@@ -43,7 +43,7 @@ export default class YandexMMStaffTeam extends YandexStaffTeam {
   _updateTeamInfo(user, groupId) {
     return assign(user, {
       groupId,
-      mmTeam: this.teams.images.groupId.includes(groupId) ? 'images' : 'video'
+      mmTeam: this.teams.image.groupId.includes(groupId) ? 'image' : 'video'
     });
   }
 

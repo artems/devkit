@@ -1,4 +1,8 @@
 {
+  "startup_timeout": 10000,
+
+  "shutdown_timeout": 5000,
+
   "services": {
 
     "queue": {
@@ -57,16 +61,24 @@
       "options": {
         "port": "8080",
         "routes": {
-          "/badges": "http-route-badges",
+          "/api": "http-route-api",
           "/github": "http-route-github",
-          "/api/v1/": "http-route-api"
+          "/badges": "http-route-badges",
+          "/jabber": "http-routes-jabber",
+          "/staff": "http-routes-yandex-staff",
+          "/team": "http-routes-team-dispatcher",
+          "/badges-updater": "http-routes-badges-updater"
         }
       },
       "dependencies": [
         "logger",
         "http-route-api",
+        "http-route-github",
         "http-route-badges",
-        "http-route-github"
+        "http-routes-jabber",
+        "http-routes-yandex-staff",
+        "http-routes-team-dispatcher",
+        "http-routes-badges-updater"
       ]
     },
 
@@ -103,11 +115,21 @@
       "path": "./src/services/team-dispatcher",
       "options": {
         "routes": [
-          { "team-github": ["*/*"] }
+          { "team-devexp": ["devexp/devexp"] },
+          { "team-serp-staff": ["serp/web4"] },
+          { "team-lego-staff": ["lego/*"] },
+          { "team-news-staff": ["news/*"] },
+          { "team-serp-infraspeed": ["search-interfaces/ci"] },
+          { "team-mm-staff": ["mm-interfaces/fiji"] }
         ]
       },
       "dependencies": [
-        "team-github"
+        "team-devexp",
+        "team-serp-staff",
+        "team-lego-staff",
+        "team-news-staff",
+        "team-serp-infraspeed",
+        "team-mm-staff"
       ]
     },
 
@@ -124,8 +146,8 @@
       "path": "./src/services/pull-request-github",
       "options": {
         "separator": {
-          "top": "<div id='devexp-content-top'></div><hr>",
-          "bottom": "<div id='devexp-content-bottom'></div>"
+          "top": "\n<hr><span id=\"devexp-content-start\"></span>",
+          "bottom": "<span id=\"devexp-content-end\"></span>"
         }
       },
       "dependencies": [
@@ -164,7 +186,6 @@
           "random",
           "path-related",
           "load",
-          "sort",
           "total-number"
         ],
         "stepOptions": {
@@ -177,13 +198,12 @@
           },
           "path-related": {
             "max": 5,
-            "members": ["artems"],
+            "members": [],
             "incPattern": ["*.js"],
             "decPattern": ["*.json"]
           },
           "load": { "max": 1 },
-          "random": { "max": 5 },
-          "total-number": { "max": 2 }
+          "random": { "max": 5 }
         }
       },
       "dependencies": [
@@ -191,13 +211,18 @@
         "team-dispatcher",
         "reviewer-assignment-step-commiters",
         "reviewer-assignment-step-ignore",
+        "reviewer-assignment-step-ignore-lego",
         "reviewer-assignment-step-load",
         "reviewer-assignment-step-path-related",
+        "reviewer-assignment-step-path-related-constructor",
+        "reviewer-assignment-step-path-related-infra",
+        "reviewer-assignment-step-prefered-reviewers",
         "reviewer-assignment-step-random",
         "reviewer-assignment-step-remove-already-reviewers",
         "reviewer-assignment-step-remove-author",
-        "reviewer-assignment-step-sort",
-        "reviewer-assignment-step-total-number"
+        "reviewer-assignment-step-responsible",
+        "reviewer-assignment-step-sakhalin",
+        "reviewer-assignment-step-special-reviewers"
       ]
     },
 
@@ -223,7 +248,9 @@
         "command-replace",
         "command-change",
         "command-add",
-        "command-remove"
+        "command-remove",
+        "command-help",
+        "command-yandex-start"
       ]
     },
 
@@ -237,6 +264,20 @@
     },
 
     "#include:notification": "./default-notification.json",
+
+    "scheduler": {
+      "path": "./src/services/scheduler",
+      "options": {
+        "days": 1
+      },
+      "dependencies": [
+        "events",
+        "logger",
+        "pull-request-model"
+      ]
+    },
+
+    "#include:badges": "./default-badges.json",
 
     "#include:plugins": "./default-plugins.json"
 

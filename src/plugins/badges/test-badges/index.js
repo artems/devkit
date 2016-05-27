@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { pluck, flatten, forEach, map, zipObject, isEmpty } from 'lodash';
 
-import TestBadgeBuilder, { TESTS_NOT_EXISTS, TESTS_EXISTS, TESTS_CHANGE } from '../class';
+import TestBadgeBuilder, { TESTS_NOT_EXISTS, TESTS_EXISTS, TESTS_CHANGE } from './class';
 
 export default function setup(options, imports) {
 
@@ -213,6 +213,7 @@ export default function setup(options, imports) {
       })
       .then(body => {
         const badgeContent = builder.build(body);
+
         return queue.dispatch('pull-request#' + pr.id, () => {
           pullRequestGitHub.setBodySection(
             pr, 'test:badge', badgeContent, 75
