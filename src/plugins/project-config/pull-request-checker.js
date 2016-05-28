@@ -1,13 +1,10 @@
-import fs from 'fs';
 import _ from 'lodash';
-import minimatch from 'minimatch';
 
 export default function setup(options, imports) {
   const events = imports.events;
   const logger = imports.logger.getLogger('special');
   const specialChecker = imports['special-checker'];
-  const commandAdd = imports['command-add'];
-  const teamDispatcher = imports['team-dispatcher'];
+  const addCommand = imports['add-command'];
 
   function check(payload) {
     const review = payload.pullRequest.review;
@@ -22,12 +19,12 @@ export default function setup(options, imports) {
         const rulesToCheck = _.groupBy(patch.addMembers, 'pattern');
         const alreadyReviewers = review.members;
 
-        forEach(rulesToCheck, (members) => {
-          const logins = pluck(members, 'login');
-          const newReviewers = _.filter(alreadyReviewers, (user) => logins.includes(user.login)).length
+        _.forEach(rulesToCheck, (members) => {
+          const logins = _.map(members, 'login');
+          const newReviewers = _.filter(alreadyReviewers, (user) => logins.includes(user.login)).length;
           // check already reviewers by pattern groups
           if (!newReviewers) {
-            forEach(members, (member) => {
+            _.forEach(members, (member) => {
               addCommand(`/add ${member.login}`, payload, [member.login]);
             });
           }

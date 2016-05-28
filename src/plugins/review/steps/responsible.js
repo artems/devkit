@@ -1,4 +1,4 @@
-import { fileter, forEach, isEmpty } from 'lodash';
+import _, { filter, forEach, isEmpty } from 'lodash';
 
 function findResponsible(members, component, list) {
 
@@ -41,7 +41,7 @@ export default function setup(options, imports) {
    * @return {Promise}
    */
   function responsible(review, payload) {
-    const files = _.pluck(review.pullRequest.files, 'filename');
+    const files = _.map(review.pullRequest.files, 'filename');
 
     return componentsAPI
       .getResponsibles(null, { files }, 3600 * 24)

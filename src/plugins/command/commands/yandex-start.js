@@ -1,5 +1,4 @@
-import util from 'util';
-import { flatten, pluck, filter, get } from 'lodash';
+import { flatten, get } from 'lodash';
 
 const EVENT_NAME = 'review:command:start';
 const ERROR_EVENT_NAME = 'review:command:error';
@@ -22,7 +21,6 @@ export default function setup(options, imports) {
   const startCommand = function startCommand(command, payload) {
 
     const pullRequest = payload.pullRequest;
-    const commentUser = payload.comment.user.login;
 
     logger.info('"/start" %s', pullRequest);
 
@@ -43,10 +41,13 @@ export default function setup(options, imports) {
     return Promise
       .all(reviewers.map(user => staff.apiAbsence(user.login)))
       .then(absenceUsers => {
-        absenceUsers = filter(flatten(absenceUsers), (user) => get(user, 'gap_type__name') !== 'trip');
-        absenceUsers = pluck(absenceUsers, 'staff__login');
+        const excludeTrip = (user) => get(user, 'gap_type__name') !== 'trip';
+        absenceUsers = flatten(absenceUsers)
+          .filter(excludeTrip)
+          .map(absenceUsers, 'staff__login');
 
         if (absenceUsers.length) {
+          // TODO move message to notification
           events.emit(
             ERROR_EVENT_NAME,
             `Reviewers are absent: ${absenceUsers}. You can change them to somebody else.`

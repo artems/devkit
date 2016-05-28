@@ -16,7 +16,7 @@ const EVENT_NAME = 'review:schedule:ping';
 export default function setup(options, imports) {
 
   const events = imports.events;
-  const logger = imports.logger;
+  const logger = imports.logger.getLogger('schedule');
   const PullRequestModel = imports['pull-request-model'];
 
   function cancelJob(payload) {
@@ -68,6 +68,8 @@ export default function setup(options, imports) {
   }
 
   function shutdown() {
+    logger.info('shutdown');
+
     forEach(schedule.scheduledJobs, (x) => x.cancel());
   }
 

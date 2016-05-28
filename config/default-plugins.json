@@ -30,7 +30,7 @@
   },
 
   "special-checker": {
-    "path": "./src/plugins/special-checker",
+    "path": "./src/plugins/project-config",
     "dependencies": [
       "events",
       "logger",

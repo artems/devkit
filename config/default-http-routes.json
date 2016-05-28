@@ -56,7 +56,7 @@
     "dependencies": [
       "events",
       "logger",
-      "team-dispatcher"
+      "pull-request-model"
     ]
   }
 

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isEmpty } from 'lodash';
 
 /**
  * Check for autostarting review.
@@ -8,14 +8,14 @@ import _ from 'lodash';
  * @return {Boolean}
  */
 function shouldStart(pullRequest) {
-  return _.isEmpty(pullRequest.review.reviewers);
+  return isEmpty(pullRequest.get('review.reviewers'));
 }
 
-export default function (options, imports) {
+export default function setup(options, imports) {
 
   const events = imports.events;
-  const logger = imports.logger.getLogger('autoassign');
   const review = imports.review;
+  const logger = imports.logger.getLogger('autoassign');
   const pullRequestReview = imports['pull-request-review'];
 
   /**
@@ -36,14 +36,14 @@ export default function (options, imports) {
     review.choose(pullRequest.id)
       .then(result => {
         return pullRequestReview.updateReviewers(
-          pullRequest.id, result.members
+          pullRequest,
+          result.members
         );
       })
       .catch(logger.error.bind(logger));
   }
 
   events.on('github:pull_request:opened', autoStart);
-
   events.on('github:pull_request:synchronize', autoStart);
 
   return {};

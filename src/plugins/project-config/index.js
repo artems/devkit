@@ -1,58 +1,11 @@
-import fs from 'fs';
 import _ from 'lodash';
-import minimatch from 'minimatch';
 
 export default function setup(options, imports) {
-  const events = imports.events;
-  const logger = imports.logger.getLogger('special');
-  const teamDispatcher = imports['team-dispatcher'];
+
+  const logger = imports.logger.getLogger('pconfig');
 
   const service = {
 
-    /**
-     * Request config from github
-     *
-     * @param {Object} pullRequest
-     * @return {Promise}
-     * @private
-     */
-    _getConfig: function (pullRequest) {
-      const req = {
-        user: pullRequest.owner,
-        repo: pullRequest.repository.name,
-        path: '.devexp.json'
-      };
-
-      return new Promise((resolve, reject) => {
-        github.repos.getContent(req, (err, data) => {
-          if (err) {
-            return reject(`Config not found for ${pullRequest.repository.full_name}`);
-          }
-
-          const config = JSON.parse(new Buffer(data.content, 'base64').toString());
-
-          resolve(config.specialReviewers);
-        });
-      });
-    },
-
-    /**
-     * Check files with pattern
-     *
-     * @param {Array} files
-     * @param {String|Regex} pattern
-     * @return {Boolean}
-     * @private
-     */
-    _matchSome: function (files, pattern) {
-      for (let i = 0; i < files.length; i++) {
-        if (minimatch(files[i], pattern)) {
-          return true;
-        }
-      }
-
-      return false;
-    },
 
     /**
      * Up members rank
@@ -78,39 +31,6 @@ export default function setup(options, imports) {
     },
 
     /**
-     * Get unavilable users
-     *
-     * @param {Object} review
-     * @param {Array} requiredMembers
-     * @return {Promise}
-     * @private
-     */
-    _getRequiredMembers: function (review, requiredMembers) {
-      return Promise.all(map(requiredMembers, requiredUser => {
-        return team
-          .findTeamMemberByPullRequest(review.pullRequest, requiredUser)
-          .then(user => {
-            if (!user) {
-              logger.info(`There are no user with the login "@${requiredUser.login}" in team`);
-              return null;
-            }
-
-            return {
-              login: user.login,
-              work_email: user.work_email,
-              avatar_url: user.avatar_url,
-              rank: 0
-            };
-          });
-      }))
-        .then(users => {
-          review.team = review.team.concat(compact(users));
-
-          return review;
-        });
-    },
-
-    /**
      * Check users and get unavilabe
      *
      * @param {Object} review
@@ -119,14 +39,14 @@ export default function setup(options, imports) {
      * @private
      */
     _prepareReviewers: function (review, patch) {
-      const members = pluck(patch.addMembers, 'login');
+      const members = _.map(patch.addMembers, 'login');
 
       if (!members || !members.length) {
         return Promise.resolve({ review, patch });
       }
 
       const requiredMembersLogins = members.filter(user => {
-        return !pluck(review.members, 'login').includes(user);
+        return !_.map(review.members, 'login').includes(user);
       });
 
       if (requiredMembersLogins.length) {
@@ -143,11 +63,11 @@ export default function setup(options, imports) {
      * Apply all rules from config
      *
      * @param {Object} review
-     * @param {Object} conf
+     * @param {Object} config
      * @return {Promise}
      * @private
      */
-    _applyRules: function (review, confing) {
+    _applyRules: function (review, config) {
       const patch = {
         addMembers: [],
         removeMembers: [],
@@ -155,22 +75,22 @@ export default function setup(options, imports) {
         totalCountEdited: false
       };
 
-      const files = pluck(review.pullRequest.files, 'filename');
+      const files = _.map(review.pullRequest.files, 'filename');
 
       // create patch from all rules
-      forEach(confing, (rule) => {
-        forEach(rule.pattern, pattern => {
+      _.forEach(config, (rule) => {
+        _.forEach(rule.pattern, pattern => {
           if (this._matchSome(files, pattern)) {
 
-            const usersToAdd = filter(rule.addMembers, (login) => {
+            const usersToAdd = _.filter(rule.addMembers, (login) => {
               // exclude author of pull request
-              return login !== review.pullRequest.user.login
+              return login !== review.pullRequest.user.login;
             });
             const usersToRemove = rule.removeMembers;
             const userAddCount = rule.membersToAdd || 1;
             const onlySpecial = Boolean(rule.doNotChooseOther);
 
-            if (!isEmpty(usersToAdd)) {
+            if (!_.isEmpty(usersToAdd)) {
               patch.addMembers = patch.addMembers.concat(
                 _.map(_.sample(usersToAdd, userAddCount), (login) => {
                   return { login, pattern };
@@ -178,7 +98,7 @@ export default function setup(options, imports) {
               );
             }
 
-            if (!isEmpty(usersToRemove)) {
+            if (!_.isEmpty(usersToRemove)) {
               patch.removeMembers = patch.removeMembers.concat(usersToRemove);
             }
 
@@ -214,7 +134,7 @@ export default function setup(options, imports) {
      */
     _excludeReviewers: function (team, members) {
       return team.filter(user => members.includes(user.login))
-        .map(user => { login: user.login, rank: -Infinity });
+        .map(user => { return { login: user.login, rank: -Infinity }; });
     },
 
     checkConfigRules: function (review) {
@@ -240,7 +160,7 @@ export default function setup(options, imports) {
           review.specialCount = patch.addMembers.length;
 
           logger.info(`Add reviewers from config: ${patch.addMembers}`);
-          review.team = this._rankAndMarkSpecial(review.team, pluck(patch.addMembers, 'login'));
+          review.team = this._rankAndMarkSpecial(review.team, _.map(patch.addMembers, 'login'));
 
           logger.info(`Remove reviewers from config: ${patch.removeMembers}`);
           review.team = this._excludeReviewers(review.team, patch.removeMembers);

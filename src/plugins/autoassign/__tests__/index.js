@@ -2,10 +2,10 @@ import service from '../index';
 import eventsMock from '../../../services/events/__mocks__/index';
 import loggerMock from '../../../services/logger/__mocks__/index';
 import reviewMock from '../../../services/review/__mocks__/index';
-import pullRequestReviewMock from '../../../services/pull-request-review/__mocks__/index';
 import { pullRequestMock } from '../../../services/model/collections/__mocks__/pull-request';
+import pullRequestReviewMock from '../../../services/pull-request-review/__mocks__/index';
 
-describe('service/plugin-autoassign', function () {
+describe('plugins/autoassign', function () {
 
   let options, imports, payload, reviewResult;
 
@@ -42,16 +42,18 @@ describe('service/plugin-autoassign', function () {
 
     service(options, imports);
 
-    setTimeout(function () {
+    setTimeout(() => {
       assert.calledWithExactly(
-        imports['pull-request-review'].updateReviewers, 1, reviewResult.members
+        imports['pull-request-review'].updateReviewers,
+        payload.pullRequest,
+        reviewResult.members
       );
       done();
     }, 10);
 
   });
 
-  it('should not restart if reviewer were selected before', function () {
+  it('should not restart if reviewers were selected before', function () {
 
     payload.pullRequest.review.reviewers = [{ login: 'Hulk' }];
 

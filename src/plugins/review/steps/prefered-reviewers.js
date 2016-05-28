@@ -1,7 +1,7 @@
 import util from 'util';
-import { uniq, pluck, difference, map, cloneDeep } from 'lodash';
+import { uniq, pluck, difference, map } from 'lodash';
 
-export const REVIEWER_RE = /\@([a-z][-0-9a-z]+)/gi;
+export const REVIEWER_RE = /@([a-z][-0-9a-z]+)/gi;
 
 /**
  * Find users in description
@@ -11,10 +11,11 @@ export const REVIEWER_RE = /\@([a-z][-0-9a-z]+)/gi;
  * @return {Array}
  */
 export function findReviewersInDescription(body) {
+  let match;
   const reviewers = [];
 
   do {
-    let match = REVIEWER_RE.exec(body);
+    match = REVIEWER_RE.exec(body);
     if (match && match.length) {
       reviewers.push(match[1]);
     }
@@ -39,6 +40,7 @@ export default function setup(options, imports) {
    * Up rank for prefered reviewers
    *
    * @param {Review} review
+   * @param {Object} options
    *
    * @return {Review} review
    */
@@ -62,7 +64,7 @@ export default function setup(options, imports) {
       promise = map(requiredReviewers, (requiredUser) => {
         return teamDispatcher
           .findTeamByPullRequest(review.pullRequest)
-          .then(team => team.findTeamMember(pullRequest, requiredUser))
+          .then(team => team.findTeamMember(review.pullRequest, requiredUser))
           .then(user => {
             if (!user) {
               return Promise.reject(new Error(util.format(
@@ -72,7 +74,7 @@ export default function setup(options, imports) {
             }
 
             reviewers.push({ login: user.login, rank: Infinity });
-          })
+          });
       });
     }
 

@@ -9,7 +9,7 @@ export default class YandexStaffTeam extends Team {
    *
    * @param {Object} staff - yandex staff module
    * @param {String} groupId - staff group id
-   * @param {Object} overrides
+   * @param {Object} options
    */
   constructor(staff, groupId, options) {
     super(options);

@@ -1,15 +1,19 @@
+import _ from 'lodash';
 import fs from 'fs';
 import path from 'path';
-import { pluck, flatten, forEach, map, zipObject, isEmpty } from 'lodash';
 
-import TestBadgeBuilder, { TESTS_NOT_EXISTS, TESTS_EXISTS, TESTS_CHANGE } from './class';
+import TestBadgeBuilder, {
+  TESTS_NOT_EXISTS,
+  TESTS_EXISTS,
+  TESTS_CHANGE
+} from './class';
 
 export default function setup(options, imports) {
 
   const queue = imports.queue;
   const events = imports.events;
-  const logger = imports.logger.getLogger('badges');
-  const localRepo = imports.localRepo;
+  const logger = imports.logger.getLogger('badges.test');
+  const localRepo = imports['local-repo'];
   const testFileResolvers = imports['test-file-resolver'];
   const pullRequestGitHub = imports['pull-request-github'];
 
@@ -17,8 +21,14 @@ export default function setup(options, imports) {
 
   const service = {
 
+    _getResolver(project) {
+      const org = project.split('/')[0];
+
+      return testFileResolvers[project] || testFileResolvers[`${org}/*`];
+    },
+
     /**
-     * Returns path for test file
+     * Returns path for test file related to given file
      *
      * @param {String} filename
      * @param {String} project
@@ -26,40 +36,34 @@ export default function setup(options, imports) {
      * @return {String[]}
      */
     _getTestFilePath: function (filename, project) {
-      const org = project.split('/')[0];
-      const resolver = testFileResolvers[project] || testFileResolvers[`${org}/*`];
+      const resolver = this._getResolver(project);
 
       if (resolver.isPriv(filename)) {
         return resolver.getPriv(filename);
-      }
-
-      if (resolver.isGemini(filename)) {
+      } else if (resolver.isGemini(filename)) {
         return resolver.getGemini(filename);
-      }
-
-      if (resolver.isClient(filename)) {
+      } else if (resolver.isClient(filename)) {
         return resolver.getClient(filename);
       }
-
-      // FIXME: не понятно как генерировать путь до e2e-тестов.
 
       return [];
     },
 
     /**
-     * Check repo existance and clone it if necessary
+     * Clone repo if necessary
      *
      * @param {String} project
      *
      * @return {Promise}
      */
-    _getRepo: function (project) {
+    _checkRepo: function (project) {
       return new Promise((resolve, reject) => {
         fs.lstat(localRepo.getRepoLocalPath(project), (err) => {
           if (err) {
-            return localRepo.clone(project).then(resolve);
+            localRepo.clone(project).then(resolve, reject);
           }
-          return resolve();
+
+          resolve();
         });
       });
     },
@@ -70,14 +74,12 @@ export default function setup(options, imports) {
      * @param {String} file
      * @param {String} project
      *
-     * @return {Promise}
+     * @return {Promise.<Boolean>}
      */
-    _checkTestFile: function (file, project) {
-      return new Promise(resolve => {
-        fs.lstat(path.join(localRepo.getRepoLocalPath(project), file), (err, stat) => {
-          resolve(!err);
-        });
-      });
+    _checkFile: function (file, project) {
+      const filepath = path.join(localRepo.getRepoLocalPath(project), file);
+
+      return new Promise(resolve => fs.lstat(filepath, (err) => resolve(!err)));
     },
 
     /**
@@ -89,9 +91,7 @@ export default function setup(options, imports) {
      * @return {String[]}
      */
     _getTests: function (files, project) {
-      return flatten(files.map(file => {
-        return this._getTestFilePath(file, project);
-      }), this);
+      return _.flatten(files.map(file => this._getTestFilePath(file, project)));
     },
 
     /**
@@ -103,21 +103,18 @@ export default function setup(options, imports) {
      * @return {Promise}
      */
     _checkExistsTests: function (files, project) {
-      return new Promise(resolve => {
-        this._getRepo(project)
-          .then(() => {
-            Promise
-              .all(
-                this._getTests(files, project)
-                .map(checkPath => this._checkTestFile(checkPath, project))
-              )
-              .then(resolve);
-          });
-      });
+      return this._checkRepo(project)
+        .then(() => {
+          const promise = this
+            ._getTests(files, project)
+            .map(path => this._checkFile(path, project));
+
+          return Promise.all(promise);
+        });
     },
 
     /**
-     * Check status for files from current PR
+     * Check status for files from current pull request
      *
      * @param {String} files
      * @param {String} project
@@ -125,24 +122,21 @@ export default function setup(options, imports) {
      * @return {Number}
      */
     _getStatus: function (files, project) {
+      // TODO move regexp to resolver
       const tests = files.filter(filename => {
         return (/\.test\.js|\.test-priv\.js|gemini|e2e/).test(filename);
       });
 
-      return new Promise(resolve => {
-        if (tests.length) {
-          return resolve(TESTS_CHANGE);
-        }
+      if (tests.length) {
+        return Promise.resolve(TESTS_CHANGE);
+      }
 
-        this._checkExistsTests(files, project)
-          .then(result => {
-            if (result.indexOf(false) === -1) {
-              resolve(TESTS_EXISTS);
-            } else {
-              resolve(TESTS_NOT_EXISTS);
-            }
-          });
-      });
+      return this._checkExistsTests(files, project)
+        .then(result => {
+          return (result.indexOf(false) === -1)
+            ? TESTS_EXISTS
+            : TESTS_NOT_EXISTS;
+        });
     },
 
     /**
@@ -152,85 +146,81 @@ export default function setup(options, imports) {
      *
      * @return {Promise}
      */
-    updateTestBadges: function (payload) {
-      const pr = payload.pullRequest;
-      const repoName = pr.repository.full_name;
-      const repoLocalPath = localRepo.getRepoLocalPath(repoName);
-      const filesRaw = pluck(pr.files, 'filename');
-      const files = filesRaw.map(file => {
-        return path.join(repoLocalPath, file);
-      });
+    updateBadges: function (payload) {
 
-      // TODO: do something with it
-      // can be resolved on config refactoring
-      const org = repoName.split('/')[0];
-      const resolver = testFileResolvers[repoName] || testFileResolvers[`${org}/*`];
+      const repoName = payload.pullRequest.repository.full_name;
+      const pullRequest = payload.pullRequest;
+      const repoLocalPath = localRepo.getRepoLocalPath(repoName);
+
+      const files = _.map(pullRequest.files, 'filename')
+        .map(file => path.join(repoLocalPath, file));
+
+      const resolver = this._getResolver(repoName);
 
       if (!resolver) {
-        logger.info(`Can't find resolver for ${repoName}.`);
-        return Promise.reject();
+        return Promise.reject(new Error(
+          `Cannot find resolver for ${repoName}`
+        ));
       }
 
-      let filesByTestType = {
-        priv: [],
-        client: [],
-        gemini: []
-      };
+      let filesByTestType = { priv: [], client: [], gemini: [] };
 
       // group tests by type
-      forEach(files, item => {
+      _.forEach(files, (item) => {
         if (resolver.isPriv(item)) {
-          return filesByTestType.priv.push(item);
+          filesByTestType.priv.push(item);
         }
 
         if (resolver.isGemini(item)) {
-          return filesByTestType.gemini.push(item);
+          filesByTestType.gemini.push(item);
         }
 
         if (resolver.isClient(item)) {
-          return filesByTestType.client.push(item);
+          filesByTestType.client.push(item);
         }
       });
 
       // remove unnecessary badges
       filesByTestType = Object.keys(filesByTestType).reduce((result, key) => {
-        if (!isEmpty(filesByTestType[key])) {
+        if (!_.isEmpty(filesByTestType[key])) {
           result[key] = filesByTestType[key];
         }
         return result;
       }, {});
 
-      return Promise.all(map(filesByTestType, item => {
-        return this._getStatus(item, repoName)
-          .catch(logger.info.bind(this));
-      }))
-      .then(statuses => {
-        const results = zipObject(Object.keys(filesByTestType), statuses);
+      return Promise
+        .all(_.map(filesByTestType, (item, type) => {
+          return this._getStatus(item, repoName)
+            .then(status => { return { type, status }; });
+        }))
+        .then(result => {
+          return _.map(result, ({ type, status }) => {
+            return builder.buildTestBadge(type, status);
+          }).join(' ');
+        })
+        .then(body => {
+          const badgeContent = builder.build(body);
 
-        return map(results, (status, type) => {
-          return builder.buildTestBadge(type, status);
-        }).join(' ');
-      })
-      .then(body => {
-        const badgeContent = builder.build(body);
+          return queue.dispatch('pull-request#' + pullRequest.id, () => {
+            pullRequestGitHub.setBodySection(
+              pullRequest, 'test:badge', badgeContent, 75
+            );
 
-        return queue.dispatch('pull-request#' + pr.id, () => {
-          pullRequestGitHub.setBodySection(
-            pr, 'test:badge', badgeContent, 75
-          );
-          return pullRequestGitHub.syncPullRequestWithGitHub(pr);
+            return pullRequestGitHub.syncPullRequestWithGitHub(pullRequest);
+          });
         });
-      })
-      .catch(logger.info.bind(logger));
     }
+
   };
 
-  const update = service.updateTestBadges.bind(service);
+  const updateBadges = (payload) => {
+    service.updateBadges(payload).catch(logger.error.bind(logger));
+  };
 
-  events.on('review:updated', update);
-  events.on('review:started', update);
-  events.on('review:update_badges', update);
-  events.on('github:pull_request:synchronize', update);
+  events.on('review:updated', updateBadges);
+  events.on('review:started', updateBadges);
+  events.on('review:update_badges', updateBadges);
+  events.on('github:pull_request:synchronize', updateBadges);
 
   return service;
 

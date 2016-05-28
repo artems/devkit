@@ -5,7 +5,7 @@ import responseJSON from '../../../services/http/response';
 
 describe('services/badges', function () {
 
-  let options, imports, app, router;
+  let app, options, imports, router;
 
   beforeEach(function () {
     app = express();
@@ -18,12 +18,12 @@ describe('services/badges', function () {
 
   beforeEach(function () {
     app.use(responseJSON());
-    app.use('/badges', router);
+    app.use('/', router);
   });
 
   it('should response `ok` on `/badges`', function (done) {
     request(app)
-      .get('/badges/')
+      .get('/')
       .expect('Content-Type', /text\/html/)
       .expect(200)
       .expect('ok')
@@ -32,7 +32,7 @@ describe('services/badges', function () {
 
   it('should response with svg image', function (done) {
     request(app)
-      .get('/badges/user-text-red.svg')
+      .get('/user-text-red.svg')
       .expect('Content-Type', /image\/svg\+xml/)
       .expect(200)
       .end(done);

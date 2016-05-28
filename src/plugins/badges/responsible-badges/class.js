@@ -4,15 +4,6 @@ import BadgeBase from '../../../services/badges/base-badge';
 export default class ResponsibleBadgeBuilder extends BadgeBase {
 
   /**
-   * @constructor
-   *
-   * @param {String} url
-   */
-  constructor(url) {
-    super(url);
-  }
-
-  /**
    * Create badge for responsible.
    *
    * @param {Object} component

@@ -13,20 +13,24 @@ export default function setup(options, imports) {
     const repo = req.params.repo;
     const number = req.params.number;
 
-    if (!org || !repo || !number) {
-      res.error('Url format: pull/{org}/{repo}/{number}');
-      return;
-    }
-
     PullRequestModel
-      .findByNumberAndRepository(number, `${org}/${repo}`)
-      .then(pullRequest => team.findByPullRequest(pullRequest))
-      .then(team => res.json(team))
-      .catch(err => {
-          logger.error(err);
-          res.error(err.message);
+      .findByRepositoryAndNumber(`${org}/${repo}`, number)
+      .then(pullRequest => {
+        if (!pullRequest) {
+          return Promise.reject(new Error(
+            `Pull request ${org}/${repo}/${number} not found`
+          ));
         }
-      );
+
+        const team = teamDispatcher.findTeamByPullRequest(pullRequest);
+
+        return team.getMembersForReview(pullRequest);
+      })
+      .then(members => res.json(members))
+      .catch(err => {
+        logger.error(err);
+        res.error(err.message);
+      });
   });
 
   return teamRoute;
