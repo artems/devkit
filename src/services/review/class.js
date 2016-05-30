@@ -144,10 +144,15 @@ export default class ReviewerAssignment {
 
     review.ranks = Object.keys(members)
       .sort((a, b) => {
-        if (members[a] === Infinity) return -1;
-        if (members[a] === -Infinity) return 1;
-        if (members[b] === Infinity) return 1;
-        if (members[b] === -Infinity) return -1;
+        if (members[a] === Infinity) {
+          return -1;
+        } else if (members[a] === -Infinity) {
+          return 1;
+        } else if (members[b] === Infinity) {
+          return 1;
+        } else if (members[b] === -Infinity) {
+          return -1;
+        }
 
         return members[b] - members[a];
       })

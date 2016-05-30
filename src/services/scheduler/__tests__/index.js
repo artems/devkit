@@ -8,7 +8,7 @@ import {
 
 describe('services/schedule', function () {
 
-  let service, moment, schedule, pullRequest, PullRequestModel;
+  let service, schedule, pullRequest, PullRequestModel;
 
   beforeEach(function () {
 
@@ -121,7 +121,7 @@ describe('services/schedule', function () {
       const trigger = () => {};
       const timeShift = 1;
 
-      scheduleInReview(PullRequestModel, 1, trigger)
+      scheduleInReview(PullRequestModel, timeShift, trigger)
         .then(() => {
           assert.calledWith(schedule.scheduleJob, 'pull-100');
           assert.calledWith(schedule.scheduleJob, 'pull-200');
@@ -134,14 +134,12 @@ describe('services/schedule', function () {
   describe('#trigger', function () {
 
     let options, imports, scheduleService;
-    let logger, events, payload;
+    let logger, events;
 
     beforeEach(function () {
 
       events = eventsMock();
       logger = loggerMock();
-
-      payload = { pullRequest };
 
       options = {};
       imports = { events, logger, 'pull-request-model': PullRequestModel };
@@ -163,7 +161,7 @@ describe('services/schedule', function () {
     });
 
     it('should do nothing if pull request has comments', function (done) {
-      pullRequest.review_comments = [undefined, undefined];
+      pullRequest.review_comments = [null, null];
 
       scheduleService.trigger(1);
 
@@ -179,14 +177,12 @@ describe('services/schedule', function () {
   describe('#shutdown', function () {
 
     let options, imports, scheduleService;
-    let logger, events, payload;
+    let logger, events;
 
     beforeEach(function () {
 
       events = eventsMock();
       logger = loggerMock();
-
-      payload = { pullRequest };
 
       options = {};
       imports = { events, logger, 'pull-request-model': PullRequestModel };
@@ -195,7 +191,7 @@ describe('services/schedule', function () {
         'pull-1': { cancel: sinon.stub() },
         'pull-2': { cancel: sinon.stub() },
         'pull-3': { cancel: sinon.stub() }
-      }
+      };
 
       scheduleService = service.default(options, imports);
     });
@@ -212,7 +208,7 @@ describe('services/schedule', function () {
 
   describe('service', function () {
 
-    let options, imports, scheduleService;
+    let options, imports;
     let logger, events, payload;
 
     beforeEach(function () {
@@ -230,7 +226,7 @@ describe('services/schedule', function () {
     it('should cancel timer when review is done', function () {
       events.on.withArgs('review:complete').callsArgWith(1, payload);
 
-      scheduleService = service.default(options, imports);
+      service.default(options, imports);
 
       assert.calledWith(schedule.cancelJob, 'pull-1');
     });
@@ -238,7 +234,7 @@ describe('services/schedule', function () {
     it('should set timer when review is starting', function (done) {
       events.on.withArgs('review:command:start').callsArgWith(1, payload);
 
-      scheduleService = service.default(options, imports);
+      service.default(options, imports);
 
       setTimeout(() => {
         assert.calledWith(schedule.scheduleJob, 'pull-1');

@@ -206,16 +206,19 @@ describe('services/review/ReviewerAssignment', function () {
     });
 
     it('should return resolved pormise with chosen reviewers ordered by rank', function (done) {
+
       imports['reviewer-assignment-step-step1'] = function (review) {
         return Promise.resolve([
           { rank: 1, login: 'Spider-Man' },
           { rank: Infinity, login: 'Thor' }
         ]);
       };
+
       imports['reviewer-assignment-step-step2'] = function (review) {
         return Promise.resolve([
+          { rank: -Infinity, login: 'Hulk' },
           { rank: 2, login: 'Black Widow' },
-          { rank: -Infinity, login: 'Hulk' }
+          { rank: 0, login: 'Thor' }
         ]);
       };
 
