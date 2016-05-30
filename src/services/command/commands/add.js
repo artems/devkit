@@ -1,15 +1,16 @@
 import util from 'util';
 import { find, cloneDeep } from 'lodash';
 
-const EVENT_NAME = 'review:command:add';
+export const EVENT_NAME = 'review:command:add';
+
+export const COMMAND_RE = /\/add (@\w+)/;
 
 export default function setup(options, imports) {
-  const {
-    events,
-    logger,
-    'team-dispatcher': teamDispatcher,
-    'pull-request-review': pullRequestReview
-  } = imports;
+
+  const events = imports.events;
+  const logger = imports.logger;
+  const teamDispatcher = imports['team-dispatcher'];
+  const pullRequestReview = imports['pull-request-review'];
 
   /**
    * Handle '/add' command.
@@ -27,21 +28,21 @@ export default function setup(options, imports) {
     const pullRequest = payload.pullRequest;
     const commentUser = payload.comment.user.login;
 
-    const newReviewerLogin = arglist.shift();
+    const newReviewerLogin = arglist[0];
 
-    const pullRequestReviewers = pullRequest.get('review.reviewers');
+    const pullRequestReviewers = pullRequest.get('review.reviewers', []);
 
     logger.info('"/add" %s', pullRequest);
 
     if (pullRequest.state !== 'open') {
       return Promise.reject(new Error(
-        `Cannot add reviewer for closed pull request ${pullRequest}`
+        `Cannot add a reviewer for the closed pull request ${pullRequest}`
       ));
     }
 
     if (find(pullRequestReviewers, { login: newReviewerLogin })) {
       return Promise.reject(new Error(util.format(
-        '%s tried to add reviewer %s, but he is already a reviewer %s',
+        '%s tried to add the reviewer %s, but he is already a reviewer %s',
         commentUser, newReviewerLogin, pullRequest
       )));
     }
@@ -74,4 +75,5 @@ export default function setup(options, imports) {
   };
 
   return addCommand;
+
 }

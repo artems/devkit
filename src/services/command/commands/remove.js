@@ -1,15 +1,15 @@
 import util from 'util';
 import { find, reject } from 'lodash';
 
-const EVENT_NAME = 'review:command:remove';
+export const EVENT_NAME = 'review:command:remove';
+
+export const COMMAND_RE = /\/remove (@\w+)/;
 
 export default function setup(options, imports) {
 
-  const {
-    events,
-    logger,
-    'pull-request-review': pullRequestReview
-  } = imports;
+  const events = imports.events;
+  const logger = imports.logger;
+  const pullRequestReview = imports['pull-request-review'];
 
   // TODO must be team config
   const minReviewersCount = options.min || 1;

@@ -1,16 +1,16 @@
 import util from 'util';
 import { find, reject, cloneDeep } from 'lodash';
 
-const EVENT_NAME = 'review:command:change';
+export const EVENT_NAME = 'review:command:change';
+
+export const COMMAND_RE = /\/change (@\w+)(?: | to )(@\w+)/;
 
 export default function commandService(options, imports) {
 
-  const {
-    events,
-    logger,
-    'team-dispatcher': teamDispatcher,
-    'pull-request-review': pullRequestReview
-  } = imports;
+  const events = imports.events;
+  const logger = imports.logger;
+  const teamDispatcher = imports['team-dispatcher'];
+  const pullRequestReview = imports['pull-request-review'];
 
   /**
    * Handle '/change' command.

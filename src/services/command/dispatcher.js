@@ -31,9 +31,7 @@ export default class CommandDispatcher {
           const arglist = matches.slice(1);
 
           forEach(command.handlers, (handler) => {
-            const commentCommand = line.trim();
-
-            promise.push(handler(commentCommand, payload, arglist));
+            promise.push(handler(line.trim(), payload, arglist));
           });
         }
 

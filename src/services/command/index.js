@@ -50,6 +50,7 @@ export default function setup(options, imports) {
 
         return wrapHandler(handler);
       })
+
     };
 
   });
@@ -62,7 +63,7 @@ export default function setup(options, imports) {
 
       dispatcher
         .dispatch(comment, payload)
-        .catch(logger.error.bind(this));
+        .catch(logger.error.bind(logger));
     });
   });
 

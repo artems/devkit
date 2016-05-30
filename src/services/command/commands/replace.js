@@ -1,16 +1,16 @@
 import util from 'util';
 import { find, reject, cloneDeep } from 'lodash';
 
-const EVENT_NAME = 'review:command:replace';
+export const EVENT_NAME = 'review:command:replace';
+
+export const COMMAND_RE = /\/replace (@\w+)/;
 
 export default function commandService(options, imports) {
 
-  const {
-    events,
-    logger,
-    review,
-    'pull-request-review': pullRequestReview
-  } = imports;
+  const events = imports.events;
+  const logger = imports.logger;
+  const review = imports.review;
+  const pullRequestReview = imports['pull-request-review'];
 
   /**
    * Handle '/replace' command.

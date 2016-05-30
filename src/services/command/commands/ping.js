@@ -1,6 +1,8 @@
 import util from 'util';
 
-const EVENT_NAME = 'review:command:ping';
+export const EVENT_NAME = 'review:command:ping';
+
+export const COMMAND_RE = /\/ping/;
 
 export default function commandService(options, imports) {
 

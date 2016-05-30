@@ -1,15 +1,16 @@
 import util from 'util';
 import { find, reject, cloneDeep } from 'lodash';
 
-const EVENT_NAME = 'review:command:busy';
+export const EVENT_NAME = 'review:command:busy';
+
+export const COMMAND_RE = /\/busy/;
 
 export default function setup(options, imports) {
-  const {
-    events,
-    logger,
-    review,
-    'pull-request-review': pullRequestReview
-  } = imports;
+
+  const events = imports.events;
+  const logger = imports.logger;
+  const review = imports.review;
+  const pullRequestReview = imports['pull-request-review'];
 
   /**
    * Handle '/busy' command.

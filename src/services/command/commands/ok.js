@@ -1,16 +1,16 @@
 import util from 'util';
 import { find, cloneDeep } from 'lodash';
 
-const EVENT_NAME = 'review:command:ok';
+export const EVENT_NAME = 'review:command:ok';
+
+export const COMMAND_RE = /\/ok/;
 
 export default function setup(options, imports) {
 
-  const {
-    events,
-    logger,
-    'team-dispatcher': teamDispatcher,
-    'pull-request-review': pullRequestReview
-  } = imports;
+  const events = imports.events;
+  const logger = imports.logger;
+  const teamDispatcher = imports['team-dispatcher'];
+  const pullRequestReview = imports['pull-request-review'];
 
   /**
    * Handle '/ok' command.

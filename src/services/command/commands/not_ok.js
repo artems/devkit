@@ -1,15 +1,15 @@
 import util from 'util';
 import { find } from 'lodash';
 
-const EVENT_NAME = 'review:command:not_ok';
+export const EVENT_NAME = 'review:command:not_ok';
+
+export const COMMAND_RE = /\/!ok/;
 
 export default function setup(options, imports) {
 
-  const {
-    events,
-    logger,
-    'pull-request-review': pullRequestReview
-  } = imports;
+  const events = imports.events;
+  const logger = imports.logger;
+  const pullRequestReview = imports['pull-request-review'];
 
   /**
    * Handle '/!ok' command.

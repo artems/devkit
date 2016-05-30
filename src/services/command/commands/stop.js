@@ -1,14 +1,14 @@
 import util from 'util';
 
-const EVENT_NAME = 'review:command:stop';
+export const EVENT_NAME = 'review:command:stop';
+
+export const COMMAND_RE = /\/stop/;
 
 export default function setup(options, imports) {
 
-  const {
-    logger,
-    events,
-    'pull-request-review': pullRequestReview
-  } = imports;
+  const events = imports.events;
+  const logger = imports.logger;
+  const pullRequestReview = imports['pull-request-review'];
 
   /**
    * Handle '/stop' command.

@@ -2,7 +2,7 @@
 
 import path from 'path';
 import Architect from 'node-architect';
-import parseConfig from './modules/config/index';
+import parseConfig from './modules/config';
 
 const basePath = path.join(__dirname, '..');
 const appConfig = parseConfig(basePath);
@@ -25,7 +25,7 @@ process.on('SIGINT', () => {
   Promise.resolve()
     .then(() => application.shutdown())
     .then(() => {
-      const timer = setTimeout(() => process.exit(), 2000);
+      const timer = setTimeout(() => process.exit(), 5000);
       // No need to wait this timer if the program is ready to exit.
       timer.unref();
     })
