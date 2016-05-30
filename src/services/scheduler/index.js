@@ -2,7 +2,44 @@ import moment from 'moment';
 import schedule from 'node-schedule';
 import { forEach } from 'lodash';
 
-const EVENT_NAME = 'review:schedule:ping';
+export const EVENT_NAME = 'review:schedule:ping';
+
+export function cancelJob(pullRequest) {
+  const pullId = pullRequest.id;
+
+  return Promise.resolve(schedule.cancelJob('pull-' + pullId));
+}
+
+export function createJob(pullRequest, timeShift, trigger) {
+
+  const pullId = pullRequest.id;
+  const startAt = moment(pullRequest.get('review.started_at'));
+  const fullDays = moment.duration(moment().diff(startAt)).asDays();
+  const expirationTime = startAt.add(fullDays + timeShift, 'days');
+
+  // exclude weekend
+  while (expirationTime.isoWeekday() > 5) {
+    expirationTime.add(1, 'days');
+  }
+
+  return cancelJob(pullRequest)
+    .then(() => {
+      return schedule.scheduleJob(
+        'pull-' + pullId, expirationTime.toDate(), trigger
+      );
+    });
+
+}
+
+export function scheduleInReview(PullRequestModel, timeShift, trigger) {
+  return PullRequestModel.findInReview()
+    .then(result => {
+      const promise = result.map(pullRequest => {
+        return createJob(pullRequest, timeShift, trigger);
+      });
+      return Promise.all(promise);
+    });
+}
 
 /**
  * Service for sending notification by time
@@ -19,58 +56,35 @@ export default function setup(options, imports) {
   const logger = imports.logger.getLogger('schedule');
   const PullRequestModel = imports['pull-request-model'];
 
-  function cancelJob(payload) {
-    const pullId = payload.pullRequest.id;
-    const jobName = 'pull-' + pullId;
-
-    return Promise.resolve(schedule.cancelJob(jobName));
-  }
-
-  function createJob(payload, timeShift = options.days) {
-
-    const pullId = payload.pullRequest.id;
-    const reviewStartTime = moment(payload.pullRequest.review.started_at);
-    const reviewFullDays = moment.duration(moment().diff(reviewStartTime)).asDays();
-    const expirationTime = reviewStartTime.add(reviewFullDays + timeShift, 'days');
-
-    // exclude weekend
-    while (expirationTime.isoWeekday() > 5) {
-      expirationTime.add(1, 'days');
-    }
-
-    function triggerEvent() {
-      PullRequestModel
-        .findById(pullId)
-        .then(pullRequest => {
-          if (!pullRequest.review_comments && pullRequest.state !== 'closed') {
-            events.emit(EVENT_NAME, payload);
-            createJob(payload);
-          }
-        })
-        .catch(logger.error.bind(logger));
-    }
-
-    return cancelJob(payload)
-      .then(() => {
-        const jobName = 'pull-' + pullId;
-        return schedule.scheduleJob(
-          jobName, expirationTime.toDate(), triggerEvent
-        );
+  function trigger(pullId) {
+    return PullRequestModel
+      .findById(pullId)
+      .then(pullRequest => {
+        if (!pullRequest.review_comments && pullRequest.state !== 'closed') {
+          events.emit(EVENT_NAME, { pullRequest });
+          createJob(pullRequest);
+        }
       });
   }
 
   function onReviewDone(payload) {
-    return cancelJob(payload).catch(logger.error.bind(logger));
+    return cancelJob(payload.pullRequest)
+      .catch(logger.error.bind(logger));
   }
 
   function onReviewStart(payload) {
-    return createJob(payload).catch(logger.error.bind(logger));
+    const pullId = payload.pullRequest.id;
+
+    return createJob(payload.pullRequest, options.days, trigger(pullId))
+      .catch(logger.error.bind(logger));
   }
 
   function shutdown() {
-    logger.info('shutdown');
+    logger.info('shutdown jobs');
 
     forEach(schedule.scheduledJobs, (x) => x.cancel());
+
+    logger.info('shutdown complete');
   }
 
   events.on('review:approved', onReviewDone);
@@ -81,14 +95,8 @@ export default function setup(options, imports) {
 
   events.on('github:pull_request:close', onReviewDone);
 
-  PullRequestModel
-    .findInReview()
-    .then(result => {
-      result.forEach(pullRequest => {
-        const payload = { pullRequest };
-        createJob(payload);
-      });
-    });
+  scheduleInReview(PullRequestModel, options.days, trigger);
 
-  return { shutdown };
+  return { trigger, shutdown };
+
 }

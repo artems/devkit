@@ -52,6 +52,7 @@ export function pullRequestModelMock(mixin) {
 
   stub.findById = sinon.stub().returns(Promise.resolve());
   stub.findByUser = sinon.stub().returns(Promise.resolve());
+  stub.findInReview = sinon.stub().returns(Promise.resolve());
   stub.findByReviewer = sinon.stub().returns(Promise.resolve());
   stub.findInReviewByReviewer = sinon.stub().returns(Promise.resolve());
   stub.findByRepositoryAndNumber = sinon.stub().returns(Promise.resolve());
