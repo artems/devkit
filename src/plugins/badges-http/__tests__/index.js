@@ -3,7 +3,7 @@ import request from 'supertest';
 import service from '../index';
 import responseJSON from '../../../services/http/response';
 
-describe('services/badges', function () {
+describe('plugins/badges-http', function () {
 
   let app, options, imports, router;
 
@@ -14,9 +14,7 @@ describe('services/badges', function () {
     imports = {};
 
     router = service(options, imports);
-  });
 
-  beforeEach(function () {
     app.use(responseJSON());
     app.use('/', router);
   });

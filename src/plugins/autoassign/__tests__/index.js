@@ -7,7 +7,8 @@ import pullRequestReviewMock from '../../../services/pull-request-review/__mocks
 
 describe('plugins/autoassign', function () {
 
-  let options, imports, payload, reviewResult;
+  let options, imports;
+  let payload, pullRequest, reviewResult;
 
   beforeEach(function () {
 
@@ -20,9 +21,9 @@ describe('plugins/autoassign', function () {
       'pull-request-review': pullRequestReviewMock()
     };
 
-    payload = {
-      pullRequest: pullRequestMock()
-    };
+    pullRequest = pullRequestMock();
+
+    payload = { pullRequest };
 
     reviewResult = {
       members: ['Captain America', 'Hawkeye']
@@ -30,8 +31,6 @@ describe('plugins/autoassign', function () {
 
     imports.events.on
       .withArgs('github:pull_request:opened').callsArgWith(1, payload);
-    imports.events.on
-      .withArgs('github:pull_request:synchronize').callsArgWith(1, payload);
 
     imports.review.choose
       .withArgs(1).returns(Promise.resolve(reviewResult));
@@ -49,17 +48,20 @@ describe('plugins/autoassign', function () {
         reviewResult.members
       );
       done();
-    }, 10);
+    }, 0);
 
   });
 
-  it('should not restart if reviewers were selected before', function () {
+  it('should not restart review if reviewers were selected before', function (done) {
 
-    payload.pullRequest.review.reviewers = [{ login: 'Hulk' }];
+    pullRequest.review.reviewers = [{ login: 'Hulk' }];
 
     service(options, imports);
 
-    assert.notCalled(imports['pull-request-review'].updateReviewers);
+    setTimeout(() => {
+      assert.notCalled(imports['pull-request-review'].updateReviewers);
+      done();
+    }, 0);
 
   });
 

@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 
 /**
- * Check for autostarting review.
+ * Returns true if review is not started.
  *
  * @param {Object} pullRequest
  *
@@ -16,6 +16,7 @@ export default function setup(options, imports) {
   const events = imports.events;
   const review = imports.review;
   const logger = imports.logger.getLogger('autoassign');
+
   const pullRequestReview = imports['pull-request-review'];
 
   /**
@@ -25,20 +26,16 @@ export default function setup(options, imports) {
    * @param {Object} payload.pullRequest
    */
   function autoStart(payload) {
+    if (!shouldStart(payload.pullRequest)) return;
+
     const pullRequest = payload.pullRequest;
 
-    if (!shouldStart(pullRequest)) {
-      return;
-    }
-
-    logger.info('Autostart review %s', pullRequest.toString());
+    logger.info('Autostart review %s', pullRequest);
 
     review.choose(pullRequest.id)
       .then(result => {
-        return pullRequestReview.updateReviewers(
-          pullRequest,
-          result.members
-        );
+        return pullRequestReview
+          .updateReviewers(pullRequest, result.members);
       })
       .catch(logger.error.bind(logger));
   }
