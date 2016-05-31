@@ -1,4 +1,4 @@
-import { flatten, get } from 'lodash';
+import { get, chain } from 'lodash';
 
 export function message(payload, absenceUsers) {
   const pullRequest = payload.pullRequest;
@@ -15,7 +15,7 @@ export default function setup(options, imports) {
 
   const staff = imports['yandex-staff'];
   const events = imports.events;
-  const logger = imports.logger.getLogger('command');
+  const logger = imports.logger.getLogger('notify');
   const notification = imports.notification;
 
   function absenceNotification(payload) {
@@ -30,9 +30,11 @@ export default function setup(options, imports) {
 
         const excludeTrip = (user) => get(user, 'gap_type__name') !== 'trip';
 
-        absenceUsers = flatten(absenceUsers)
+        absenceUsers = chain(absenceUsers)
+          .flatten()
           .filter(excludeTrip)
-          .map(absenceUsers, 'staff__login');
+          .map('staff__login')
+          .value();
 
         if (absenceUsers.length) {
           notification(login, message(payload, absenceUsers))

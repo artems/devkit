@@ -81,10 +81,8 @@ describe('services/pull-request-review/addon', function () {
 
     it('should return patial schema', function () {
       const addon = service(options, imports);
-
-      assert.isFunction(addon.extender);
-
       const extender = addon.extender();
+
       assert.isObject(extender);
     });
 

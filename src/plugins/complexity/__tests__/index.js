@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import * as complexity from '../complexity';
+import * as complexity from '../index';
 
 describe('services/complexity', function () {
 

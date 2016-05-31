@@ -7,6 +7,7 @@ export default function mock() {
 
   const model = {
     set: sinon.stub().returnsThis(),
+    pre: sinon.stub().returnsThis(),
     path: sinon.stub().returnsThis(),
     virtual: sinon.stub().returns(virtualGetSet),
     methods: {},
