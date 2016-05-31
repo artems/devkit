@@ -1,5 +1,4 @@
-import util from 'util';
-import { uniq, pluck, difference, map } from 'lodash';
+import { map, uniq, includes, difference } from 'lodash';
 
 export const REVIEWER_RE = /@([a-z][-0-9a-z]+)/gi;
 
@@ -12,6 +11,7 @@ export const REVIEWER_RE = /@([a-z][-0-9a-z]+)/gi;
  */
 export function findReviewersInDescription(body) {
   let match;
+
   const reviewers = [];
 
   do {
@@ -45,35 +45,29 @@ export default function setup(options, imports) {
    * @return {Review} review
    */
   function preferedReviewers(review, options) {
+    let promise = [];
+    const reviewers = [];
+
     const body = review.pullRequest.body;
+    const team = teamDispatcher.findTeamByPullRequest(review.pullRequest);
 
     const preferedReviewers = uniq(findReviewersInDescription(body));
+    const requiredReviewers = difference(preferedReviewers, map(review.members, 'login'));
 
-    const requiredReviewers = difference(preferedReviewers, pluck(review.members, 'login'));
-
-    let promise = [];
-    let reviewers = [];
-
-    preferedReviewers.length && review.team.forEach(user => {
-      if (preferedReviewers.includes(user.login)) {
-        reviewers.push({ login: user.login, rank: Infinity });
+    preferedReviewers.length && review.members.forEach(user => {
+      if (includes(preferedReviewers, user.login)) {
+        reviewers.push({ login: user.login, rank: 500 });
       }
     });
 
     if (requiredReviewers.length) {
-      promise = map(requiredReviewers, (requiredUser) => {
-        return teamDispatcher
-          .findTeamByPullRequest(review.pullRequest)
-          .then(team => team.findTeamMember(review.pullRequest, requiredUser))
+      promise = requiredReviewers.map(requiredUser => {
+        return team
+          .findTeamMember(review.pullRequest, requiredUser)
           .then(user => {
-            if (!user) {
-              return Promise.reject(new Error(util.format(
-                'There are no user with the login "%s" in team',
-                requiredUser.login
-              )));
+            if (user) {
+              reviewers.push({ login: user.login, rank: 500 });
             }
-
-            reviewers.push({ login: user.login, rank: Infinity });
           });
       });
     }
