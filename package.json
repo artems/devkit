@@ -70,7 +70,7 @@
   },
   "config": {
     "mocha": "mocha --compilers js:babel-register -r ./tests/setup.js --reporter progress",
-    "istanbul": "babel-node ./node_modules/.bin/istanbul cover --report text --report lcovonly --report html _mocha -- -r ./tests/setup.js --reporter dot",
+    "istanbul": "babel-node ./node_modules/.bin/istanbul cover --report text --report lcovonly --report html _mocha -- -r ./tests/setup.js --reporter progress",
     "pattern_e2e": "./tests/e2e/**.js",
     "pattern_test": "./src/**/__tests__/**.js"
   }

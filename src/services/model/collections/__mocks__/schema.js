@@ -1,15 +1,19 @@
-export default function mock() {
+export function virtualMock() {
 
-  const virtualGetSet = {
+  return {
     get: sinon.stub().returnsThis(),
     set: sinon.stub().returnsThis()
   };
+
+}
+
+export default function mock() {
 
   const model = {
     set: sinon.stub().returnsThis(),
     pre: sinon.stub().returnsThis(),
     path: sinon.stub().returnsThis(),
-    virtual: sinon.stub().returns(virtualGetSet),
+    virtual: sinon.stub().returns(virtualMock()),
     methods: {},
     statics: {}
   };
