@@ -1,9 +1,9 @@
-import service from '../complete';
+import service from '../help';
 import eventsMock from '../../../events/__mocks__/index';
 import loggerMock from '../../../logger/__mocks__/index';
 import { pullRequestMock } from '../../../model/collections/__mocks__/pull-request';
 
-describe('services/notification/complete', function () {
+describe('services/notification/help', function () {
 
   let events, logger, notification, payload, pullRequest;
   let options, imports;
@@ -17,7 +17,7 @@ describe('services/notification/complete', function () {
 
     pullRequest = pullRequestMock();
 
-    payload = { pullRequest };
+    payload = { pullRequest, comment: { user: { login: 'Black Widow' } } };
 
     events.on.callsArgWith(1, payload);
 
@@ -27,13 +27,13 @@ describe('services/notification/complete', function () {
 
   });
 
-  it('should subscribe to event `review:complete', function () {
+  it('should subscribe to event `review:command:help', function () {
     service(options, imports);
 
-    assert.calledWith(events.on, 'review:complete');
+    assert.calledWith(events.on, 'review:command:help');
   });
 
-  it('should send complete message to the author', function () {
+  it('should send help message to the author', function () {
     pullRequest.user = { login: 'Black Widow' };
 
     service(options, imports);

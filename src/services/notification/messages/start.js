@@ -23,7 +23,7 @@ export default function setup(options, imports) {
 
     const promise = map(reviewers, (member) => {
       return notification(member.login, body)
-        .catch(error => logger.error(error));
+        .catch(logger.error.bind(logger));
     });
 
     return Promise.all(promise);

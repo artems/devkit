@@ -8,11 +8,11 @@ export default function setup(options, imports) {
   const logger = imports.logger;
   const notification = imports.notification;
 
-  function helpNotification(payload) {
-    const login = payload.pullRequest.get('user.login');
+  function helpNotification(payload, link) {
+    const login = payload.comment.user.login;
 
-    return notification(login, message(options.link))
-      .catch(error => logger.error(error));
+    return notification(login, message(link))
+      .catch(logger.error.bind(logger));
   }
 
   events.on('review:command:help', helpNotification);

@@ -18,7 +18,7 @@ export default function setup(options, imports) {
     const login = payload.pullRequest.get('user.login');
 
     return notification(login, message(payload))
-      .catch(error => logger.error(error));
+      .catch(logger.error.bind(logger));
   }
 
   events.on('review:complete', completeNotification);

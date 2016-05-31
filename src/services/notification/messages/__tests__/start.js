@@ -44,19 +44,4 @@ describe('services/notification/start', function () {
     assert.calledWith(notification, 'Spider-Man');
   });
 
-  it('should log errors', function (done) {
-    pullRequest.review = {
-      reviewers: [{ login: 'Black Widow' }]
-    };
-
-    notification.returns(Promise.reject(new Error()));
-
-    service(options, imports);
-
-    setTimeout(() => {
-      assert.called(logger.error);
-      done();
-    }, 0);
-  });
-
 });

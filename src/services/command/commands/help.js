@@ -13,7 +13,6 @@ export default function setup(options, imports) {
    * @return {Promise}
    */
   const helpCommand = function helpCommand(command, payload) {
-
     events.emit(EVENT_NAME, payload, options.link);
 
     return Promise.resolve(payload.pullRequest);

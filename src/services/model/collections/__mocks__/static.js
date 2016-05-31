@@ -4,7 +4,9 @@ export default function mock() {
     model: sinon.stub().returnsThis(),
     find: sinon.stub().returnsThis(),
     sort: sinon.stub().returnsThis(),
-    exec: sinon.stub().returnsThis()
+    exec: sinon.stub().returnsThis(),
+
+    findById: sinon.stub().returnsThis()
   };
 
   return model;
