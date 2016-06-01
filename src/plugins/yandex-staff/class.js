@@ -1,7 +1,5 @@
 import _ from 'lodash';
 
-const cache = {};
-
 export default class YandexStaff {
 
   /**
@@ -12,6 +10,8 @@ export default class YandexStaff {
    * @param {Object} options
    */
   constructor(request, options) {
+    this._cache = {};
+
     this.request = request;
 
     this._options = options;
@@ -30,7 +30,7 @@ export default class YandexStaff {
     const url = this._getCenterUrl(`absence_by_user/${user}`);
     const key = `apiAbsence:${user}`;
     const query = { fields: this._getFields('absence') };
-    const expires = this._getCacheOption('apiAbsence') || 3600;
+    const expires = this._getCacheOption('apiAbsence', 3600);
 
     return this._request(url, { key, query, cache: expires });
   }
@@ -48,7 +48,7 @@ export default class YandexStaff {
     const url = this._getCenterUrl(`user/${user}`);
     const key = `apiUserInfo:${user}`;
     const query = { fields: this._getFields('info') };
-    const expires = this._getCacheOption('apiUserInfo') || 86400;
+    const expires = this._getCacheOption('apiUserInfo', 86400);
 
     return this._request(url, { key, query, cache: expires });
   }
@@ -66,7 +66,7 @@ export default class YandexStaff {
     const url = this._getCenterUrl(`user/${user}/where`);
     const key = `apiUserWhere:${user}`;
     const query = { fields: this._getFields('where') };
-    const expires = this._getCacheOption('apiUserWhere') || 3600;
+    const expires = this._getCacheOption('apiUserWhere', 3600);
 
     return this._request(url, { key, query, cache: expires });
   }
@@ -82,7 +82,7 @@ export default class YandexStaff {
     const url = this._getJabberUrl();
     const key = `apiJabberStatus:${this._getUserParam(user)}`;
     const query = { login: user };
-    const expires = this._getCacheOption('apiJabberStatus') || 3600;
+    const expires = this._getCacheOption('apiJabberStatus', 3600);
 
     return this._request(url, { key, query, cache: expires });
   }
@@ -98,7 +98,7 @@ export default class YandexStaff {
     const url = this._getCenterUrl(`groups/${groupId}/all_members`);
     const key = `apiGroupMembers:${groupId}`;
     const query = { fields: this._getFields('group') };
-    const expires = this._getCacheOption('getGroupMembers') || 3600;
+    const expires = this._getCacheOption('getGroupMembers', 3600);
 
     return this._request(url, { key, query, cache: expires });
   }
@@ -205,7 +205,7 @@ export default class YandexStaff {
    * @return {Boolean}
    */
   _checkCache(key) {
-    return cache[key] && cache[key].expires > Date.now();
+    return this._cache[key] && this._cache[key].expires > Date.now();
   }
 
   /**
@@ -216,7 +216,7 @@ export default class YandexStaff {
    * @return {Object}
    */
   _getCacheValue(key) {
-    return cache[key] && cache[key].data || {};
+    return this._cache[key] && this._cache[key].data;
   }
 
   /**
@@ -230,7 +230,7 @@ export default class YandexStaff {
     if (options.key && options.cache) {
       const cacheTime = options.cache * 1000;
 
-      cache[options.key] = { data, expires: Date.now() + cacheTime };
+      this._cache[options.key] = { data, expires: Date.now() + cacheTime };
     }
 
     resolve(data);
@@ -244,10 +244,6 @@ export default class YandexStaff {
    * @return {String}
    */
   _getCenterUrl(path) {
-    if (path[0] === '/') {
-      path = path.substr(1);
-    }
-
     return this._options.center_url + path + '.json';
   }
 
@@ -268,9 +264,11 @@ export default class YandexStaff {
    * @return {String|null}
    */
   _getFields(name) {
-    if (this._options.fields &&
+    if (
+      this._options.fields &&
       this._options.fields[name] &&
-      Array.isArray(this._options.fields[name])) {
+      Array.isArray(this._options.fields[name])
+    ) {
       return this._options.fields[name].join('|');
     }
 
@@ -281,15 +279,16 @@ export default class YandexStaff {
    * @private
    *
    * @param {String} name
+   * @param {Number} defaultValue
    *
    * @return {Number|null}
    */
-  _getCacheOption(name) {
-    if (this._options.cache && this._options.cache[name]) {
+  _getCacheOption(name, defaultValue) {
+    if (this._options.cache && name in this._options.cache) {
       return parseInt(this._options.cache[name], 10);
     }
 
-    return null;
+    return defaultValue;
   }
 
   /**
