@@ -47,8 +47,8 @@ describe('services/jabber/class', function () {
 
       jabber.connect()
         .then(() => assert.called(xmpp.connect))
-        .then(() => jabber.close())
-        .then(done, done);
+        .then(() => jabber.close(done))
+        .catch(done);
     });
 
     it('should log errors', function (done) {
@@ -56,8 +56,8 @@ describe('services/jabber/class', function () {
 
       jabber.connect()
         .then(() => assert.called(info))
-        .then(() => jabber.close())
-        .then(done, done);
+        .then(() => jabber.close(done))
+        .catch(done);
 
     });
 
@@ -68,8 +68,8 @@ describe('services/jabber/class', function () {
       sinon.stub(jabber, 'checkQueue');
 
       jabber.connect()
-        .then(() => jabber.close())
-        .then(done, done);
+        .then(() => jabber.close(done))
+        .catch(done);
     });
 
     it('should log when goes offline', function (done) {
@@ -77,8 +77,8 @@ describe('services/jabber/class', function () {
 
       jabber.connect()
         .then(() => assert.called(info))
-        .then(() => jabber.close())
-        .then(done, done);
+        .then(() => jabber.close(done))
+        .catch(done);
     });
 
     it('should log when receive message', function (done) {
@@ -86,13 +86,123 @@ describe('services/jabber/class', function () {
 
       jabber.connect()
         .then(() => assert.called(info))
-        .then(() => jabber.close())
-        .then(done, done);
+        .then(() => jabber.close(done))
+        .catch(done);
+    });
+
+  });
+
+  describe('#close', function () {
+
+    let jabber;
+
+    beforeEach(function () {
+      jabber = new Jabber(options);
+    });
+
+    it('should close connection to jabber', function (done) {
+      jabber.close(done);
     });
 
   });
 
   describe('#send', function () {
+
+    let jabber;
+    beforeEach(function () {
+      jabber = new Jabber(options);
+    });
+
+    it('should send message to user if client is online', function (done) {
+      const data = { jid: { user: 'user', domain: 'domain' } };
+      xmpp.on.withArgs('online').callsArgWith(1, data);
+
+      jabber.connect()
+        .then(() => jabber.send('foo', 'message'))
+        .then(() => assert.called(xmpp.send))
+        .then(() => jabber.close(done))
+        .catch(done);
+
+    });
+
+    it('should enqueue message if client is offline', function (done) {
+
+      jabber.connect()
+        .then(() => jabber.send('foo', 'message'))
+        .then(() => assert.notCalled(xmpp.send))
+        .then(() => jabber.close(done))
+        .catch(done);
+
+    });
+
+    it('should send message from queue when client goes online', function (done) {
+      const data = { jid: { user: 'user', domain: 'domain' } };
+      setTimeout(() => {
+        xmpp.on.withArgs('online').callArgWith(1, data);
+      }, 5);
+
+      jabber.connect()
+        .then(() => jabber.send('foo', 'message'))
+        .then(() => assert.notCalled(xmpp.send))
+        .then(() => {
+          setTimeout(() => {
+            assert.called(xmpp.send);
+            done();
+          }, 10);
+        })
+        .catch(done);
+    });
+
+    it('should not send message in silent mode', function (done) {
+      const data = { jid: { user: 'user', domain: 'domain' } };
+      xmpp.on.withArgs('online').callsArgWith(1, data);
+
+      options.silent = true;
+      jabber = new Jabber(options);
+
+      jabber.connect()
+        .then(() => jabber.send('foo', 'message'))
+        .then(() => assert.notCalled(xmpp.send))
+        .then(done, done);
+    });
+
+    it('should send `keep-alive` messages', function (done) {
+      const clock = sinon.useFakeTimers();
+
+      jabber.connect()
+        .then(() => clock.tick(15000))
+        .then(() => assert.callCount(xmpp.send, 1))
+        .then(() => clock.tick(10000))
+        .then(() => assert.callCount(xmpp.send, 2))
+        .then(() => clock.tick(20000))
+        .then(() => assert.callCount(xmpp.send, 4))
+        .then(() => clock.restore())
+        .then(done, done);
+    });
+
+    it('should not keep to many messages in queue', function (done) {
+
+      const data = { jid: { user: 'user', domain: 'domain' } };
+      setTimeout(() => {
+        xmpp.on.withArgs('online').callArgWith(1, data);
+      }, 5);
+
+      jabber.connect()
+        .then(() => {
+          for (let i = 0; i < 1000; i++) {
+            jabber.send('foo', 'message');
+          }
+        })
+        .then(() => {
+          setTimeout(() => {
+            assert.isBelow(xmpp.send.callCount, 500);
+            done();
+          }, 10);
+        })
+        .catch(done);
+
+    });
+
   });
 
 });

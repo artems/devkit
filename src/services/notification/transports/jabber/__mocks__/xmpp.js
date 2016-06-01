@@ -6,6 +6,8 @@ export default function xmppStub() {
 
   xmpp.prototype.end = xmpp.end = sinon.stub();
 
+  xmpp.prototype.send = xmpp.send = sinon.stub();
+
   xmpp.prototype.connect = xmpp.connect = sinon.stub();
 
   xmpp.prototype.addListener = xmpp.addListener = sinon.stub();

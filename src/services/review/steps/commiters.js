@@ -11,7 +11,7 @@ import minimatch from 'minimatch';
  *
  * @return {Promise.<Array.<GitHubFile>>}
  */
-export function getFiles(pullRequest, ignorePatterns, filesToCheck) {
+export function getFiles(pullRequest, ignorePatterns, filesToCheck = 5) {
   let files = pullRequest.get('files');
 
   if (_.isEmpty(files)) {
@@ -30,7 +30,7 @@ export function getFiles(pullRequest, ignorePatterns, filesToCheck) {
 
       return keep;
     })
-    .sampleSize(filesToCheck || 5)
+    .sampleSize(filesToCheck)
     .value();
 
   return Promise.resolve(files);
@@ -46,7 +46,7 @@ export function getFiles(pullRequest, ignorePatterns, filesToCheck) {
  *
  * @return {Promise.<Array>} [commit]
  */
-export function getCommits(github, pullRequest, since, commitsCount) {
+export function getCommits(github, pullRequest, since, commitsCount = 10) {
 
   return function (files) {
     const promise = [];
@@ -54,7 +54,7 @@ export function getCommits(github, pullRequest, since, commitsCount) {
     const options = {
       user: pullRequest.owner,
       repo: pullRequest.repository.name,
-      per_page: commitsCount || 10
+      per_page: commitsCount
     };
 
     if (since) {

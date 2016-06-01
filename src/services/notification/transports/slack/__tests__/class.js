@@ -53,11 +53,11 @@ describe('services/slack/class', function () {
   describe('#constructor', function () {
 
     it('should return Slack', function () {
-      const jabber = new Slack(options);
+      const slack = new Slack(options);
 
-      assert.property(jabber, 'send');
-      assert.property(jabber, 'close');
-      assert.property(jabber, 'connect');
+      assert.property(slack, 'send');
+      assert.property(slack, 'close');
+      assert.property(slack, 'connect');
     });
 
     it('should throw an error if login and password is not set', function () {

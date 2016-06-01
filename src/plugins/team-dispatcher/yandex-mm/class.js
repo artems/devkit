@@ -1,4 +1,4 @@
-import { cloneDeep, assign, flatten } from 'lodash';
+import { assign, flatten, includes, cloneDeep } from 'lodash';
 import YandexStaffTeam from '../yandex/class';
 
 export default class YandexMMStaffTeam extends YandexStaffTeam {
@@ -9,7 +9,7 @@ export default class YandexMMStaffTeam extends YandexStaffTeam {
     this.teams = teams;
   }
 
-  getTeam(pr) {
+  getMembersForReview(pr) {
     const IMAGE_RE = /^IMAGESUI/;
     const VIDEO_RE = /^(VIDEOUI|MOBVIDEO)/;
 
@@ -41,10 +41,8 @@ export default class YandexMMStaffTeam extends YandexStaffTeam {
   }
 
   _updateTeamInfo(user, groupId) {
-    return assign(user, {
-      groupId,
-      mmTeam: this.teams.image.groupId.includes(groupId) ? 'image' : 'video'
-    });
+    const mmTeam = includes(this.teams.image.groupId, groupId) ? 'image' : 'video';
+    return assign(user, { groupId, mmTeam });
   }
 
 }

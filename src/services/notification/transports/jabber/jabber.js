@@ -129,7 +129,7 @@ export default class Jabber {
       this._queue.push({ to, body });
 
       if (this._queue.length > this._maxQueue) {
-        this._queue = this._queue.slice(-this.maxQueue);
+        this._queue = this._queue.slice(-this._maxQueue);
       }
     }
   }
@@ -141,12 +141,14 @@ export default class Jabber {
    * @param {String} body - message body
    */
   _send(to, body) {
-    if (this.silent) return;
+    this.info(`Send message to: ${to} — ${body}`);
+
+    if (this.silent) {
+      return;
+    }
 
     const elem = { to, type: 'chat' };
     const stanza = new ltx.Element('message', elem).c('body').t(body);
-
-    this.info(`Send message to: ${to} — ${body}`);
 
     this._client.send(stanza);
   }
