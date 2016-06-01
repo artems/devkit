@@ -103,7 +103,9 @@ export default class Slack {
 
       this.info(`Send message to: ${mail} — ${body}`);
 
-      if (this.silent) return;
+      if (this.silent) {
+        return;
+      }
 
       try {
         directMessage.send(body);

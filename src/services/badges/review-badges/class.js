@@ -11,6 +11,8 @@ export default class ReviewBadgeBuilder extends BadgeBase {
    */
   statusToColor(status) {
     switch (status) {
+      case 'changesneeded':
+        return 'yellow';
       case 'inprogress':
         return 'yellow';
       case 'complete':
@@ -29,6 +31,8 @@ export default class ReviewBadgeBuilder extends BadgeBase {
    */
   statusToTitle(status) {
     switch (status) {
+      case 'changesneeded':
+        return 'changes needed';
       case 'inprogress':
         return 'in progress';
       case 'notstarted':

@@ -1,7 +1,11 @@
 export default function mock() {
 
   return {
-    apiAbsence: sinon.stub()
+    getUsers: sinon.stub(),
+    apiAbsence: sinon.stub(),
+    apiUserInfo: sinon.stub(),
+    getUsersInOffice: sinon.stub(),
+    _addAvatarAndUrl: sinon.stub()
   };
 
 }
