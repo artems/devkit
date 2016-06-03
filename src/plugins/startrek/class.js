@@ -6,35 +6,37 @@ export default class YandexStarTrek {
    * @param {Object} options
    */
   constructor(request, options) {
-    this.request = request;
+    this._request = request;
 
     this._options = options;
   }
 
-  sendRequest(url, method, payload) {
-    if (this._options.silent) return;
+  request(url, method, payload) {
+    if (this._options.silent) {
+      return Promise.resolve({});
+    }
 
     const params = {
-      body: JSON.stringify(payload),
+      body: payload ? JSON.stringify(payload) : null,
       headers: {
         Authorization: `OAuth ${this._options.token}`,
         'Content-Type': 'application/json'
       }
     };
 
-    return this.request[method](url, params);
+    return this._request[method](url, params);
   }
 
-  issueRequest(issue, method, payload) {
+  issueUpdate(issue, payload) {
     const url = `${this._options.url}/issues/${issue}`;
 
-    return this.sendRequest(url, method, payload);
+    return this.request(url, 'patch', payload);
   }
 
-  issueStatusChange(issue, method, status) {
+  issueStatusChange(issue, status) {
     const url = `${this._options.url}/issues/${issue}/transitions/${status}/_execute`;
 
-    return this.sendRequest(url, method);
+    return this.request(url, 'post');
   }
 
   /**
@@ -45,7 +47,7 @@ export default class YandexStarTrek {
    *
    * @return {Array}
    */
-  parseIssue(title, queues = []) {
+  parseIssue(title, queues) {
     const issues = [];
     // (SERP|GATEWAY)-[0-9]+
     const regexp = new RegExp('(?:^|\\W)((?:' + queues.join('|') + ')' + '-[0-9]+)(?:\\W|$)', 'g');
@@ -57,4 +59,5 @@ export default class YandexStarTrek {
 
     return issues;
   }
+
 }

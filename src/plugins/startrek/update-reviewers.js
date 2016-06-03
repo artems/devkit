@@ -1,5 +1,5 @@
 import util from 'util';
-import { pluck, forEach } from 'lodash';
+import { map, forEach } from 'lodash';
 
 /**
  * Updates reviewers field in startrek with reviewers from pull request.
@@ -18,7 +18,7 @@ export function updateReviewers(startrek, options, payload) {
   if (pullRequest.review.status !== 'inprogress') {
     return Promise.reject(new Error(util.format(
       'Cannot update reviewers in startrek for not in progress pull request %s',
-      pullRequest.toString()
+      pullRequest
     )));
   }
 
@@ -31,8 +31,8 @@ export function updateReviewers(startrek, options, payload) {
   const reviewers = pullRequest.get('review.reviewers');
 
   const promise = issue.map(task => {
-    return startrek.issueRequest(task, 'patch', {
-      reviewers: pluck(reviewers, 'login')
+    return startrek.issueUpdate(task, {
+      reviewers: map(reviewers, 'login')
     });
   });
 
@@ -44,7 +44,7 @@ export default function setup(options, imports) {
 
   const events = imports.events;
   const logger = imports.logger;
-  const startrek = imports['yandex-startrek'];
+  const startrek = imports.startrek;
 
   forEach(options.events, (event) => {
     events.on(event, (payload) => {

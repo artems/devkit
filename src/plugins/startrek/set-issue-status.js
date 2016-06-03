@@ -17,12 +17,12 @@ export function setIssueStatus(startrek, options, payload, status) {
 
   if (!issue.length) {
     return Promise.reject(new Error(util.format(
-      'Cannot find issue in pull request %s', pullRequest.toString()
+      'Cannot find issue in pull request %s', pullRequest
     )));
   }
 
   const promise = issue.map(task => {
-    return startrek.issueStatusChange(task, 'post', status);
+    return startrek.issueStatusChange(task, status);
   });
 
   return Promise.all(promise);
@@ -32,7 +32,7 @@ export default function setup(options, imports) {
 
   const events = imports.events;
   const logger = imports.logger;
-  const startrek = imports['yandex-startrek'];
+  const startrek = imports.startrek;
 
   forEach(options.events, event => {
     events.on(event, payload => {

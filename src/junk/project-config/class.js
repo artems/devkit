@@ -3,14 +3,10 @@ import minimatch from 'minimatch';
 
 export default class ProjectConfig {
 
-  constrcutor(github, teamDispatcher, logger) {
-    this.github = github;
+  constrcutor(logger, github, teamDispatcher) {
     this.looger = logger;
+    this.github = github;
     this.teamDispatcher = teamDispatcher;
-  }
-
-  _fromBase64(content) {
-    return new Buffer(content, 'base64').toString('utf-8');
   }
 
   /**
@@ -31,7 +27,7 @@ export default class ProjectConfig {
       this.github.repos.getContent(req, (err, data) => {
         if (err) {
           const repo = pullRequest.repository.full_name;
-          return reject(`Config not found for ${repo}`);
+          return reject(new Error(`Config not found for ${repo}`));
         }
 
         const config = JSON.parse(this._fromBase64(data.content));
@@ -39,6 +35,10 @@ export default class ProjectConfig {
         resolve(config);
       });
     });
+  }
+
+  _fromBase64(content) {
+    return new Buffer(content, 'base64').toString('utf-8');
   }
 
   /**
@@ -68,28 +68,26 @@ export default class ProjectConfig {
    * @return {Promise}
    */
   _getRequiredMembers(review, members) {
-    return Promise.all(_.map(members, (user) => {
-      return this.teamDispatcher.findTeamByPullRequest(review.pullRequest)
-        .then(team => team.findTeamMember(user))
+    const team = this.teamDispatcher.findTeamByPullRequest(review.pullRequest);
+
+    const promise = _.map(members, (user) => {
+      return team.findTeamMember(user)
         .then(user => {
           if (!user) {
-            this.logger.info(`There are no user with the login "@${user.login}" in team`);
+            this.logger.warn(`There are no user with the login "@${user.login}" in team`);
             return;
           }
 
-          return {
-            rank: 0,
-            login: user.login,
-            work_email: user.work_email,
-            avatar_url: user.avatar_url
-          };
+          return { rank: 0, login: user.login };
         });
-    }))
-    .then(users => {
-      review.team = review.team.concat(_.compact(users));
-
-      return review;
     });
+
+    return Promise.all(promise)
+      .then(users => {
+        review.members = review.members.concat(_.compact(users));
+
+        return review;
+      });
   }
 
 }

@@ -1,5 +1,5 @@
 import util from 'util';
-import { pluck, forEach } from 'lodash';
+import { map, forEach } from 'lodash';
 
 /**
  * Updates tags field in startrek with components from pull request.
@@ -21,16 +21,16 @@ export function setIssueComponents(startrek, components, options, payload) {
     )));
   }
 
-  const files = pluck(pullRequest.files, 'filename');
+  const files = map(pullRequest.files, 'filename');
 
   return components
     .getResponsibles(null, { files }, 3600 * 24)
     .then(responsibles => {
       return responsibles.map(component => component.codeName);
     })
-    .then((tags = []) => {
+    .then(tags => {
       const promise = issue.map(task => {
-        return startrek.issueRequest(task, 'patch', { tags: { add: tags } });
+        return startrek.issueUpdate(task, { tags: { add: tags } });
       });
 
       return Promise.all(promise);
@@ -41,7 +41,7 @@ export default function setup(options, imports) {
 
   const events = imports.events;
   const logger = imports.logger;
-  const startrek = imports['yandex-startrek'];
+  const startrek = imports.startrek;
   const components = imports['components-api'];
 
   forEach(options.events, event => {

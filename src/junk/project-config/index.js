@@ -6,7 +6,6 @@ export default function setup(options, imports) {
 
   const service = {
 
-
     /**
      * Up members rank
      *
@@ -168,6 +167,7 @@ export default function setup(options, imports) {
           return review;
         });
     }
+
   };
 
   return service;
