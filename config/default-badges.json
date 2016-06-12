@@ -1,0 +1,15 @@
+{
+
+    "review-badges": {
+      "path": "./src/services/badges/review-badges",
+      "options": {
+        "url": "https://devexp.ml/badges/"
+      },
+      "dependencies": [
+        "queue",
+        "events",
+        "pull-request-github"
+      ]
+    }
+
+}

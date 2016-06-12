@@ -1,0 +1,6 @@
+logs
+coverage
+node_modules
+npm-debug.log
+config/secret.json
+.nyc_output
