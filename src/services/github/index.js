@@ -4,8 +4,8 @@ export default function setup(options) {
 
   const github = new GitHub(options);
 
-  if (options.authenticate) {
-    github.authenticate(options.authenticate);
+  if (options.auth) {
+    github.authenticate(options.auth);
   }
 
   return github;

@@ -32,7 +32,7 @@ describe('services/github', function () {
     }).default;
 
     const options = {
-      authenticate: {
+      auth: {
         type: 'token',
         token: '1234567890abcde'
       }
