@@ -1,6 +1,7 @@
 import service from '../';
 import queueMock from '../../../queue/__mocks__/';
 import eventsMock from '../../../events/__mocks__/';
+import loggerMock from '../../../logger/__mocks__/';
 import { pullRequestMock } from
   '../../../model/pull-request/__mocks__/';
 import pullRequestGitHubMock from
@@ -9,12 +10,13 @@ import pullRequestGitHubMock from
 describe('services/badges/review-badges/service', function () {
 
   let options, imports, payload;
-  let queue, events, pullRequest, pullRequestGitHub;
+  let queue, events, logger, pullRequest, pullRequestGitHub;
 
   beforeEach(function () {
 
     queue = queueMock();
     events = eventsMock();
+    logger = loggerMock();
     pullRequestGitHub = pullRequestGitHubMock();
 
     pullRequest = pullRequestMock();
@@ -22,7 +24,12 @@ describe('services/badges/review-badges/service', function () {
     payload = { pullRequest };
 
     options = {};
-    imports = { queue, events, 'pull-request-github': pullRequestGitHub };
+    imports = {
+      queue,
+      events,
+      logger,
+      'pull-request-github': pullRequestGitHub
+    };
 
   });
 
@@ -33,6 +40,7 @@ describe('services/badges/review-badges/service', function () {
 
     queue.dispatch
       .withArgs('pull-request#1')
+      .returns(Promise.resolve())
       .callsArg(1);
 
     service(options, imports);

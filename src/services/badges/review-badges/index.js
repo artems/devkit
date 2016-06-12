@@ -6,6 +6,7 @@ export default function (options, imports) {
 
   const queue = imports.queue;
   const events = imports.events;
+  const logger = imports.logger.getLogger('badges.review');
   const pullRequestGitHub = imports['pull-request-github'];
 
   const builder = new ReviewBadgeBuilder(options.url);
@@ -24,7 +25,8 @@ export default function (options, imports) {
         pullRequest, 'review:badge', badgeContent, POSITION
       );
       return pullRequestGitHub.syncPullRequestWithGitHub(pullRequest);
-    });
+    })
+    .catch(logger.error.bind(logger));
   }
 
   // Subscribe to events for creating review badges.
