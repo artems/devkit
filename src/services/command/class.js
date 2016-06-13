@@ -1,14 +1,21 @@
 import { forEach } from 'lodash';
 
+export function buildRegExp(commandRE) {
+  return new RegExp('(?:^|\\s)(?:' + commandRE + ')(?:\\s|$)', 'i');
+}
+
 export default class CommandDispatcher {
 
   /**
    * @constructor
    *
+   * @param {Object} teamDispatcher
    * @param {Array.<Command>} store - list of commands
    */
-  constructor(store) {
+  constructor(teamDispatcher, store) {
     this.store = store || [];
+
+    this.teamDispatcher = teamDispatcher;
   }
 
   /**
@@ -20,26 +27,42 @@ export default class CommandDispatcher {
    * @return {Promise}
    */
   dispatch(comment, payload) {
+
+    const pullRequest = payload.pullRequest;
+
+    const team = this.teamDispatcher.findTeamByPullRequest(pullRequest);
+
+    if (!team) {
+      return Promise.reject(new Error(
+        `Team is not found for pull request ${pullRequest}`
+      ));
+    }
+
     const promise = [];
 
     forEach(this.store, (command) => {
 
+      const teamRegExp = team.getOption('command.regexp.' + command.id, []);
+      const defaultRegExp = command.test;
+
+      const allRegExp = [].concat(defaultRegExp, teamRegExp).map(buildRegExp);
+
       forEach(comment.split('\n'), (line) => {
-        const matches = line.match(command.test);
+        forEach(allRegExp, (test) => {
+          const matches = line.match(test);
+          if (matches && matches.length > 0) {
+            const arglist = matches.slice(1);
 
-        if (matches && matches.length > 0) {
-          const arglist = matches.slice(1);
-
-          forEach(command.handlers, (handler) => {
-            promise.push(handler(line.trim(), payload, arglist));
-          });
-        }
-
+            promise.push(command.handler(line.trim(), payload, arglist));
+            return false; // break
+          }
+        });
       });
 
     });
 
     return Promise.all(promise);
+
   }
 
 }
@@ -47,8 +70,9 @@ export default class CommandDispatcher {
 /**
  * @typedef {Object} Command
  *
- * @property {RegExp} test - check that the command is present
- * @property {Array.<CommandHandler>} handlers - array of handlers.
+ * @property {String} id - command id
+ * @property {Array.<RegExp>} test - check that the command is present
+ * @property {CommandHandler} handler - handler for command
  */
 
 /**

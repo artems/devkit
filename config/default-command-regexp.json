@@ -2,56 +2,59 @@
 
   "commands": [
     {
-      "test": "\/start",
-      "handlers": ["command-start"]
+      "id": "start",
+      "test": ["\/start"],
+      "handler": "command-start"
     },
     {
-      "test": "\/stop",
-      "handlers": ["command-stop"]
+      "id": "stop",
+      "test": ["\/stop"],
+      "handler": "command-stop"
     },
     {
-      "test": "\/ping",
-      "handlers": ["command-ping"]
+      "id": "ping",
+      "test": ["\/ping", "\/fixed"],
+      "handler": "command-ping"
     },
     {
-      "test": "\/fixed",
-      "handlers": ["command-ping"]
+      "id": "ok",
+      "test": ["\/ok"],
+      "handler": "command-ok"
     },
     {
-      "test": "\/ok",
-      "handlers": ["command-ok"]
+      "id": "not_ok",
+      "test": ["\/!ok"],
+      "handler": "command-not-ok"
     },
     {
-      "test": "\/!ok",
-      "handlers": ["command-not-ok"]
+      "id": "busy",
+      "test": ["\/busy"],
+      "handler": "command-busy"
     },
     {
-      "test": "\/busy",
-      "handlers": ["command-busy"]
+      "id": "add",
+      "test": ["\/add (@?\\w+)"],
+      "handler": "command-add"
     },
     {
-      "test": "^занят",
-      "handlers": ["command-busy"]
+      "id": "change",
+      "test": ["\/change (@?\\w+) to (@?\\w+)"],
+      "handler": "command-change"
     },
     {
-      "test": "\/add (@\\w+)",
-      "handlers": ["command-add"]
+      "id": "remove",
+      "test": ["\/remove (@?\\w+)"],
+      "handler": "command-remove"
     },
     {
-      "test": "\/change (@\\w+) to (@\\w+)",
-      "handlers": ["command-change"]
+      "id": "replace",
+      "test": ["\/replace (@?\\w+)"],
+      "handler": "command-replace"
     },
     {
-      "test": "\/remove (@\\w+)",
-      "handlers": ["command-remove"]
-    },
-    {
-      "test": "\/replace (@\\w+)",
-      "handlers": ["command-replace"]
-    },
-    {
-      "test": "\/help",
-      "handlers": ["command-help"]
+      "id": "help",
+      "test": ["\/help"],
+      "handler": "command-help"
     }
   ]
 

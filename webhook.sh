@@ -1,7 +1,5 @@
 #!/bin/sh
 
-mongo devexp_test --eval "db.dropDatabase()"
-
 curl \
   -X POST \
   -H "Content-Type: application/json" \

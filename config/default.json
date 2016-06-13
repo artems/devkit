@@ -130,12 +130,6 @@
 
     "pull-request-github": {
       "path": "./src/services/pull-request-github-delayed",
-      "options": {
-        "separator": {
-          "top": "\n<hr><div id=\"devexp-content-start\"></div>",
-          "bottom": "<div id=\"devexp-content-end\"></div>"
-        }
-      },
       "dependencies": [
         "github"
       ]
@@ -207,6 +201,7 @@
         "queue",
         "events",
         "logger",
+        "team-dispatcher",
         "pull-request-model",
         "command-start",
         "command-stop",

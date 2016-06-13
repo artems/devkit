@@ -1,40 +1,28 @@
-import { forEach } from 'lodash';
-
-import service, { buildRegExp } from '../';
+import service from '../';
 import queueMock from '../../queue/__mocks__/';
 import eventsMock from '../../events/__mocks__/';
 import loggerMock from '../../logger/__mocks__/';
+import teamDispatcherMock from '../../team-dispatcher/__mocks__/';
 import { pullRequestMock, pullRequestModelMock } from
   '../../model/pull-request/__mocks__/';
 
-function makePositiveCases(command) {
-  return [
-    `${command}`,
-    `Lorem ipsum dolor sit amet ${command}`,
-    `${command} lorem ipsum dolor sit amet`,
-    `Lorem ipsum dolor sit amet, ${command} consectetur adipisicing elit`,
-    `Lorem ipsum dolor sit amet,\n${command} consectetur adipisicing elit`
-  ];
-}
-
-function makeNegativeCases(command) {
-  return [
-    `Lorem ipsum dolor sit amet${command}`,
-    `${command}lorem ipsum dolor sit amet`,
-    `lorem ipsum dolor${command} sit amet`
-  ];
-}
-
 describe('service/command', function () {
 
-  let queue, events, logger, pullRequest, PullRequestModel, commandHandlerStart;
+  let queue, events, logger, teamDispatcher;
+  let pullRequest, PullRequestModel, commandHandlerStart;
   let options, imports, payload;
 
   beforeEach(function () {
 
     options = {
       events: ['github:issue_comment'],
-      commands: [{ test: '/start', handlers: ['command-handler-start'] }]
+      commands: [
+        {
+          id: 'start',
+          test: ['/start'],
+          handler: 'command-handler-start'
+        }
+      ]
     };
 
     queue = queueMock();
@@ -42,6 +30,8 @@ describe('service/command', function () {
     logger = loggerMock();
 
     pullRequest = pullRequestMock();
+
+    teamDispatcher = teamDispatcherMock();
 
     PullRequestModel = pullRequestModelMock();
 
@@ -59,6 +49,7 @@ describe('service/command', function () {
       queue,
       events,
       logger,
+      'team-dispatcher': teamDispatcher,
       'pull-request-model': PullRequestModel,
       'command-handler-start': commandHandlerStart
     };
@@ -87,56 +78,12 @@ describe('service/command', function () {
     };
 
     service(options, imports);
-
   });
 
   it('should throw an error of handler is not given', function () {
     delete imports['command-handler-start'];
 
     assert.throws(() => service(options, imports), /not found/);
-  });
-
-  describe('#buildRegExp', function () {
-
-    const testCases = [
-      {
-        test: '/command',
-        positive: makePositiveCases('/command')
-      },
-      {
-        test: '/command|/команда|ok',
-        positive: [].concat(
-          makePositiveCases('/command'),
-          makePositiveCases('/команда'),
-          'ok Lorem ipsum dolor sit amet'
-        ),
-        negative: [].concat(
-          makeNegativeCases('ok'),
-          makePositiveCases('!ok'),
-          makeNegativeCases('command'),
-          makeNegativeCases('команда')
-        )
-      }
-    ];
-
-    testCases.forEach(command => {
-
-      const regexp = buildRegExp(command.test);
-
-      forEach(command.positive, (comment) => {
-        it('should find command using regexp — ' + command.test, function () {
-          assert.match(comment, regexp);
-        });
-      });
-
-      forEach(command.negative, (comment) => {
-        it('should not find command using regexp — ' + command.test, function () {
-          assert.notMatch(comment, regexp);
-        });
-      });
-
-    });
-
   });
 
 });

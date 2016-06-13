@@ -46,12 +46,12 @@ export default function commandService(options, imports) {
     }
 
     return review.choose(pullRequest)
-      .then(({ ranks }) => {
+      .then(({ reviewers }) => {
         pullRequestReviewers = reject(
           pullRequestReviewers, { login: oldReviewerLogin }
         );
 
-        pullRequestReviewers.push(cloneDeep(ranks.shift()));
+        pullRequestReviewers.push(cloneDeep(reviewers.shift()));
 
         return pullRequestReview.updateReview(
           pullRequest, { reviewers: pullRequestReviewers }
