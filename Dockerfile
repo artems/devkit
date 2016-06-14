@@ -16,6 +16,6 @@ COPY ./config /usr/src/app/config
 COPY ./start.js /usr/src/app/start.js
 COPY ./.babelrc /usr/src/app/.babelrc
 
-EXPOSE 8080
+EXPOSE 80
 
-CMD ["npm", "start"]
+CMD ["node", "start"]

@@ -191,7 +191,7 @@ describe('services/review/class', function () {
         .then(done, done);
     });
 
-    it('should return resolved promise with choosen reviewers', function (done) {
+    it('should return resolved promise with chosen reviewers', function (done) {
       review.choose(pullRequest)
         .then(review => {
           assert.isArray(review.members);

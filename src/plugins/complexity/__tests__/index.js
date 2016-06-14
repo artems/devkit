@@ -1,19 +1,20 @@
 import _ from 'lodash';
+import * as complexity from '../';
 
-import * as complexity from '../index';
-
-describe('services/complexity', function () {
+describe('plugins/complexity', function () {
 
   describe('#additionsComplexity', function () {
 
-    it('should return 0', function () {
+    it('should return 0 for nothing', function () {
       assert.equal(complexity.additionsComplexity(0), 0);
     });
 
-    it('should calculate complexity', function () {
+    it('should calculate complexity for additions', function () {
       _.range(0, 2000, 50).reduce((acc, v) => {
-        assert.ok(complexity.additionsComplexity(v) >=
-          complexity.additionsComplexity(acc));
+        assert.ok(
+          complexity.additionsComplexity(v) >=
+          complexity.additionsComplexity(acc)
+        );
         return v;
       }, 0);
 
@@ -27,14 +28,16 @@ describe('services/complexity', function () {
 
   describe('#deletionsComplexity', function () {
 
-    it('should return 0', function () {
+    it('should return 0 for nothing', function () {
       assert.equal(complexity.deletionsComplexity(0), 0);
     });
 
-    it('should calculate complexity', function () {
+    it('should calculate complexity for deletions', function () {
       _.range(0, 2000, 50).reduce((acc, v) => {
-        assert.ok(complexity.deletionsComplexity(v) >=
-          complexity.deletionsComplexity(acc));
+        assert.ok(
+          complexity.deletionsComplexity(v) >=
+          complexity.deletionsComplexity(acc)
+        );
         return v;
       }, 0);
 
@@ -48,14 +51,16 @@ describe('services/complexity', function () {
 
   describe('#commitsComplexity', function () {
 
-    it('should return 0', function () {
+    it('should return 0 for nothing', function () {
       assert.equal(complexity.commitsComplexity(0), 0);
     });
 
-    it('should calculate complexity', function () {
+    it('should calculate complexity for commits', function () {
       _.range(0, 100, 3).reduce((acc, v) => {
-        assert.ok(complexity.commitsComplexity(v) >=
-          complexity.commitsComplexity(acc));
+        assert.ok(
+          complexity.commitsComplexity(v) >=
+          complexity.commitsComplexity(acc)
+        );
         return v;
       }, 0);
 

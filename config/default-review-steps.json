@@ -22,6 +22,7 @@
   "review-step-commiters": {
     "path": "./src/services/review/steps/commiters",
     "dependencies": [
+      "logger",
       "github"
     ]
   },

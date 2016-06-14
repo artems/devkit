@@ -72,20 +72,12 @@ export default function setup(options, imports) {
      */
     extender() {
 
-      const Rank = new Schema({
-        login: String,
-        value: Number
-      });
+      const RankValue = new Schema({ login: String, value: Number });
+      const RankStepValues = new Schema({ name: String, ranks: [RankValue] });
 
-      const Banned = new Schema({
-        count: Number,
-        login: String
-      });
+      const Banned = new Schema({ login: String, round: Number });
 
-      const Reviewer = new Schema({
-        rank: Number,
-        login: String
-      });
+      const Reviewer = new Schema({ login: String });
 
       return {
         review: {
@@ -99,7 +91,7 @@ export default function setup(options, imports) {
             ],
             'default': 'notstarted'
           },
-          ranks: [Rank],
+          ranks: [RankStepValues],
           banned: [Banned],
           reviewers: [Reviewer],
           approveCount: {

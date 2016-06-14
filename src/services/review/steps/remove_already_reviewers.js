@@ -27,10 +27,7 @@ function removeAlreadyReviewers(review) {
       return remove;
     })
     .map(member => {
-      return {
-        rank: -Infinity,
-        login: member.login
-      };
+      return { login: member.login, rank: -Infinity };
     })
     .value();
 

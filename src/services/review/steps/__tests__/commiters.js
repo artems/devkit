@@ -3,11 +3,12 @@ import service, {
 } from '../commiters';
 
 import githubMock from '../../../github/__mocks__/';
+import loggerMock from '../../../logger/__mocks__/';
 import { pullRequestMock } from '../../../model/pull-request/__mocks__/';
 import { reviewMembersMock } from '../../__mocks__/';
 
 describe('services/review/steps/commiters', function () {
-  let members, github, commit, files, pullRequest;
+  let members, logger, github, commit, files, pullRequest;
   let ignorePatterns = [];
 
   const filesToCheck = 10;
@@ -19,6 +20,8 @@ describe('services/review/steps/commiters', function () {
     commit.callsArgWithAsync(1, null, []);
 
     members = reviewMembersMock();
+
+    logger = loggerMock();
 
     github = githubMock();
     github.repos.getCommits = commit;
@@ -67,7 +70,7 @@ describe('services/review/steps/commiters', function () {
 
     beforeEach(function () {
       since = '2015-01-01T01:00:00Z';
-      helper = getCommits(github, pullRequest, since, commitsCount);
+      helper = getCommits(github, logger, pullRequest, since, commitsCount);
     });
 
     it('should return commits associated with files', function (done) {
@@ -198,7 +201,7 @@ describe('services/review/steps/commiters', function () {
       { login: 'Captain America', rank: 2 }
     ];
 
-    const commiters = service({}, { github });
+    const commiters = service({}, { github, logger });
 
     commiters(review, options)
       .then(actual => assert.sameDeepMembers(actual, expected))
@@ -209,7 +212,7 @@ describe('services/review/steps/commiters', function () {
   it('should do nothing if there is no team in a review object', function (done) {
     const review = { members: [] };
 
-    const commiters = service({}, {});
+    const commiters = service({}, { github, logger });
 
     commiters(review, {})
       .then(() => {})

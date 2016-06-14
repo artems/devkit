@@ -26,11 +26,11 @@ export default function setup(options, imports) {
    * @param {Object} payload.pullRequest
    */
   function autoStart(payload) {
-    if (!shouldStart(payload.pullRequest)) return;
-
     const pullRequest = payload.pullRequest;
 
-    logger.info('Autostart review %s', pullRequest);
+    if (!shouldStart(pullRequest)) return;
+
+    logger.info('Autostart review. %s', pullRequest);
 
     review.choose(pullRequest)
       .then(result => pullRequestReview.updateReview(pullRequest, result))
@@ -39,7 +39,5 @@ export default function setup(options, imports) {
 
   events.on('github:pull_request:opened', autoStart);
   events.on('github:pull_request:synchronize', autoStart);
-
-  return {};
 
 }

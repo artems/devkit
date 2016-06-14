@@ -7,9 +7,9 @@ export default function setup(options, imports) {
   return {
 
     /**
-     * Pre save hook for pull_request model which calculates pull request complexity.
+     * Setup pre-save hook for `pull_request` model which calculates pull request complexity.
      *
-     * @param {Object} model - pull request object
+     * @param {Object} model - pull_request model
      */
     mixin: function (model) {
 
@@ -28,19 +28,17 @@ export default function setup(options, imports) {
     },
 
     /**
-     * Extend pull_request model to add complexity rate.
+     * Extend `pull_request` model to add complexity rate.
      *
      * @return {Object}
      */
     extender: function () {
-
       return {
         complexity: {
           type: Number,
           'default': 0
         }
       };
-
     }
 
   };

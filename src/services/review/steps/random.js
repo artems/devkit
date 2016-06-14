@@ -14,10 +14,8 @@ function random(review, options) {
 
   let reviewers = chain(review.members)
     .map(member => {
-      return {
-        rank: Math.floor(Math.random() * (max + 1)),
-        login: member.login
-      };
+      const rank = Math.floor(Math.random() * max) + 1;
+      return { login: member.login, rank };
     })
     .filter(member => member.rank > 0)
     .value();

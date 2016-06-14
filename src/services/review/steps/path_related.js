@@ -75,11 +75,10 @@ export function incRank(options, review) {
         });
       }
 
+      const rank = Math.floor(Math.random() * max) + 1;
+
       reviewers = _.map(reviewers, (reviewer) => {
-        return {
-          rank: Math.floor(Math.random() * max) + 1,
-          login: reviewer.login
-        };
+        return { login: reviewer.login, rank };
       });
     }
 
@@ -100,7 +99,6 @@ export function decRank(options, review) {
 
   return function (files) {
     const { max, pattern, members } = options;
-    const rank = Math.floor(Math.random() * max) + 1;
     const isApplicable = isMatchAll(files, pattern);
 
     let reviewers = [];
@@ -109,10 +107,9 @@ export function decRank(options, review) {
       reviewers = _.chain(review.members)
         .filter(reviewer => members.indexOf(reviewer.login) !== -1)
         .map(reviewer => {
-          return {
-            rank: -rank,
-            login: reviewer.login
-          };
+          const rank = -(Math.floor(Math.random() * max) + 1);
+
+          return { login: reviewer.login, rank };
         })
         .value();
     }
@@ -139,7 +136,8 @@ export function pathRelated(review, options) {
       const dec = Promise.resolve(files)
         .then(decRank(_.assign({}, options, { pattern: options.decPattern }), review));
 
-      return Promise.all([inc, dec]).then(([inc, dec]) => inc.concat(dec));
+      return Promise.all([inc, dec])
+        .then(([inc, dec]) => [].concat(inc, dec));
     });
 }
 

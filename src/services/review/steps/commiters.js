@@ -40,13 +40,14 @@ export function getFiles(pullRequest, ignorePatterns, filesToCheck = 5) {
  * Get last commits of files.
  *
  * @param {Object} github
+ * @param {Object} logger
  * @param {Object} pullRequest
  * @param {String} since - get commits which newer then since date.
  * @param {Number} commitsCount - number of commits to get.
  *
  * @return {Promise.<Array>} [commit]
  */
-export function getCommits(github, pullRequest, since, commitsCount = 10) {
+export function getCommits(github, logger, pullRequest, since, commitsCount = 10) {
 
   return function (files) {
     const promise = [];
@@ -66,13 +67,18 @@ export function getCommits(github, pullRequest, since, commitsCount = 10) {
 
       promise.push(new Promise(resolve => {
         github.repos.getCommits(req, (error, commits) => {
-          // TODO error log
-          error ? resolve([]) : resolve(commits);
+          if (error) {
+            commits = [];
+            logger.error(error);
+          }
+
+          resolve(commits);
         });
       }));
     });
 
-    return Promise.all(promise).then(result => _.flatten(result));
+    return Promise.all(promise)
+      .then(result => _.flatten(result));
   };
 
 }
@@ -152,6 +158,7 @@ export function getSinceDate(date) {
 export default function setup(options, imports) {
 
   const github = imports.github;
+  const logger = imports.logger.getLogger('review.step.commiters');
 
   /**
    * Add rank for commiters in same files as current pull request.
@@ -178,7 +185,7 @@ export default function setup(options, imports) {
     const pullRequest = review.pullRequest;
 
     return getFiles(pullRequest, options.ignore, options.filesToCheck)
-      .then(getCommits(github, pullRequest, sinceDate, options.commitsCount))
+      .then(getCommits(github, logger, pullRequest, sinceDate, options.commitsCount))
       .then(getCommiters)
       .then(addRank(max, members));
   }

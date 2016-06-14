@@ -15,7 +15,6 @@ describe('plugins/complexity/addon', function () {
   describe('#mixin', function () {
 
     it('should setup save hook', function (done) {
-
       const addon = service(options, imports);
 
       const context = {
@@ -30,7 +29,6 @@ describe('plugins/complexity/addon', function () {
         assert.equal(context.complexity, 25);
         done();
       });
-
     });
 
   });
@@ -42,6 +40,7 @@ describe('plugins/complexity/addon', function () {
       const extender = addon.extender();
 
       assert.isObject(extender);
+      assert.property(extender, 'complexity');
     });
 
   });

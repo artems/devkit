@@ -46,21 +46,20 @@ export default class Review {
     review.team = team;
 
     review.banCount = review.team.getOption(
-      'banCount', this.options.banCount
+      'review.banCount', this.options.banCount
     );
 
     review.approveCount = team.getOption(
-      'approveCount', this.options.approveCount
+      'review.approveCount', this.options.approveCount
     );
 
     review.totalReviewers = team.getOption(
-      'totalReviewers', this.options.totalReviewers
+      'review.totalReviewers', this.options.totalReviewers
     );
 
     return team.getMembersForReview(review.pullRequest)
       .then(members => {
         review.members = members;
-
         return review;
       });
   }
@@ -76,7 +75,6 @@ export default class Review {
     return this.getSteps(review)
       .then(steps => {
         review.steps = steps;
-
         return review;
       });
   }
@@ -89,7 +87,7 @@ export default class Review {
    * @return {Promise.<Array.<Function>>}
    */
   getSteps(review) {
-    const stepNames = review.team.getOption('steps', this.options.steps);
+    const stepNames = review.team.getOption('review.steps', this.options.steps);
 
     if (isEmpty(stepNames)) {
       return Promise.reject(new Error('There are no any steps for given team'));
@@ -119,17 +117,17 @@ export default class Review {
    */
   stepsQueue(review) {
     const stepsOptions = review.team.getOption(
-      'stepsOptions', this.options.stepsOptions || {}
+      'review.stepsOptions', this.options.stepsOptions || {}
     );
 
     review.ranks = [];
 
     return review.steps.reduce((promise, { ranker, name }) => {
       return promise.then(review => {
-        return ranker(review, stepsOptions[name]).then(values => {
-          this.logger.info('"%s" returns "%s"', name, JSON.stringify(values));
+        return ranker(review, stepsOptions[name]).then(ranks => {
+          this.logger.info('"%s" returns "%s"', name, JSON.stringify(ranks));
 
-          review.ranks.push({ name, values });
+          review.ranks.push({ name, ranks });
 
           return review;
         });
@@ -138,19 +136,18 @@ export default class Review {
   }
 
   countRanks(review) {
+    let total = review.totalReviewers;
     let members = {};
-    let totalReviewers = review.totalReviewers;
 
     chain(review.ranks)
-      .map('values')
+      .map('ranks')
       .flatten()
-      .forEach(member => {
-        if (!members[member.login]) {
-          members[member.login] = 0;
+      .forEach(({ login, rank }) => {
+        if (!members[login]) {
+          members[login] = 0;
         }
-
-        if (Number.isFinite(members[member.login])) {
-          members[member.login] += member.rank;
+        if (Number.isFinite(members[login])) {
+          members[login] += rank;
         }
       })
       .value();
@@ -158,11 +155,22 @@ export default class Review {
     review.reviewers = chain(members)
       .keys(members)
       .sort((a, b) => members[b] - members[a])
-      .map(login => {
-        return { login, rank: members[login] };
+      .map((login, rank) => {
+        return { login, rank };
       })
       .takeWhile(member => {
-        return member.rank === Infinity || (totalReviewers--) > 0;
+        if (member.rank === -Infinity) {
+          return false;
+        } else if (member.rank === Infinity) {
+          return true;
+        } else if ((total--) > 0) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      .map(member => {
+        return { login: member.login };
       })
       .value();
 
@@ -192,7 +200,7 @@ export default class Review {
         this.logger.info('Reviewers are: %s',
           isEmpty(review.reviewers)
             ? 'ooops, no reviewers were selected...'
-            : review.reviewers.map(x => x.login + '#' + x.rank).join(' ')
+            : review.reviewers.map(x => x.login).join(' ')
         );
 
         return review;

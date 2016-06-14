@@ -9,62 +9,62 @@ import pullRequestReviewMock from
 
 describe('plugins/autoassign', function () {
 
-  let options, imports;
-  let payload, pullRequest, reviewResult;
+  let events, logger, review, payload, options, imports;
+  let pullRequest, pullRequestReview, reviewResult;
 
   beforeEach(function () {
+
+    events = eventsMock();
+    logger = loggerMock();
+    review = reviewMock();
+
+    pullRequest = pullRequestMock();
+
+    pullRequestReview = pullRequestReviewMock();
 
     options = {};
 
     imports = {
-      events: eventsMock(),
-      logger: loggerMock(),
-      review: reviewMock(),
-      'pull-request-review': pullRequestReviewMock()
+      events,
+      logger,
+      review,
+      'pull-request-review': pullRequestReview
     };
-
-    pullRequest = pullRequestMock();
 
     payload = { pullRequest };
 
-    reviewResult = {
-      ranks: [1, 2, 3],
-      members: ['Captain America', 'Hawkeye']
-    };
+    reviewResult = {};
 
-    imports.events.on
+    events.on
       .withArgs('github:pull_request:opened')
       .callsArgWith(1, payload);
 
-    imports.review.choose
+    review.choose
       .withArgs(pullRequest)
       .returns(Promise.resolve(reviewResult));
 
   });
 
-  it('should start review when someone open a new pull request', function (done) {
-
+  it('should choose reviewers when someone open a new pull request', function (done) {
     service(options, imports);
 
     setTimeout(() => {
       assert.calledWithExactly(
-        imports['pull-request-review'].updateReview,
-        payload.pullRequest,
+        pullRequestReview.updateReview,
+        pullRequest,
         reviewResult
       );
       done();
     }, 0);
-
   });
 
-  it('should not restart review if reviewers were selected before', function (done) {
-
-    pullRequest.review.reviewers = [{ login: 'Hulk' }];
+  it('should not reassign reviewers if reviewers were selected before', function (done) {
+    pullRequest.review.reviewers = [{ login: 'Baz' }];
 
     service(options, imports);
 
     setTimeout(() => {
-      assert.notCalled(imports['pull-request-review'].updateReview);
+      assert.notCalled(pullRequestReview.updateReview);
       done();
     }, 0);
 
