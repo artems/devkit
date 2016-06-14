@@ -92,6 +92,15 @@ describe('services/pull-request-github/class', function () {
         .then(done, done);
     });
 
+    it('should not update pull request in silent mode', function (done) {
+      options.silent = true;
+      pullRequestGitHub = new PullRequestGitHub(github, options);
+
+      pullRequestGitHub.updatePullRequestOnGitHub(pullRequest)
+        .then(() => assert.notCalled(github.pullRequests.update))
+        .then(done, done);
+    });
+
   });
 
   describe('#loadPullRequestFiles', function () {

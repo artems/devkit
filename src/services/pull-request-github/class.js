@@ -7,11 +7,14 @@ export default class PullRequestGitHub {
    *
    * @param {Object} github
    * @param {Object} [options]
+   * @param {Boolean} [options.silent] - silent mode
    * @param {String} [options.separator.top] - top body separator
    * @param {String} [options.separator.bottom] - bottom body separator
    */
   constructor(github, options) {
     this.github = github;
+
+    this.silent = options.silent;
 
     this.separator = {
       top: options.separator && options.separator.top ||
@@ -43,6 +46,10 @@ export default class PullRequestGitHub {
   }
 
   updatePullRequestOnGitHub(local) {
+    if (this.silent) {
+      return Promise.resolve(local);
+    }
+
     return new Promise((resolve, reject) => {
       const req = {
         user: local.owner,
