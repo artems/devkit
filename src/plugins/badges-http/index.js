@@ -4,6 +4,8 @@ import { Router as router } from 'express';
 
 export default function setup(options, imports) {
 
+  const http = imports.http;
+
   const badge = new Badgs(options.template);
 
   const badgeRouter = router();
@@ -13,6 +15,8 @@ export default function setup(options, imports) {
   badgeRouter.get('/', function (req, res) {
     res.send('ok').end();
   });
+
+  http.addRoute('/badges', badgeRouter);
 
   return badgeRouter;
 

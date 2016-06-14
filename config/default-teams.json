@@ -8,7 +8,10 @@
         { "login": "d4rkr00t" },
         { "login": "mishanga" },
         { "login": "sbmaxx" }
-      ]
+      ],
+      "overrides": {
+        "totalReviewers": 1
+      }
     }
   },
 

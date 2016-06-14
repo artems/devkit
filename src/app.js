@@ -12,8 +12,11 @@ const application = new Architect(appConfig, basePath);
 application
   .execute()
   .then(resolved => {
+    const events = resolved.events;
     const logger = resolved.logger.getLogger('app');
-    logger.info('Application fully started');
+
+    logger.info('Application started');
+    events.emit('app:start');
   })
   .catch(error => {
     console.error(error.stack ? error.stack : error);

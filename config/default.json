@@ -60,20 +60,11 @@
     "http": {
       "path": "./src/services/http",
       "options": {
-        "port": "8080",
-        "routes": {
-          "/team": "http-routes-team",
-          "/github": "http-routes-github",
-          "/badges": "http-routes-badges",
-          "/badges-updater": "http-routes-badges-updater"
-        }
+        "port": "80"
       },
       "dependencies": [
-        "logger",
-        "http-routes-team",
-        "http-routes-github",
-        "http-routes-badges",
-        "http-routes-badges-updater"
+        "events",
+        "logger"
       ]
     },
 

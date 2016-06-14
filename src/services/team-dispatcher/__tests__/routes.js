@@ -4,6 +4,7 @@ import service from '../routes';
 import responseJSON from '../../http/response';
 
 import teamMock from '../__mocks__/team';
+import httpMock from '../../http/__mocks__/';
 import loggerMock from '../../logger/__mocks__/';
 import teamDispatcherMock from '../__mocks__/';
 import { pullRequestMock, pullRequestModelMock } from
@@ -12,12 +13,13 @@ import { pullRequestMock, pullRequestModelMock } from
 describe('services/team-dispatcher/routes', function () {
 
   let app, options, imports, router;
-  let team, logger, members, pullRequest, teamDispatcher, pullRequestModel;
+  let team, http, logger, members, pullRequest, teamDispatcher, pullRequestModel;
 
   beforeEach(function () {
     app = express();
 
     team = teamMock();
+    http = httpMock();
     logger = loggerMock();
     members = [{ login: 'foo' }, { login: 'bar' }];
     pullRequest = pullRequestMock();
@@ -26,6 +28,7 @@ describe('services/team-dispatcher/routes', function () {
 
     options = {};
     imports = {
+      http,
       logger,
       'team-dispatcher': teamDispatcher,
       'pull-request-model': pullRequestModel

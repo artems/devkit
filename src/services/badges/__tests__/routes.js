@@ -1,6 +1,7 @@
 import service from '../routes';
 import express from 'express';
 import request from 'supertest';
+import httpMock from '../../../services/http/__mocks__';
 import responseJSON from '../../../services/http/response';
 
 import eventsMock from '../../../services/events/__mocks__/';
@@ -8,22 +9,23 @@ import loggerMock from '../../../services/logger/__mocks__/';
 import { pullRequestMock, pullRequestModelMock } from
   '../../../services/model/pull-request/__mocks__/';
 
-describe('plugins/badges-http', function () {
+describe('services/badges', function () {
 
-  let app, options, imports, router;
+  let app, options, imports, http, router;
   let events, logger, pullRequest, pullRequestModel;
 
   beforeEach(function () {
 
     app = express();
 
+    http = httpMock();
     events = eventsMock();
     logger = loggerMock();
     pullRequest = pullRequestMock();
     pullRequestModel = pullRequestModelMock();
 
     options = {};
-    imports = { events, logger, 'pull-request-model': pullRequestModel };
+    imports = { http, events, logger, 'pull-request-model': pullRequestModel };
 
     pullRequestModel.findByRepositoryAndNumber
       .withArgs('org/repo', '1')

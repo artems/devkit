@@ -8,6 +8,7 @@ const GITHUB_HEADER_EVENT = 'x-github-event';
 
 export default function setup(options, imports) {
 
+  const http = imports.http;
   const logger = imports.logger.getLogger('http.webhook');
 
   const githubRouter = router();
@@ -58,6 +59,8 @@ export default function setup(options, imports) {
     }
 
   });
+
+  http.addRoute('/github', githubRouter);
 
   return githubRouter;
 

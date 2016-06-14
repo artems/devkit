@@ -1,17 +1,20 @@
 import service from '../';
 import express from 'express';
 import request from 'supertest';
+import httpMock from '../../../services/http/__mocks__';
 import responseJSON from '../../../services/http/response';
 
 describe('plugins/badges-http', function () {
 
-  let app, options, imports, router;
+  let app, options, imports, http, router;
 
   beforeEach(function () {
     app = express();
 
+    http = httpMock();
+
     options = {};
-    imports = {};
+    imports = { http };
 
     router = service(options, imports);
 

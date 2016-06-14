@@ -1,16 +1,14 @@
 {
-
-    "review-badges": {
-      "path": "./src/services/badges/review-badges",
-      "options": {
-        "url": "https://devexp.ml/badges/"
-      },
-      "dependencies": [
-        "queue",
-        "events",
-        "logger",
-        "pull-request-github"
-      ]
-    }
-
+  "review-badges": {
+    "path": "./src/services/badges/review-badges",
+    "options": {
+      "url": "https://devexp.ml/badges/"
+    },
+    "dependencies": [
+      "queue",
+      "events",
+      "logger",
+      "pull-request-github"
+    ]
+  }
 }

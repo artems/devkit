@@ -2,6 +2,7 @@ import { Router as router } from 'express';
 
 export default function setup(options, imports) {
 
+  const http = imports.http;
   const events = imports.events;
   const logger = imports.logger.getLogger('http.badges');
   const PullRequestModel = imports['pull-request-model'];
@@ -32,6 +33,8 @@ export default function setup(options, imports) {
       });
 
   });
+
+  http.addRoute('/badges-updater', badgesRouter);
 
   return badgesRouter;
 

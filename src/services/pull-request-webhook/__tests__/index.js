@@ -2,23 +2,25 @@ import express from 'express';
 import request from 'supertest';
 import proxyquire from 'proxyquire';
 import bodyParser from 'body-parser';
+import httpMock from '../../http/__mocks__/';
 import loggerMock from '../../logger/__mocks__/';
 import responseJSON from '../../http/response';
 
 describe('services/pull-request-webhook', function () {
 
   let options, imports;
-  let app, router, service, logger;
+  let app, router, service, logger, http;
   let pullRequestHookStub, issueCommentHookStub;
 
   beforeEach(function () {
 
     app = express();
 
+    http = httpMock();
     logger = loggerMock();
 
     options = {};
-    imports = { logger };
+    imports = { http, logger };
 
     pullRequestHookStub = sinon.stub().returns(Promise.resolve({}));
 

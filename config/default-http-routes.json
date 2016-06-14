@@ -3,6 +3,7 @@
   "http-routes-team": {
     "path": "./src/services/team-dispatcher/routes",
     "dependencies": [
+      "http",
       "logger",
       "team-dispatcher",
       "pull-request-model"
@@ -12,6 +13,7 @@
   "http-routes-github": {
     "path": "./src/services/pull-request-webhook",
     "dependencies": [
+      "http",
       "events",
       "logger",
       "pull-request-model",
@@ -23,12 +25,16 @@
     "path": "./src/plugins/badges-http",
     "options": {
       "template": "flat-square"
-    }
+    },
+    "dependencies": [
+      "http"
+    ]
   },
 
   "http-routes-badges-updater": {
     "path": "./src/services/badges/routes",
     "dependencies": [
+      "http",
       "events",
       "logger",
       "pull-request-model"

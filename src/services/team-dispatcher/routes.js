@@ -2,6 +2,7 @@ import { Router as router } from 'express';
 
 export default function setup(options, imports) {
 
+  const http = imports.http;
   const logger = imports.logger.getLogger('team');
   const teamDispatcher = imports['team-dispatcher'];
   const PullRequestModel = imports['pull-request-model'];
@@ -37,6 +38,8 @@ export default function setup(options, imports) {
         logger.error(err);
       });
   });
+
+  http.addRoute('/team', teamRoute);
 
   return teamRoute;
 
