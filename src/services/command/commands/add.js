@@ -2,13 +2,13 @@ import util from 'util';
 import { find, cloneDeep } from 'lodash';
 
 export const EVENT_NAME = 'review:command:add';
-
-export const COMMAND_RE = /\/add (@\w+)/;
+export const COMMAND_RE = '/add (@\\w+)';
 
 export default function setup(options, imports) {
 
   const events = imports.events;
-  const logger = imports.logger;
+  const logger = imports.logger.getLogger('command.add');
+  const command = imports.command;
   const teamDispatcher = imports['team-dispatcher'];
   const pullRequestReview = imports['pull-request-review'];
 
@@ -73,6 +73,8 @@ export default function setup(options, imports) {
       });
 
   };
+
+  command.addCommand('add', COMMAND_RE, addCommand);
 
   return addCommand;
 

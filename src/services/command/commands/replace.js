@@ -2,14 +2,14 @@ import util from 'util';
 import { find, reject, cloneDeep } from 'lodash';
 
 export const EVENT_NAME = 'review:command:replace';
-
-export const COMMAND_RE = /\/replace (@\w+)/;
+export const COMMAND_RE = '/replace (@?\\w+)';
 
 export default function commandService(options, imports) {
 
   const events = imports.events;
-  const logger = imports.logger;
+  const logger = imports.logger.getLogger('command.replace');
   const review = imports.review;
+  const command = imports.command;
   const pullRequestReview = imports['pull-request-review'];
 
   /**
@@ -63,6 +63,8 @@ export default function commandService(options, imports) {
         return pullRequest;
       });
   };
+
+  command.addCommand('replace', COMMAND_RE, replaceCommand);
 
   return replaceCommand;
 }

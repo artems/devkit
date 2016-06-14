@@ -1,6 +1,7 @@
 import service from '../not_ok';
 
 import teamMock from '../../../team-dispatcher/__mocks__/team';
+import commandMock from '../../__mocks__/';
 import teamDispatcherMock from '../../../team-dispatcher/__mocks__/class';
 import eventsMock from '../../../events/__mocks__/';
 import loggerMock from '../../../logger/__mocks__/';
@@ -13,7 +14,7 @@ import pullRequestReviewMock from
 describe('services/command/not_ok', function () {
 
   let team, events, logger, teamDispatcher, pullRequest, pullRequestReview;
-  let options, imports, command, comment, payload;
+  let options, imports, command, comment, payload, commandDispatcher;
 
   beforeEach(function () {
 
@@ -25,6 +26,8 @@ describe('services/command/not_ok', function () {
 
     teamDispatcher = teamDispatcherMock();
     teamDispatcher.findTeamByPullRequest.returns(Promise.resolve(team));
+
+    commandDispatcher = commandMock();
 
     pullRequest = pullRequestMock();
     pullRequest.user.login = 'Black Widow';
@@ -41,6 +44,7 @@ describe('services/command/not_ok', function () {
     imports = {
       events,
       logger,
+      command: commandDispatcher,
       'team-dispatcher': teamDispatcher,
       'pull-request-review': pullRequestReview
     };

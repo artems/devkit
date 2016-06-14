@@ -9,13 +9,47 @@ export default class CommandDispatcher {
   /**
    * @constructor
    *
+   * @param {Object} queue
    * @param {Object} teamDispatcher
-   * @param {Array.<Command>} store - list of commands
+   * @param {Object} PullRequestModel
    */
-  constructor(teamDispatcher, store) {
-    this.store = store || [];
+  constructor(queue, teamDispatcher, PullRequestModel) {
+    this.store = [];
 
+    this.queue = queue;
     this.teamDispatcher = teamDispatcher;
+    this.PullRequestModel = PullRequestModel;
+  }
+
+  /**
+   * Adds new command to store
+   *
+   * @param {Number} id
+   * @param {Array.<RegExp>} test
+   * @param {CommandHandler} handler
+   */
+  addCommand(id, test, handler) {
+    this.store.push({
+      id,
+      test: [].concat(test),
+      handler: this._wrapHandler(handler)
+    });
+  }
+
+  _wrapHandler(handler) {
+    return (command, payload, arglist) => {
+      const pullId = payload.pullRequest.id;
+
+      return this.queue.dispatch('pull-request#' + pullId, () => {
+        return this.PullRequestModel
+          .findById(pullId)
+          .then(pullRequest => {
+            payload.pullRequest = pullRequest;
+            return handler(command, payload, arglist);
+          })
+          .then(pullRequest => pullRequest.save());
+      });
+    };
   }
 
   /**

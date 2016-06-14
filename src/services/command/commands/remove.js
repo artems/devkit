@@ -2,13 +2,13 @@ import util from 'util';
 import { find, reject } from 'lodash';
 
 export const EVENT_NAME = 'review:command:remove';
-
-export const COMMAND_RE = /\/remove (@\w+)/;
+export const COMMAND_RE = '/remove (@\\w+)';
 
 export default function setup(options, imports) {
 
   const events = imports.events;
-  const logger = imports.logger;
+  const logger = imports.logger.getLogger('command.remove');
+  const command = imports.command;
   const pullRequestReview = imports['pull-request-review'];
 
   // TODO must be team config
@@ -71,6 +71,8 @@ export default function setup(options, imports) {
       });
 
   };
+
+  command.addCommand('remove', COMMAND_RE, removeCommand);
 
   return removeCommand;
 }

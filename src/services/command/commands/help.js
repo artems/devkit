@@ -1,8 +1,10 @@
-const EVENT_NAME = 'review:command:help';
+export const EVENT_NAME = 'review:command:help';
+export const COMMAND_RE = '/help';
 
 export default function setup(options, imports) {
 
-  const { events } = imports;
+  const events = imports.events;
+  const command = imports.command;
 
   /**
    * Handle '/help' command.
@@ -17,6 +19,8 @@ export default function setup(options, imports) {
 
     return Promise.resolve(payload.pullRequest);
   };
+
+  command.addCommand('help', COMMAND_RE, helpCommand);
 
   return helpCommand;
 

@@ -3,6 +3,7 @@ import service from '../busy';
 import eventsMock from '../../../events/__mocks__/';
 import loggerMock from '../../../logger/__mocks__/';
 import reviewMock from '../../../review/__mocks__/';
+import commandMock from '../../__mocks__/';
 import { reviewersMock } from '../../__mocks__/';
 import { pullRequestMock } from
   '../../../model/pull-request/__mocks__/';
@@ -12,13 +13,15 @@ import pullRequestReviewMock from
 describe('services/command/busy', function () {
 
   let events, logger, review, pullRequest, pullRequestReview;
-  let options, imports, command, comment, payload;
+  let options, imports, command, comment, payload, commandDispatcher;
 
   beforeEach(function () {
 
     events = eventsMock();
     logger = loggerMock();
     review = reviewMock();
+
+    commandDispatcher = commandMock();
 
     review.choose.returns(Promise.resolve({
       ranks: [{ login: 'Black Widow' }], pullRequest
@@ -39,6 +42,7 @@ describe('services/command/busy', function () {
       events,
       logger,
       review,
+      command: commandDispatcher,
       'pull-request-review': pullRequestReview
     };
 

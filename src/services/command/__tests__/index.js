@@ -9,49 +9,29 @@ import { pullRequestMock, pullRequestModelMock } from
 describe('service/command', function () {
 
   let queue, events, logger, teamDispatcher;
-  let pullRequest, PullRequestModel, commandHandlerStart;
-  let options, imports, payload;
+  let PullRequestModel;
+  let options, imports;
 
   beforeEach(function () {
 
     options = {
-      events: ['github:issue_comment'],
-      commands: [
-        {
-          id: 'start',
-          test: ['/start'],
-          handler: 'command-handler-start'
-        }
-      ]
+      events: ['github:issue_comment']
     };
 
     queue = queueMock();
     events = eventsMock();
     logger = loggerMock();
 
-    pullRequest = pullRequestMock();
-
     teamDispatcher = teamDispatcherMock();
 
     PullRequestModel = pullRequestModelMock();
-
-    payload = {
-      comment: {
-        user: 'Spider-Man',
-        body: '/start'
-      },
-      pullRequest: pullRequest
-    };
-
-    commandHandlerStart = sinon.stub().returns(Promise.resolve());
 
     imports = {
       queue,
       events,
       logger,
       'team-dispatcher': teamDispatcher,
-      'pull-request-model': PullRequestModel,
-      'command-handler-start': commandHandlerStart
+      'pull-request-model': PullRequestModel
     };
 
   });
@@ -62,28 +42,28 @@ describe('service/command', function () {
     assert.calledWith(events.on, 'github:issue_comment');
   });
 
-  it('should dispatch event to handlers', function (done) {
-    queue.dispatch
-      .withArgs('pull-request#1')
-      .callsArg(1);
+  it('should dispatch event to commands', function (done) {
+    const command = sinon.stub().returns(Promise.resolve());
+    const payload = {
+      comment: { body: '/command' },
+      pullRequest: pullRequestMock()
+    };
+    const dispatcher = service(options, imports);
+
+    dispatcher.addCommand('command', '/command', command);
 
     events.on
       .withArgs('github:issue_comment')
-      .callsArgWith(1, payload);
+      .callArgWith(1, payload);
 
-    imports['command-handler-start'] = function (command, payload) {
-      assert.equal(payload, payload);
-      assert.equal(command, payload.comment.body);
+    queue.dispatch
+      .withArgs('pull-request#1')
+      .callArg(1);
+
+    setTimeout(function () {
+      assert.called(command);
       done();
-    };
-
-    service(options, imports);
-  });
-
-  it('should throw an error of handler is not given', function () {
-    delete imports['command-handler-start'];
-
-    assert.throws(() => service(options, imports), /not found/);
+    }, 0);
   });
 
 });

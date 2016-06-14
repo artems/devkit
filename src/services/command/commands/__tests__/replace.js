@@ -1,6 +1,7 @@
 import service from '../../commands/replace';
 
 import teamMock from '../../../team-dispatcher/__mocks__/team';
+import commandMock from '../../__mocks__/';
 import teamDispatcherMock from '../../../team-dispatcher/__mocks__/class';
 import eventsMock from '../../../events/__mocks__/';
 import loggerMock from '../../../logger/__mocks__/';
@@ -14,7 +15,7 @@ import pullRequestReviewMock from
 describe('services/command/replace', function () {
 
   let team, events, logger, review, teamDispatcher, pullRequest, pullRequestReview;
-  let options, imports, command, comment, payload;
+  let options, imports, command, comment, payload, commandDispatcher;
 
   beforeEach(function () {
 
@@ -24,6 +25,8 @@ describe('services/command/replace', function () {
     events = eventsMock();
     logger = loggerMock();
     review = reviewMock();
+
+    commandDispatcher = commandMock();
 
     review.choose.returns(Promise.resolve({
       reviewers: [{ login: 'Spider-Man' }], pullRequest
@@ -48,6 +51,7 @@ describe('services/command/replace', function () {
       events,
       logger,
       review,
+      command: commandDispatcher,
       'team-dispatcher': teamDispatcher,
       'pull-request-review': pullRequestReview
     };

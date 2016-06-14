@@ -1,13 +1,13 @@
 import util from 'util';
 
 export const EVENT_NAME = 'review:command:stop';
-
-export const COMMAND_RE = /\/stop/;
+export const COMMAND_RE = '/stop';
 
 export default function setup(options, imports) {
 
   const events = imports.events;
-  const logger = imports.logger;
+  const logger = imports.logger.getLogger('command.stop');
+  const command = imports.command;
   const pullRequestReview = imports['pull-request-review'];
 
   /**
@@ -52,6 +52,8 @@ export default function setup(options, imports) {
       });
 
   };
+
+  command.addCommand('stop', COMMAND_RE, stopCommand);
 
   return stopCommand;
 }

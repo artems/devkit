@@ -1,56 +1,70 @@
 import { forEach } from 'lodash';
 import CommandDispatcher, { buildRegExp } from '../class';
+
 import teamMock from '../../team-dispatcher/__mocks__/team';
+import queueMock from '../../queue/__mocks__/';
 import teamDispatcherMock from '../../team-dispatcher/__mocks__/';
+import { pullRequestMock, pullRequestModelMock } from
+  '../../model/pull-request/__mocks__/';
 
 describe('services/command/class', function () {
 
-  let team, teamDispatcher;
+  let team, queue, pullRequest, dispatcher, payload;
+  let teamDispatcher, pullRequestModel;
 
   beforeEach(function () {
     team = teamMock();
 
+    queue = queueMock();
+
+    pullRequest = pullRequestMock();
+
+    pullRequestModel = pullRequestModelMock();
+
     teamDispatcher = teamDispatcherMock();
     teamDispatcher.findTeamByPullRequest.returns(team);
+
+    payload = { pullRequest };
+
+    queue.dispatch
+      .withArgs('pull-request#1')
+      .callsArg(1)
+      .returns(Promise.resolve());
+
+    pullRequestModel.findById
+      .returns(Promise.resolve(pullRequest));
+
+    dispatcher = new CommandDispatcher(queue, teamDispatcher, pullRequestModel);
   });
 
-  it('should take an empty array if commands list is not given', function () {
-    const dispatcher = new CommandDispatcher(teamDispatcher);
+  describe('#addCommand', function () {
 
-    assert.isArray(dispatcher.store);
-    assert.lengthOf(dispatcher.store, 0);
+    it('should dispatch event to handlers', function (done) {
+      const commandStart = sinon.stub().returns(Promise.resolve());
+
+      dispatcher.addCommand('start', '/start', commandStart);
+
+      dispatcher.dispatch('/start', payload)
+        .then(() => assert.calledWith(commandStart, '/start', payload))
+        .then(done, done);
+    });
+
   });
 
   describe('#dispatch', function () {
 
-    let h1, h2, h3;
-    let payload, comment, store;
+    let h1, h2, comment;
 
     beforeEach(function () {
       h1 = sinon.stub().returns(Promise.resolve());
       h2 = sinon.stub().returns(Promise.resolve());
-      h3 = sinon.stub().returns(Promise.reject(new Error('just error')));
 
-      store = [];
-      payload = {};
       comment = 'first line\n/fireball\nthird line';
     });
 
     it('should dispatch each line of comment to each command', function (done) {
-      store = [
-        {
-          id: 'all',
-          test: ['.*'],
-          handler: h1
-        },
-        {
-          id: 'fireball',
-          test: ['/fireball'],
-          handler: h2
-        }
-      ];
-
-      const dispatcher = new CommandDispatcher(teamDispatcher, store);
+      dispatcher.addCommand('all', ['.*'], h1);
+      dispatcher.addCommand('fireball', ['/fireball'], h2);
 
       dispatcher.dispatch(comment, payload)
         .then(() => {
@@ -61,15 +75,7 @@ describe('services/command/class', function () {
     });
 
     it('should execute each command only once for each line', function (done) {
-      store = [
-        {
-          id: 'all',
-          test: ['.*', '/fireball'],
-          handler: h1
-        }
-      ];
-
-      const dispatcher = new CommandDispatcher(teamDispatcher, store);
+      dispatcher.addCommand('all', ['.*', '/fireball'], h1);
 
       dispatcher.dispatch(comment, payload)
         .then(() => assert.calledThrice(h1))
@@ -77,19 +83,11 @@ describe('services/command/class', function () {
     });
 
     it('should take regexp for command from team config', function (done) {
-      store = [
-        {
-          id: 'fireball',
-          test: ['/fireball'],
-          handler: h1
-        }
-      ];
+      dispatcher.addCommand('fireball', ['/fireball'], h1);
 
       team.getOption
         .withArgs('command.regexp.fireball')
         .returns(['first line']);
-
-      const dispatcher = new CommandDispatcher(teamDispatcher, store);
 
       dispatcher.dispatch(comment, payload)
         .then(() => assert.calledTwice(h1))
@@ -97,38 +95,22 @@ describe('services/command/class', function () {
     });
 
     it('should return rejected promise if command handler was rejected', function (done) {
-      store = [
-        {
-          id: 'all',
-          test: ['.*'],
-          handler: h1
-        },
-        {
-          id: 'fireball',
-          test: ['/fireball'],
-          handler: h3
-        }
-      ];
+      dispatcher.addCommand('all', ['.*'], h1);
 
-      const dispatcher = new CommandDispatcher(teamDispatcher, store);
+      queue.dispatch
+        .withArgs('pull-request#1')
+        .returns(Promise.reject(new Error('just error')));
 
       dispatcher.dispatch(comment, payload)
+        .then(() => assert.fail())
         .catch(e => assert.match(e.message, /just error/))
         .then(done, done);
     });
 
     it('should pass parsed arguments from RegExp to handler', function (done) {
-      store = [
-        {
-          id: 'change',
-          test: ['/change @(\\w+) to @(\\w+)'],
-          handler: h1
-        }
-      ];
-
       comment = '/change @old to @new';
 
-      const dispatcher = new CommandDispatcher(teamDispatcher, store);
+      dispatcher.addCommand('change', ['/change @(\\w+) to @(\\w+)'], h1);
 
       dispatcher.dispatch(comment, payload)
         .then(() => {
@@ -141,9 +123,9 @@ describe('services/command/class', function () {
     });
 
     it('should return rejected promise if team is not found', function (done) {
-      teamDispatcher.findTeamByPullRequest.returns(null);
+      dispatcher.addCommand('all', ['.*'], h1);
 
-      const dispatcher = new CommandDispatcher(teamDispatcher, store);
+      teamDispatcher.findTeamByPullRequest.returns(null);
 
       dispatcher.dispatch(comment, payload)
         .then(() => assert.fail())

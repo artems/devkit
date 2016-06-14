@@ -1,12 +1,13 @@
 import util from 'util';
 
 export const EVENT_NAME = 'review:command:ping';
-
-export const COMMAND_RE = /\/ping/;
+export const COMMAND_RE = '/ping';
 
 export default function commandService(options, imports) {
 
-  const { events, logger } = imports;
+  const events = imports.events;
+  const logger = imports.logger.getLogger('command.ping');
+  const command = imports.command;
 
   /**
    * Handle '/ping' command.
@@ -40,6 +41,8 @@ export default function commandService(options, imports) {
 
     return Promise.resolve(pullRequest);
   };
+
+  command.addCommand('ping', COMMAND_RE, pingCommand);
 
   return pingCommand;
 }

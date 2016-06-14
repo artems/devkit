@@ -2,14 +2,14 @@ import util from 'util';
 import { find, reject, cloneDeep } from 'lodash';
 
 export const EVENT_NAME = 'review:command:busy';
-
-export const COMMAND_RE = /\/busy/;
+export const COMMAND_RE = '/busy';
 
 export default function setup(options, imports) {
 
   const events = imports.events;
-  const logger = imports.logger;
+  const logger = imports.logger.getLogger('command.busy');
   const review = imports.review;
+  const command = imports.command;
   const pullRequestReview = imports['pull-request-review'];
 
   /**
@@ -66,6 +66,8 @@ export default function setup(options, imports) {
         return pullRequest;
       });
   };
+
+  command.addCommand('busy', COMMAND_RE, busyCommand);
 
   return busyCommand;
 }

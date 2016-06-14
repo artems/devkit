@@ -2,13 +2,13 @@ import util from 'util';
 import { find } from 'lodash';
 
 export const EVENT_NAME = 'review:command:not_ok';
-
-export const COMMAND_RE = /\/!ok/;
+export const COMMAND_RE = '/!ok';
 
 export default function setup(options, imports) {
 
   const events = imports.events;
-  const logger = imports.logger;
+  const logger = imports.logger.getLogger('command.not_ok');
+  const command = imports.command;
   const pullRequestReview = imports['pull-request-review'];
 
   /**
@@ -50,6 +50,8 @@ export default function setup(options, imports) {
         return pullRequest;
       });
   };
+
+  command.addCommand('not_ok', COMMAND_RE, notOkCommand);
 
   return notOkCommand;
 }

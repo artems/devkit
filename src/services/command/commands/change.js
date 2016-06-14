@@ -2,13 +2,13 @@ import util from 'util';
 import { find, reject, cloneDeep } from 'lodash';
 
 export const EVENT_NAME = 'review:command:change';
-
-export const COMMAND_RE = /\/change (@\w+)(?: | to )(@\w+)/;
+export const COMMAND_RE = '/change (@?\\w+)(?: | to )(@?\\w+)';
 
 export default function commandService(options, imports) {
 
   const events = imports.events;
-  const logger = imports.logger;
+  const logger = imports.logger.getLogger('command.change');
+  const command = imports.command;
   const teamDispatcher = imports['team-dispatcher'];
   const pullRequestReview = imports['pull-request-review'];
 
@@ -114,6 +114,8 @@ export default function commandService(options, imports) {
         return pullRequest;
       });
   };
+
+  command.addCommand('change', COMMAND_RE, changeCommand);
 
   return changeCommand;
 }

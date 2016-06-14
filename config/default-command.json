@@ -5,6 +5,7 @@
     "dependencies": [
       "events",
       "logger",
+      "command",
       "team-dispatcher",
       "pull-request-review"
     ]
@@ -16,6 +17,7 @@
       "events",
       "logger",
       "review",
+      "command",
       "team-dispatcher",
       "pull-request-review"
     ]
@@ -26,6 +28,7 @@
     "dependencies": [
       "events",
       "logger",
+      "command",
       "team-dispatcher",
       "pull-request-review"
     ]
@@ -36,6 +39,7 @@
     "dependencies": [
       "events",
       "logger",
+      "command",
       "team-dispatcher",
       "pull-request-review"
     ]
@@ -46,6 +50,7 @@
     "dependencies": [
       "events",
       "logger",
+      "command",
       "pull-request-review"
     ]
   },
@@ -54,7 +59,8 @@
     "path": "./src/services/command/commands/ping",
     "dependencies": [
       "events",
-      "logger"
+      "logger",
+      "command"
     ]
   },
 
@@ -63,6 +69,7 @@
     "dependencies": [
       "events",
       "logger",
+      "command",
       "pull-request-review"
     ]
   },
@@ -73,6 +80,7 @@
       "events",
       "logger",
       "review",
+      "command",
       "team-dispatcher",
       "pull-request-review"
     ]
@@ -83,6 +91,7 @@
     "dependencies": [
       "logger",
       "events",
+      "command",
       "pull-request-review"
     ]
   },
@@ -92,6 +101,7 @@
     "dependencies": [
       "logger",
       "events",
+      "command",
       "pull-request-review"
     ]
   },
@@ -102,7 +112,8 @@
       "link": "https://example.com/help"
     },
     "dependencies": [
-      "events"
+      "events",
+      "command"
     ]
   }
 
