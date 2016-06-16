@@ -15,6 +15,12 @@ export default function setup(options, imports) {
   app.use(responseTime());
   app.use(responseJSON());
 
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+  });
+
   const http = {
 
     server: null,

@@ -1,5 +1,14 @@
 {
 
+  "http-routes-pull": {
+    "path": "./src/services/pull-request-review/routes",
+    "dependencies": [
+      "http",
+      "logger",
+      "pull-request-model"
+    ]
+  },
+
   "http-routes-team": {
     "path": "./src/services/team-dispatcher/routes",
     "dependencies": [
