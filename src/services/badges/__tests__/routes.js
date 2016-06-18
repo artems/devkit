@@ -59,7 +59,7 @@ describe('services/badges', function () {
       .get('/pull/org/repo/1')
       .expect('Content-Type', /application\/json/)
       .expect(500)
-      .expect('{"error":"Pull request not found"}')
+      .expect('{"error":"Pull request org/repo#1 is not found"}')
       .end(done);
   });
 

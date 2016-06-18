@@ -1,7 +1,7 @@
 {
 
   "command-add": {
-    "path": "./src/services/command/commands/add",
+    "path": "./src/services/command/command-add",
     "dependencies": [
       "events",
       "logger",
@@ -12,7 +12,7 @@
   },
 
   "command-busy": {
-    "path": "./src/services/command/commands/busy",
+    "path": "./src/services/command/command-busy",
     "dependencies": [
       "events",
       "logger",
@@ -24,7 +24,7 @@
   },
 
   "command-change": {
-    "path": "./src/services/command/commands/change",
+    "path": "./src/services/command/command-change",
     "dependencies": [
       "events",
       "logger",
@@ -35,7 +35,7 @@
   },
 
   "command-ok": {
-    "path": "./src/services/command/commands/ok",
+    "path": "./src/services/command/command-ok",
     "dependencies": [
       "events",
       "logger",
@@ -46,7 +46,7 @@
   },
 
   "command-not-ok": {
-    "path": "./src/services/command/commands/not_ok",
+    "path": "./src/services/command/command-not-ok",
     "dependencies": [
       "events",
       "logger",
@@ -56,7 +56,7 @@
   },
 
   "command-ping": {
-    "path": "./src/services/command/commands/ping",
+    "path": "./src/services/command/command-ping",
     "dependencies": [
       "events",
       "logger",
@@ -65,7 +65,7 @@
   },
 
   "command-remove": {
-    "path": "./src/services/command/commands/remove",
+    "path": "./src/services/command/command-remove",
     "dependencies": [
       "events",
       "logger",
@@ -75,7 +75,7 @@
   },
 
   "command-replace": {
-    "path": "./src/services/command/commands/replace",
+    "path": "./src/services/command/command-replace",
     "dependencies": [
       "events",
       "logger",
@@ -87,7 +87,7 @@
   },
 
   "command-start": {
-    "path": "./src/services/command/commands/start",
+    "path": "./src/services/command/command-start",
     "dependencies": [
       "logger",
       "events",
@@ -97,7 +97,7 @@
   },
 
   "command-stop": {
-    "path": "./src/services/command/commands/stop",
+    "path": "./src/services/command/command-stop",
     "dependencies": [
       "logger",
       "events",
@@ -107,7 +107,7 @@
   },
 
   "command-help": {
-    "path": "./src/services/command/commands/help",
+    "path": "./src/services/command/command-help",
     "options": {
       "link": "https://example.com/help"
     },

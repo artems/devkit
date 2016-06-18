@@ -1,9 +1,9 @@
 export default function mock() {
 
   return {
-    addCommand: sinon.stub(),
+    dispatch: sinon.stub.returns(Promise.resolve()),
 
-    dispatch: sinon.stub.returns(Promise.resolve())
+    addCommand: sinon.stub()
   };
 
 }

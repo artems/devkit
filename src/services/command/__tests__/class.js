@@ -13,6 +13,7 @@ describe('services/command/class', function () {
   let teamDispatcher, pullRequestModel;
 
   beforeEach(function () {
+
     team = teamMock();
 
     queue = queueMock();
@@ -35,6 +36,7 @@ describe('services/command/class', function () {
       .returns(Promise.resolve(pullRequest));
 
     dispatcher = new CommandDispatcher(queue, teamDispatcher, pullRequestModel);
+
   });
 
   describe('#addCommand', function () {

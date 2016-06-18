@@ -9,27 +9,29 @@ export default function setup(options, imports) {
 
   const badgesRouter = router();
 
-  badgesRouter.get('/pull/:org/:repo/:number', function (req, res) {
+  badgesRouter.get('/pull/:org/:repo/:number', function (req, response) {
 
     const org = req.params.org;
     const repo = req.params.repo;
     const number = req.params.number;
 
+    const fullName = `${org}/${repo}`;
+
     PullRequestModel
-      .findByRepositoryAndNumber(`${org}/${repo}`, number)
+      .findByRepositoryAndNumber(fullName, number)
       .then(pullRequest => {
         if (!pullRequest) {
-          res.error('Pull request not found');
+          response.error(`Pull request ${fullName}#${number} is not found`);
           return;
         }
 
         events.emit('review:update_badges', { pullRequest });
 
-        res.end('ok');
+        response.end('ok');
       })
       .catch(err => {
-        res.error(err.message);
         logger.error(err);
+        response.error(err.message);
       });
 
   });

@@ -20,7 +20,7 @@ describe('plugins/autoassign', function () {
 
     pullRequest = pullRequestMock();
 
-    pullRequestReview = pullRequestReviewMock();
+    pullRequestReview = pullRequestReviewMock(pullRequest);
 
     options = {};
 
@@ -43,9 +43,11 @@ describe('plugins/autoassign', function () {
       .withArgs(pullRequest)
       .returns(Promise.resolve(reviewResult));
 
+    pullRequest.hasReviewers.returns(false);
+
   });
 
-  it('should choose reviewers when someone open a new pull request', function (done) {
+  it('should assign reviewers when someone open a new pull request', function (done) {
     service(options, imports);
 
     setTimeout(() => {
@@ -59,7 +61,7 @@ describe('plugins/autoassign', function () {
   });
 
   it('should not reassign reviewers if reviewers were selected before', function (done) {
-    pullRequest.review.reviewers = [{ login: 'Baz' }];
+    pullRequest.hasReviewers.returns(true);
 
     service(options, imports);
 

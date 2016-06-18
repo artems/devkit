@@ -1,10 +1,20 @@
 import { Schema } from 'mongoose';
+import { isEmpty } from 'lodash';
 
 export default function setup(options, imports) {
 
   return {
 
     mixin(model, modelName) {
+
+      /**
+       * Returns true if pull request has reviewers
+       *
+       * @return {Boolean}
+       */
+      model.methods.hasReviewers = function () {
+        return !isEmpty(this.get('review.reviewers'));
+      };
 
       /**
        * Find pull requests by reviewer

@@ -37,7 +37,7 @@ export default class TeamDispatcher {
    *
    * @param {PullRequest} pullRequest
    *
-   * @return {Array.<Developer>}
+   * @return {Object}
    */
   findTeamByPullRequest(pullRequest) {
     return this.find(pullRequest, 'team');

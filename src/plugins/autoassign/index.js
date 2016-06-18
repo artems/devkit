@@ -1,16 +1,3 @@
-import { isEmpty } from 'lodash';
-
-/**
- * Returns true if review is not started.
- *
- * @param {Object} pullRequest
- *
- * @return {Boolean}
- */
-function shouldStart(pullRequest) {
-  return isEmpty(pullRequest.get('review.reviewers'));
-}
-
 export default function setup(options, imports) {
 
   const events = imports.events;
@@ -25,10 +12,8 @@ export default function setup(options, imports) {
    * @param {Object} payload
    * @param {Object} payload.pullRequest
    */
-  function autoStart(payload) {
-    const pullRequest = payload.pullRequest;
-
-    if (!shouldStart(pullRequest)) return;
+  function autoStart({ pullRequest }) {
+    if (pullRequest.hasReviewers()) return;
 
     logger.info('Autostart review. %s', pullRequest);
 

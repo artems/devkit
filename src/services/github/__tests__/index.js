@@ -5,12 +5,14 @@ import serviceMock from '../__mocks__/';
 
 describe('services/github', function () {
 
+  let options, imports;
+
   it('the mock object should have the same methods', function () {
-    const options = {
+    options = {
       version: '3.0.0'
     };
 
-    const obj = service(options);
+    const obj = service(options, imports);
     const mock = serviceMock();
     const methods = Object.keys(mock);
 

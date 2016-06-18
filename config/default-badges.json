@@ -1,6 +1,6 @@
 {
   "review-badges": {
-    "path": "./src/services/badges/review-badges",
+    "path": "./src/services/badges-review",
     "options": {
       "url": "https://devexp.ml/badges/"
     },
