@@ -5,10 +5,22 @@ export default class TeamDispatcher {
   /**
    * @constructor
    *
-   * @param {Array.<TeamRoute>} routes
    */
-  constructor(routes) {
-    this.routes = routes || [];
+  constructor() {
+    this.routes = [];
+  }
+
+  /**
+   * Add route for team
+   *
+   * @param {Object} team
+   * @param {String} name
+   * @param {Array.<String>} pattern
+   */
+  addRoute(team, name, pattern) {
+    [].concat(pattern).forEach(pattern => {
+      this.routes.push({ team, name, pattern });
+    });
   }
 
   /**

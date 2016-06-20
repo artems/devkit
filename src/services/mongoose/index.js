@@ -19,7 +19,12 @@ export default function setup(options, imports) {
   return new Promise((resolve, reject) => {
     connection
       .once('open', () => {
-        logger.info('Connected to %s:%s', connection.host, connection.port);
+        logger.info(
+          'Connected to %s:%s (%s)',
+          connection.host,
+          connection.port,
+          options.host
+        );
         resolve(connection);
       })
       .once('error', (error) => {

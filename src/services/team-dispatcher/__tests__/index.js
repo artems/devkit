@@ -1,56 +1,25 @@
 import service from '../';
-import teamMock from '../__mocks__/team';
-import { pullRequestMock } from '../../model/pull-request/__mocks__/';
+import serviceMock from '../__mocks__/class';
 
 describe('services/team-dispatcher', function () {
 
-  let imports, options, pullRequest;
+  let imports, options;
 
   beforeEach(function () {
-
-    options = {
-      routes: [
-        { team_1: ['github/*', 'jquery/*'] },
-        { team_2: ['nodejs/*'] },
-        { team_3: 'visionmedia/supertest' }
-      ]
-    };
-
-    imports = {
-      team_1: teamMock(),
-      team_2: teamMock(),
-      team_3: teamMock()
-    };
-
-    pullRequest = pullRequestMock();
-
+    options = {};
+    imports = {};
   });
 
-  it('should properly parse options', function () {
+  it('the mock object should have the same methods', function () {
 
-    pullRequest.repository.full_name = 'github/hubot';
+    const obj = service(options, imports);
+    const mock = serviceMock();
+    const methods = Object.keys(mock);
 
-    const dispatcher = service(options, imports);
+    methods.forEach(method => {
+      assert.property(obj, method);
+    });
 
-    assert.property(dispatcher, 'findTeamByPullRequest');
-    assert.property(dispatcher, 'findTeamNameByPullRequest');
-
-    const result = dispatcher.findTeamNameByPullRequest(pullRequest);
-
-    assert.equal(result, 'team_1');
-
-  });
-
-  it('should throw an error if routes are not given', function () {
-    delete options.routes;
-
-    assert.throws(() => service(options, imports), /routes/i);
-  });
-
-  it('should throw an error if source is not given', function () {
-    delete imports.team_1;
-
-    assert.throws(() => service(options, imports), /team_1/i);
   });
 
 });

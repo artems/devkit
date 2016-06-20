@@ -98,16 +98,7 @@
     },
 
     "team-dispatcher": {
-      "path": "./src/services/team-dispatcher",
-      "options": {
-        "routes": [
-          { "team-devexp-static": ["*/devkit"] }
-        ]
-      },
-      "dependencies": [
-        "team-devexp-static",
-        "team-devexp-github"
-      ]
+      "path": "./src/services/team-dispatcher"
     },
 
     "#include:teams": "./default-teams.json",

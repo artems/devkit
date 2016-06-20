@@ -1,13 +1,24 @@
 import service from '../';
+import teamDispatcherMock from '../../__mocks__/';
 
 describe('services/team-dispatcher/static', function () {
 
-  let options, team;
+  let options, imports, team, teamDispatcher;
 
-  it('should be resolved to AbstractTeam', function () {
+  beforeEach(function () {
+    teamDispatcher = teamDispatcherMock();
+
+    teamDispatcher.addRoute = function (addTeam) {
+      team = addTeam;
+    };
+
     options = { members: [{ login: 'A' }] };
 
-    team = service(options);
+    imports = { 'team-dispatcher': teamDispatcher };
+  });
+
+  it('should be resolved to AbstractTeam', function () {
+    service(options, imports);
 
     assert.property(team, 'getOption');
     assert.property(team, 'findTeamMember');
@@ -15,12 +26,9 @@ describe('services/team-dispatcher/static', function () {
   });
 
   it('should pass team options', function () {
-    options = {
-      members: [{ login: 'A' }],
-      overrides: { approveCount: 10 }
-    };
+    options.overrides = { approveCount: 10 };
 
-    team = service(options);
+    service(options, imports);
 
     assert.equal(team.getOption('approveCount'), 10);
   });

@@ -11,8 +11,12 @@
       ],
       "overrides": {
         "totalReviewers": 1
-      }
-    }
+      },
+      "pattern": ["*/devkit"]
+    },
+    "dependencies": [
+      "team-dispatcher"
+    ]
   },
 
   "team-devexp-github": {
@@ -25,7 +29,8 @@
       }
     },
     "dependencies": [
-      "github"
+      "github",
+      "team-dispatcher"
     ]
   }
 

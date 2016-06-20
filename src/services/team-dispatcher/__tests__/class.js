@@ -16,49 +16,43 @@ describe('services/team/class', function () {
     describe('#' + method, () => {
 
       it('should use the first matched route', function () {
-        const routes = [
-          { pattern: 'github/hubot', name: 'team1', team: 'team1' },
-          { pattern: 'nodejs/node', name: 'team2', team: 'team2' },
-          { pattern: '*', name: 'team3', team: 'team3' }
-        ];
 
-        const result = (new TeamDispatcher(routes))[method](pullRequest);
+        const dispatcher = new TeamDispatcher();
+        dispatcher.addRoute('team1', 'team1', 'github/hubot');
+        dispatcher.addRoute('team2', 'team2', 'nodejs/node');
+        dispatcher.addRoute('team3', 'team3', '*');
+
+        const result = dispatcher[method](pullRequest);
 
         assert.equal(result, 'team2');
+
       });
 
       it('should interpret "*" as "always match"', function () {
-        const routes = [
-          { pattern: '*', name: 'team1', team: 'team1' }
-        ];
+        const dispatcher = new TeamDispatcher();
+        dispatcher.addRoute('team1', 'team1', '*');
 
-        const result = (new TeamDispatcher(routes))[method](pullRequest);
+        const result = dispatcher[method](pullRequest);
 
         assert.equal(result, 'team1');
       });
 
       it('should understand wildcard', function () {
-        const routes = [
-          { pattern: 'nodejs/*', name: 'team1', team: 'team1' }
-        ];
+        const dispatcher = new TeamDispatcher();
+        dispatcher.addRoute('team1', 'team1', 'nodejs/*');
 
-        const result = (new TeamDispatcher(routes))[method](pullRequest);
+        const result = dispatcher[method](pullRequest);
 
         assert.equal(result, 'team1');
       });
 
       it('should return a null if there are no matched routes', function () {
-        const routes = [
-          { pattern: 'other-org/other-repo', name: 'team1', team: 'team1' }
-        ];
+        const dispatcher = new TeamDispatcher();
+        dispatcher.addRoute('team1', 'team1', 'other-org/other-repo');
 
-        const result = (new TeamDispatcher(routes))[method](pullRequest);
+        const result = dispatcher[method](pullRequest);
 
         assert.isNull(result);
-      });
-
-      it('should not throw an error if routes are not given', function () {
-        assert.doesNotThrow(() => (new TeamDispatcher())[method](pullRequest));
       });
 
     });
