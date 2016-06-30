@@ -45,10 +45,6 @@ export default class Review {
 
     review.team = team;
 
-    review.banCount = review.team.getOption(
-      'review.banCount', this.options.banCount
-    );
-
     review.approveCount = team.getOption(
       'review.approveCount', this.options.approveCount
     );
@@ -152,17 +148,18 @@ export default class Review {
       })
       .value();
 
+
     review.reviewers = chain(members)
       .keys(members)
       .sort((a, b) => members[b] - members[a])
       .map((login, rank) => {
-        return { login, rank };
+        return { login, rank: members[login] };
       })
-      .takeWhile(member => {
-        if (member.rank === -Infinity) {
-          return false;
-        } else if (member.rank === Infinity) {
+      .filter(member => {
+        if (member.rank === Infinity) {
           return true;
+        } else if (member.rank === -Infinity) {
+          return false;
         } else if ((total--) > 0) {
           return true;
         } else {

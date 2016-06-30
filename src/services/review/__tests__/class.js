@@ -221,10 +221,10 @@ describe('services/review/class', function () {
 
       review.choose(pullRequest)
         .then(review => {
+          assert.lengthOf(review.reviewers, 3);
           assert.equal(review.reviewers[0].login, 'Thor');
           assert.equal(review.reviewers[1].login, 'Black Widow');
           assert.equal(review.reviewers[2].login, 'Spider-Man');
-          assert.equal(review.reviewers[3].login, 'Hulk');
         })
         .then(done, done);
     });
