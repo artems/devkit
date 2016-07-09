@@ -7,7 +7,7 @@ import responseJSON from '../../../services/http/response';
 import eventsMock from '../../../services/events/__mocks__/';
 import loggerMock from '../../../services/logger/__mocks__/';
 import { pullRequestMock, pullRequestModelMock } from
-  '../../../services/model/pull-request/__mocks__/';
+  '../../../services/model/model-pull-request/__mocks__/';
 
 describe('services/badges', function () {
 

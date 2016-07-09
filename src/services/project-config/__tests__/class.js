@@ -2,13 +2,13 @@ import ProjectConfig from '../class';
 
 import loggerMock from '../../logger/__mocks__/';
 import githubMock from '../../github/__mocks__/';
-import teamDispatcherMock from '../../team-dispatcher/__mocks__/';
-import { pullRequestMock } from '../../model/pull-request/__mocks__/';
+import teamManagerMock from '../../team-manager/__mocks__/';
+import { pullRequestMock } from '../../model/model-pull-request/__mocks__/';
 
 describe('services/project-config/config', function () {
 
   let team, logger, github, options, config;
-  let pullRequest, teamDispatcher, projectConfig;
+  let pullRequest, teamManager, projectConfig;
 
   const encode = (config) => {
     return new Buffer(JSON.stringify(config)).toString('base64');
@@ -29,9 +29,9 @@ describe('services/project-config/config', function () {
       { filename: '5.txt' }
     ];
 
-    teamDispatcher = teamDispatcherMock();
+    teamManager = teamManagerMock();
 
-    team = teamDispatcher.findTeamByPullRequest(pullRequest);
+    team = teamManager.findTeamByPullRequest(pullRequest);
 
     team.findTeamMember
       .withArgs('foo').returns(Promise.resolve({ login: 'foo' }));
@@ -41,7 +41,7 @@ describe('services/project-config/config', function () {
       .withArgs('baz').returns(Promise.resolve({ login: 'baz' }));
 
     options = {};
-    projectConfig = new ProjectConfig(logger, github, teamDispatcher, options);
+    projectConfig = new ProjectConfig(logger, github, teamManager, options);
 
   });
 
@@ -159,7 +159,7 @@ describe('services/project-config/config', function () {
 
     it('should return rejected promise if team is not found', function (done) {
 
-      teamDispatcher.findTeamByPullRequest
+      teamManager.findTeamByPullRequest
         .returns(null);
 
       github.repos.getContent

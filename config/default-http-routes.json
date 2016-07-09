@@ -10,11 +10,11 @@
   },
 
   "http-routes-team": {
-    "path": "./src/services/team-dispatcher/routes",
+    "path": "./src/services/team-manager/routes",
     "dependencies": [
       "http",
       "logger",
-      "team-dispatcher",
+      "team-manager",
       "pull-request-model"
     ]
   },

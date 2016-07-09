@@ -3,10 +3,10 @@ import minimatch from 'minimatch';
 
 export default class ProjectConfig {
 
-  constructor(logger, github, teamDispatcher, options) {
+  constructor(logger, github, teamManager, options) {
     this.logger = logger;
     this.github = github;
-    this.teamDispatcher = teamDispatcher;
+    this.teamManager = teamManager;
 
     this._configName = (options && options.configName) || '.devexp.json';
   }
@@ -181,7 +181,7 @@ export default class ProjectConfig {
    */
   _filterMembers(pullRequest, patch) {
 
-    const team = this.teamDispatcher.findTeamByPullRequest(pullRequest);
+    const team = this.teamManager.findTeamByPullRequest(pullRequest);
     if (!team) {
       return Promise.reject(new Error(`Team not found for ${pullRequest}`));
     }

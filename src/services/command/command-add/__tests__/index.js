@@ -1,20 +1,20 @@
 import service from '../';
 
-import teamMock from '../../../team-dispatcher/__mocks__/team';
+import teamMock from '../../../team-manager/__mocks__/team';
 import commandMock from '../../__mocks__/';
-import teamDispatcherMock from '../../../team-dispatcher/__mocks__/class';
+import teamManagerMock from '../../../team-manager/__mocks__/class';
 import eventsMock from '../../../events/__mocks__/';
 import loggerMock from '../../../logger/__mocks__/';
 import { reviewersMock } from '../../__mocks__/';
 import { pullRequestMock } from
-  '../../../model/pull-request/__mocks__/';
+  '../../../model/model-pull-request/__mocks__/';
 import pullRequestReviewMock from
   '../../../pull-request-review/__mocks__/';
 
 describe('services/command/add', function () {
 
   let team, events, logger, payload, pullRequest;
-  let teamDispatcher, commandDispatcher, pullRequestReview;
+  let teamManager, commandDispatcher, pullRequestReview;
   let options, imports, command, comment;
 
   beforeEach(function () {
@@ -25,8 +25,8 @@ describe('services/command/add', function () {
     events = eventsMock();
     logger = loggerMock();
 
-    teamDispatcher = teamDispatcherMock();
-    teamDispatcher.findTeamByPullRequest.returns(Promise.resolve(team));
+    teamManager = teamManagerMock();
+    teamManager.findTeamByPullRequest.returns(Promise.resolve(team));
 
     commandDispatcher = commandMock();
 
@@ -45,7 +45,7 @@ describe('services/command/add', function () {
       events,
       logger,
       command: commandDispatcher,
-      'team-dispatcher': teamDispatcher,
+      'team-manager': teamManager,
       'pull-request-review': pullRequestReview
     };
 

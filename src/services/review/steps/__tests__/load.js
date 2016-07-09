@@ -2,7 +2,7 @@ import service from '../load';
 
 import { reviewMembersMock } from '../../__mocks__/';
 import { pullRequestMock, pullRequestModelMock } from
-  '../../../model/pull-request/__mocks__/';
+  '../../../model/model-pull-request/__mocks__/';
 
 describe('services/review/steps/load', function () {
 

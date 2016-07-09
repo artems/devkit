@@ -6,7 +6,7 @@
       "events",
       "logger",
       "command",
-      "team-dispatcher",
+      "team-manager",
       "pull-request-review"
     ]
   },
@@ -18,7 +18,7 @@
       "logger",
       "review",
       "command",
-      "team-dispatcher",
+      "team-manager",
       "pull-request-review"
     ]
   },
@@ -29,7 +29,7 @@
       "events",
       "logger",
       "command",
-      "team-dispatcher",
+      "team-manager",
       "pull-request-review"
     ]
   },
@@ -40,7 +40,7 @@
       "events",
       "logger",
       "command",
-      "team-dispatcher",
+      "team-manager",
       "pull-request-review"
     ]
   },
@@ -81,7 +81,7 @@
       "logger",
       "review",
       "command",
-      "team-dispatcher",
+      "team-manager",
       "pull-request-review"
     ]
   },

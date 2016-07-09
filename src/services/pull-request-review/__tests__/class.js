@@ -2,7 +2,7 @@ import PullRequestReview from '../class';
 
 import loggerMock from '../../logger/__mocks__/';
 import eventsMock from '../../events/__mocks__/';
-import { pullRequestMock } from '../../model/pull-request/__mocks__/';
+import { pullRequestMock } from '../../model/model-pull-request/__mocks__/';
 
 describe('services/pull-request-review/class', function () {
 

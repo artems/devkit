@@ -97,8 +97,8 @@
       ]
     },
 
-    "team-dispatcher": {
-      "path": "./src/services/team-dispatcher"
+    "team-manager": {
+      "path": "./src/services/team-manager"
     },
 
     "#include:teams": "./default-teams.json",
@@ -160,7 +160,7 @@
       },
       "dependencies": [
         "logger",
-        "team-dispatcher",
+        "team-manager",
         "review-step-commiters",
         "review-step-ignore",
         "review-step-random",
@@ -182,7 +182,7 @@
         "queue",
         "events",
         "logger",
-        "team-dispatcher",
+        "team-manager",
         "pull-request-model"
       ]
     },

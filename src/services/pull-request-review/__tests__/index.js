@@ -3,20 +3,20 @@ import serviceMock from '../__mocks__/';
 
 import loggerMock from '../../logger/__mocks__/';
 import eventsMock from '../../events/__mocks__/';
-import teamDispatcherMock from '../../team-dispatcher/__mocks__/class';
+import teamManagerMock from '../../team-manager/__mocks__/class';
 
 describe('services/pull-request-review', function () {
 
-  let options, imports, logger, events, teamDispatcher;
+  let options, imports, logger, events, teamManager;
 
   beforeEach(function () {
     options = {};
 
     logger = loggerMock();
     events = eventsMock();
-    teamDispatcher = teamDispatcherMock();
+    teamManager = teamManagerMock();
 
-    imports = { events, logger, 'team-dispatcher': teamDispatcher };
+    imports = { events, logger, 'team-manager': teamManager };
   });
 
   it('the mock object should have the same methods', function () {

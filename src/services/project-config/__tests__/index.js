@@ -3,21 +3,21 @@ import serviceMock from '../__mocks__/';
 
 import loggerMock from '../../logger/__mocks__/';
 import githubMock from '../../github/__mocks__/';
-import teamDispatcherMock from '../../team-dispatcher/__mocks__/';
+import teamManagerMock from '../../team-manager/__mocks__/';
 
 describe('services/project-config', function () {
 
-  let logger, github, teamDispatcher;
+  let logger, github, teamManager;
   let options, imports;
 
   beforeEach(function () {
 
     logger = loggerMock();
     github = githubMock();
-    teamDispatcher = teamDispatcherMock();
+    teamManager = teamManagerMock();
 
     options = {};
-    imports = { logger, github, 'team-dispatcher': teamDispatcher };
+    imports = { logger, github, 'team-manager': teamManager };
 
   });
 

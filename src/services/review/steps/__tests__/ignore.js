@@ -1,6 +1,6 @@
 import service from '../ignore';
 
-import { pullRequestMock } from '../../../model/pull-request/__mocks__/';
+import { pullRequestMock } from '../../../model/model-pull-request/__mocks__/';
 import { reviewMembersMock } from '../../__mocks__/';
 
 describe('services/review/steps/ignore', function () {

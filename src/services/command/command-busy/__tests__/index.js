@@ -6,7 +6,7 @@ import reviewMock from '../../../review/__mocks__/';
 import commandMock from '../../__mocks__/';
 import { reviewersMock } from '../../__mocks__/';
 import { pullRequestMock } from
-  '../../../model/pull-request/__mocks__/';
+  '../../../model/model-pull-request/__mocks__/';
 import pullRequestReviewMock from
   '../../../pull-request-review/__mocks__/';
 

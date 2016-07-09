@@ -3,9 +3,9 @@ import service, {
   isMatchAny, isMatchAll, getFiles, incRank, decRank
 } from '../path_related';
 
-import { pullRequestMock } from '../../../model/pull-request/__mocks__/';
+import { pullRequestMock } from '../../../model/model-pull-request/__mocks__/';
 import { reviewMembersMock } from '../../__mocks__/';
-import { membersMock } from '../../../team-dispatcher/__mocks__/';
+import { membersMock } from '../../../team-manager/__mocks__/';
 
 
 describe('services/review/steps/path_related', function () {

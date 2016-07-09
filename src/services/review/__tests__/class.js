@@ -1,14 +1,14 @@
 import Review from '../class';
 
-import teamMock from '../../team-dispatcher/__mocks__/team';
+import teamMock from '../../team-manager/__mocks__/team';
 import loggerMock from '../../logger/__mocks__/';
-import { membersMock } from '../../team-dispatcher/__mocks__/';
-import teamDispatcherMock from '../../team-dispatcher/__mocks__/class';
-import { pullRequestMock } from '../../model/pull-request/__mocks__/';
+import { membersMock } from '../../team-manager/__mocks__/';
+import teamManagerMock from '../../team-manager/__mocks__/class';
+import { pullRequestMock } from '../../model/model-pull-request/__mocks__/';
 
 describe('services/review/class', function () {
 
-  let logger, team, teamDispatcher, pullRequest;
+  let logger, team, teamManager, pullRequest;
   let imports, options;
 
   beforeEach(function () {
@@ -18,8 +18,8 @@ describe('services/review/class', function () {
     team = teamMock();
     team.getMembersForReview.returns(Promise.resolve(membersMock()));
 
-    teamDispatcher = teamDispatcherMock();
-    teamDispatcher.findTeamByPullRequest.returns(team);
+    teamManager = teamManagerMock();
+    teamManager.findTeamByPullRequest.returns(team);
 
     pullRequest = pullRequestMock();
 
@@ -28,7 +28,7 @@ describe('services/review/class', function () {
       totalReviewers: 4
     };
 
-    imports = { logger, 'team-dispatcher': teamDispatcher };
+    imports = { logger, 'team-manager': teamManager };
 
   });
 
@@ -183,7 +183,7 @@ describe('services/review/class', function () {
     });
 
     it('should return rejected promise if team is not found', function (done) {
-      teamDispatcher.findTeamByPullRequest.returns(null);
+      teamManager.findTeamByPullRequest.returns(null);
 
       review.choose(pullRequest)
         .then(() => { throw new Error('should reject promise'); })

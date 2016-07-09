@@ -10,14 +10,14 @@ export default class CommandDispatcher {
    * @constructor
    *
    * @param {Object} queue
-   * @param {Object} teamDispatcher
+   * @param {Object} teamManager
    * @param {Object} PullRequestModel
    */
-  constructor(queue, teamDispatcher, PullRequestModel) {
+  constructor(queue, teamManager, PullRequestModel) {
     this.store = [];
 
     this.queue = queue;
-    this.teamDispatcher = teamDispatcher;
+    this.teamManager = teamManager;
     this.PullRequestModel = PullRequestModel;
   }
 
@@ -64,7 +64,7 @@ export default class CommandDispatcher {
 
     const pullRequest = payload.pullRequest;
 
-    const team = this.teamDispatcher.findTeamByPullRequest(pullRequest);
+    const team = this.teamManager.findTeamByPullRequest(pullRequest);
 
     if (!team) {
       return Promise.reject(new Error(

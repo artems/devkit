@@ -2,13 +2,13 @@ import service from '../';
 import queueMock from '../../queue/__mocks__/';
 import eventsMock from '../../events/__mocks__/';
 import loggerMock from '../../logger/__mocks__/';
-import teamDispatcherMock from '../../team-dispatcher/__mocks__/';
+import teamManagerMock from '../../team-manager/__mocks__/';
 import { pullRequestMock, pullRequestModelMock } from
-  '../../model/pull-request/__mocks__/';
+  '../../model/model-pull-request/__mocks__/';
 
 describe('service/command', function () {
 
-  let queue, events, logger, teamDispatcher;
+  let queue, events, logger, teamManager;
   let PullRequestModel;
   let options, imports;
 
@@ -22,7 +22,7 @@ describe('service/command', function () {
     events = eventsMock();
     logger = loggerMock();
 
-    teamDispatcher = teamDispatcherMock();
+    teamManager = teamManagerMock();
 
     PullRequestModel = pullRequestModelMock();
 
@@ -30,7 +30,7 @@ describe('service/command', function () {
       queue,
       events,
       logger,
-      'team-dispatcher': teamDispatcher,
+      'team-manager': teamManager,
       'pull-request-model': PullRequestModel
     };
 

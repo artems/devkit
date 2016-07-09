@@ -1,16 +1,16 @@
 import { forEach } from 'lodash';
 import CommandDispatcher, { buildRegExp } from '../class';
 
-import teamMock from '../../team-dispatcher/__mocks__/team';
+import teamMock from '../../team-manager/__mocks__/team';
 import queueMock from '../../queue/__mocks__/';
-import teamDispatcherMock from '../../team-dispatcher/__mocks__/';
+import teamManagerMock from '../../team-manager/__mocks__/';
 import { pullRequestMock, pullRequestModelMock } from
-  '../../model/pull-request/__mocks__/';
+  '../../model/model-pull-request/__mocks__/';
 
 describe('services/command/class', function () {
 
   let team, queue, pullRequest, dispatcher, payload;
-  let teamDispatcher, pullRequestModel;
+  let teamManager, pullRequestModel;
 
   beforeEach(function () {
 
@@ -22,8 +22,8 @@ describe('services/command/class', function () {
 
     pullRequestModel = pullRequestModelMock();
 
-    teamDispatcher = teamDispatcherMock();
-    teamDispatcher.findTeamByPullRequest.returns(team);
+    teamManager = teamManagerMock();
+    teamManager.findTeamByPullRequest.returns(team);
 
     payload = { pullRequest };
 
@@ -35,7 +35,7 @@ describe('services/command/class', function () {
     pullRequestModel.findById
       .returns(Promise.resolve(pullRequest));
 
-    dispatcher = new CommandDispatcher(queue, teamDispatcher, pullRequestModel);
+    dispatcher = new CommandDispatcher(queue, teamManager, pullRequestModel);
 
   });
 
@@ -127,7 +127,7 @@ describe('services/command/class', function () {
     it('should return rejected promise if team is not found', function (done) {
       dispatcher.addCommand('all', ['.*'], h1);
 
-      teamDispatcher.findTeamByPullRequest.returns(null);
+      teamManager.findTeamByPullRequest.returns(null);
 
       dispatcher.dispatch(comment, payload)
         .then(() => assert.fail())

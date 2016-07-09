@@ -2,11 +2,11 @@ import _ from 'lodash';
 import service, { findReviewersInDescription } from
   '../prefered';
 import { pullRequestMock } from
-  '../../../model/pull-request/__mocks__/';
+  '../../../model/model-pull-request/__mocks__/';
 import { reviewMembersMock } from
   '../../../review/__mocks__/';
-import teamDispatcherMock, { membersMock } from
-  '../../../team-dispatcher/__mocks__/';
+import teamManagerMock, { membersMock } from
+  '../../../team-manager/__mocks__/';
 
 describe('services/review/steps/prefered', function () {
 
@@ -31,14 +31,14 @@ describe('services/review/steps/prefered', function () {
   });
 
   describe('service', function () {
-    let step, team, pullRequest, options, teamDispatcher;
+    let step, team, pullRequest, options, teamManager;
 
     beforeEach(() => {
       options = { max: 10 };
 
-      teamDispatcher = teamDispatcherMock();
+      teamManager = teamManagerMock();
 
-      step = service({}, { 'team-dispatcher': teamDispatcher });
+      step = service({}, { 'team-manager': teamManager });
 
       team = reviewMembersMock();
 
@@ -61,7 +61,7 @@ describe('services/review/steps/prefered', function () {
     it('should search mentioned users in team', function (done) {
       const review = { members: team, pullRequest };
 
-      const teamStub = teamDispatcher.findTeamByPullRequest();
+      const teamStub = teamManager.findTeamByPullRequest();
 
       teamStub.findTeamMember
         .withArgs(pullRequest, 'Foo')

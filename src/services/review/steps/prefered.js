@@ -35,7 +35,7 @@ export function findReviewersInDescription(body) {
  */
 export default function setup(options, imports) {
 
-  const teamDispatcher = imports['team-dispatcher'];
+  const teamManager = imports['team-manager'];
 
   /**
    * Up rank for prefered reviewers.
@@ -51,7 +51,7 @@ export default function setup(options, imports) {
     const reviewers = [];
 
     const body = review.pullRequest.body;
-    const team = teamDispatcher.findTeamByPullRequest(review.pullRequest);
+    const team = teamManager.findTeamByPullRequest(review.pullRequest);
 
     const preferedReviewers = uniq(findReviewersInDescription(body));
     const requiredReviewers = difference(

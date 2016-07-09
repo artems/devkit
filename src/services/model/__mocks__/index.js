@@ -1,5 +1,5 @@
-import { userModelMock } from '../user/__mocks__/';
-import { pullRequestModelMock } from '../pull-request/__mocks__/';
+import { userModelMock } from '../model-user/__mocks__/';
+import { pullRequestModelMock } from '../model-pull-request/__mocks__/';
 
 export default function mock() {
 

@@ -3,7 +3,7 @@ import loggerMock from '../../../logger/__mocks__/';
 import eventsMock from '../../../events/__mocks__/';
 import pullRequestGitHubMock from '../../../pull-request-github/__mocks__/';
 import { pullRequestMock, pullRequestModelMock } from
-  '../../../model/pull-request/__mocks__/';
+  '../../../model/model-pull-request/__mocks__/';
 
 describe('services/pull-request-webhook/webhooks/pull_request', function () {
 

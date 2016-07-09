@@ -3,7 +3,7 @@ import eventsMock from '../../../services/events/__mocks__/';
 import loggerMock from '../../../services/logger/__mocks__/';
 import reviewMock from '../../../services/review/__mocks__/';
 import { pullRequestMock } from
-  '../../../services/model/pull-request/__mocks__/';
+  '../../../services/model/model-pull-request/__mocks__/';
 import pullRequestReviewMock from
   '../../../services/pull-request-review/__mocks__/';
 

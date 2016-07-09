@@ -1,7 +1,7 @@
 {
 
   "team-devexp-static": {
-    "path": "./src/services/team-dispatcher/static",
+    "path": "./src/services/team-manager/team-static",
     "options": {
       "members": [
         { "login": "artems" },
@@ -15,12 +15,12 @@
       "pattern": ["*/devkit"]
     },
     "dependencies": [
-      "team-dispatcher"
+      "team-manager"
     ]
   },
 
   "team-devexp-github": {
-    "path": "./src/services/team-dispatcher/github",
+    "path": "./src/services/team-manager/team-github",
     "options": {
       "orgName": "devexp-org",
       "slugName": "owners",
@@ -30,7 +30,7 @@
     },
     "dependencies": [
       "github",
-      "team-dispatcher"
+      "team-manager"
     ]
   }
 

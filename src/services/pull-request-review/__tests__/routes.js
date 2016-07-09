@@ -6,7 +6,7 @@ import responseJSON from '../../http/response';
 import httpMock from '../../http/__mocks__/';
 import loggerMock from '../../logger/__mocks__/';
 import { pullRequestMock, pullRequestModelMock } from
-  '../../model/pull-request/__mocks__/';
+  '../../model/model-pull-request/__mocks__/';
 
 describe('services/pull-request-review/routes', function () {
 

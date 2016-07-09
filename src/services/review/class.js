@@ -13,7 +13,7 @@ export default class Review {
     this.options = options;
 
     this.logger = imports.logger;
-    this.teamDispatcher = imports['team-dispatcher'];
+    this.teamManager = imports['team-manager'];
   }
 
   /**
@@ -35,7 +35,7 @@ export default class Review {
    * @return {Promise.<Review>}
    */
   setTeam(review) {
-    const team = this.teamDispatcher.findTeamByPullRequest(review.pullRequest);
+    const team = this.teamManager.findTeamByPullRequest(review.pullRequest);
 
     if (!team) {
       return Promise.reject(new Error(

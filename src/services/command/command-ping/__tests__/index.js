@@ -5,7 +5,7 @@ import loggerMock from '../../../logger/__mocks__/';
 import commandMock from '../../__mocks__/';
 import { reviewersMock } from '../../__mocks__/';
 import { pullRequestMock } from
-  '../../../model/pull-request/__mocks__/';
+  '../../../model/model-pull-request/__mocks__/';
 
 describe('services/command/ping', function () {
 

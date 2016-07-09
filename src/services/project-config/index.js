@@ -4,8 +4,8 @@ export default function setup(options, imports) {
 
   const github = imports.github;
   const logger = imports.logger.getLogger('review.step.project-config');
-  const teamDispatcher = imports['team-dispatcher'];
+  const teamManager = imports['team-manager'];
 
-  return new ProjectConfig(logger, github, teamDispatcher);
+  return new ProjectConfig(logger, github, teamManager);
 
 }

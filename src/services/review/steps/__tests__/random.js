@@ -1,7 +1,7 @@
 import service from '../random';
 
 import { pullRequestMock } from
-  '../../../model/pull-request/__mocks__/';
+  '../../../model/model-pull-request/__mocks__/';
 import { reviewMembersMock } from '../../__mocks__/';
 
 describe('services/review/steps/random', () => {
