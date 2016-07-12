@@ -184,12 +184,14 @@ export default class PullRequestReview {
    * @return {Promise}
    */
   updateReview(pullRequest, review) {
+
     if ('ranks' in review) {
-      pullRequest.set('review.ranks', review.ranks);
+      pullRequest.review.history.push({
+        ranks: review.ranks,
+        update_at: new Date()
+      });
     }
-    if ('banned' in review) {
-      pullRequest.set('review.banned', review.banned);
-    }
+
     if ('reviewers' in review) {
       if (isEmpty(review.reviewers)) {
         return Promise.reject(new Error(util.format(
@@ -207,6 +209,7 @@ export default class PullRequestReview {
     this.events.emit('review:updated', { pullRequest });
 
     return Promise.resolve(pullRequest);
+
   }
 
 }

@@ -24,6 +24,7 @@ export function pullRequestMock(mixin) {
     files: [],
     review: {
       status: 'notstarted',
+      history: [],
       reviewers: []
     }
   };

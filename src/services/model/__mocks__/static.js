@@ -3,6 +3,7 @@ export default function mock() {
   const statics = {
     find: sinon.stub().returnsThis(),
     sort: sinon.stub().returnsThis(),
+    skip: sinon.stub().returnsThis(),
     limit: sinon.stub().returnsThis(),
 
     exec: sinon.stub().returns(Promise.resolve(null)),

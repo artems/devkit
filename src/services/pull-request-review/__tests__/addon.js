@@ -24,7 +24,7 @@ describe('services/pull-request-review/addon', function () {
       staticStub = staticMock();
     });
 
-    it('should add stattic method "findInReview"', function () {
+    it('should add static method "findInReview"', function () {
       model.statics.findInReview.call(staticStub);
     });
 

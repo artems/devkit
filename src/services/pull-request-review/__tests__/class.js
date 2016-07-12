@@ -22,6 +22,7 @@ describe('services/pull-request-review/class', function () {
 
     review = {
       status: 'notstarted',
+      history: [],
       reviewers: [{ login: 'foo' }, { login: 'bar' }]
     };
 
@@ -301,18 +302,8 @@ describe('services/pull-request-review/class', function () {
       pullRequestReview.updateReview(
           pullRequest, { ranks: [{ login: 'baz', rank: 1 }] }
         )
-        .then(() => assert.calledWith(
-          pullRequest.set, 'review.ranks', [{ login: 'baz', rank: 1 }]
-        ))
-        .then(done, done);
-    });
-
-    it('should update banned reviewers in pull request', function (done) {
-      pullRequestReview.updateReview(
-          pullRequest, { banned: [{ login: 'baz' }] }
-        )
-        .then(() => assert.calledWith(
-          pullRequest.set, 'review.banned', [{ login: 'baz' }]
+        .then(() => assert.deepEqual(
+          pullRequest.review.history[0].ranks, [{ login: 'baz', rank: 1 }]
         ))
         .then(done, done);
     });

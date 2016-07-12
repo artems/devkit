@@ -1,11 +1,11 @@
 import service from '../';
-import queueMock from '../../queue/__mocks__/';
-import eventsMock from '../../events/__mocks__/';
-import loggerMock from '../../logger/__mocks__/';
+import queueMock from '../../../queue/__mocks__/';
+import eventsMock from '../../../events/__mocks__/';
+import loggerMock from '../../../logger/__mocks__/';
 import { pullRequestMock } from
-  '../../model/model-pull-request/__mocks__/';
+  '../../../model/model-pull-request/__mocks__/';
 import pullRequestGitHubMock from
-  '../../pull-request-github/__mocks__/';
+  '../../../pull-request-github/__mocks__/';
 
 describe('services/badges-review', function () {
 

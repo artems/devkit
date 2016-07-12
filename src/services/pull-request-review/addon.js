@@ -20,26 +20,30 @@ export default function setup(options, imports) {
        * Find pull requests by reviewer
        *
        * @param {String} login
+       * @param {Number} skip
+       * @param {Number} limit
        *
        * @return {Promise.<PullRequest>}
        */
-      model.statics.findByReviewer = function (login) {
+      model.statics.findByReviewer = function (login, skip = 0, limit = 50) {
         return this
           .model(modelName)
           .find({ 'review.reviewers.login': login })
           .sort('-updated_at')
-          .limit(50)
+          .skip(skip)
+          .limit(limit)
           .exec();
       };
 
       /**
        * Find open reviews
        *
-       * @param {String} login
+       * @param {Number} skip
+       * @param {Number} limit
        *
        * @return {Promise.<PullRequest>}
        */
-      model.statics.findInReview = function () {
+      model.statics.findInReview = function (skip = 0, limit = 50) {
         const req = {
           state: 'open',
           'review.status': 'inprogress'
@@ -48,7 +52,8 @@ export default function setup(options, imports) {
         return this
           .model(modelName)
           .find(req)
-          .limit(50)
+          .skip(skip)
+          .limit(limit)
           .exec();
       };
 
@@ -56,10 +61,12 @@ export default function setup(options, imports) {
        * Find open reviews by reviewer
        *
        * @param {String} login
+       * @param {Number} skip
+       * @param {Number} limit
        *
        * @return {Promise.<PullRequest>}
        */
-      model.statics.findInReviewByReviewer = function (login) {
+      model.statics.findInReviewByReviewer = function (login, skip = 0, limit = 50) {
         const req = {
           state: 'open',
           'review.status': 'inprogress',
@@ -69,7 +76,8 @@ export default function setup(options, imports) {
         return this
           .model(modelName)
           .find(req)
-          .limit(50)
+          .skip(skip)
+          .limit(limit)
           .exec();
       };
 
@@ -82,12 +90,13 @@ export default function setup(options, imports) {
      */
     extender() {
 
-      const RankValue = new Schema({ login: String, value: Number });
-      const RankStepValues = new Schema({ name: String, ranks: [RankValue] });
-
-      const Banned = new Schema({ login: String, round: Number });
-
       const Reviewer = new Schema({ login: String });
+      const RankValue = new Schema({ login: String, value: Number });
+      const ReviewStep = new Schema({ name: String, ranks: [RankValue] });
+      const ReviewHistory = new Schema({
+        ranks: [ReviewStep],
+        update_at: Date
+      });
 
       return {
         review: {
@@ -101,13 +110,8 @@ export default function setup(options, imports) {
             ],
             'default': 'notstarted'
           },
-          ranks: [RankStepValues],
-          banned: [Banned],
+          history: [ReviewHistory],
           reviewers: [Reviewer],
-          approveCount: {
-            type: Number,
-            'default': 0
-          },
           started_at: Date,
           updated_at: Date,
           completed_at: Date

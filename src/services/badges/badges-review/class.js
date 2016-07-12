@@ -1,4 +1,4 @@
-import BadgeBase from '../../services/badges/class';
+import BadgeBase from '../../../services/badges/class';
 
 export default class ReviewBadgeBuilder extends BadgeBase {
 
