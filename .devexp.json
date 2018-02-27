@@ -1,5 +1,9 @@
 {
   "approveCount": 1,
   "totalReviewers": 1,
-  "searchDriver": "github"
+  "searchDriver": "github",
+  "static_members": ["octocat", "artems"],
+  "github_members": {
+    "org_name": "devexp-org"
+  }
 }
