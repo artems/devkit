@@ -7,6 +7,11 @@
   "github_members": {
     "org_name": "devexp-org"
   },
-  "update-badges": true,
-  "update-status": true
+  "auto_start": true,
+  "auto_assign": true,
+  "update_badges": true,
+  "update_status": true,
+  "update_labels": true,
+  "update_assignees": true,
+  "achievement_unlock": true
 }
