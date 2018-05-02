@@ -1,9 +1,12 @@
 {
   "approveCount": 1,
   "totalReviewers": 1,
-  "searchDriver": "github",
+  
+  "search_driver": "github",
   "static_members": ["octocat", "artems"],
   "github_members": {
     "org_name": "devexp-org"
-  }
+  },
+  "update-badges": true,
+  "update-status": true
 }
